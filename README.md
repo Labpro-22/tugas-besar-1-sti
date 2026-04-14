@@ -2,3 +2,7 @@
 # Tugas Besar 1 IF2010 Pemrograman Berorientasi Objek
 
 Project Structure ini hanyalah referensi, Anda dapat menyesuaikannya dengan kebutuhan tim Anda
+
+cara compile & run:
+1. ke `root` jalanin command `make`
+2. ke `bin` jalanin command `./game`
