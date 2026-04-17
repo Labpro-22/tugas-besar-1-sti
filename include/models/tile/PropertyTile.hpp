@@ -16,7 +16,6 @@ class PropertyTile : public Tile {
         int level_; // bernilai 0–4 untuk rumah, atau H untuk hotel. Untuk properti selain street, isi dengan 0.
                     // conflict dengan "kosong (Level 0) hingga hotel (Level 5). "
                     
-        std::map<int, int> rentPricePerLevel_; // Key : Level, Value : Rent Price
         int mortgageValue_; // nilai gadai
         int purchasePrice_; // harga beli pertama kali
 

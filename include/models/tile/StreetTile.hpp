@@ -5,6 +5,7 @@ class StreetTile : public PropertyTile {
     private:
         // color group (khusus Street) perlu?? atau cukup colorCode
         std::map<int, int> buildPrice_; //  serta harga bangunan per rumah dan hotel
+        std::map<int, int> rentPricePerLevel_; // Key : Level, Value : Rent Price
 
     public:
         StreetTile();
