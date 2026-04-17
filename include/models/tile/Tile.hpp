@@ -8,6 +8,7 @@ class Tile {
         std::string colourBlock_;
         
     public:
-        Tile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock);
+        Tile(int tileID, std::string letterCode, 
+            std::string tileName, std::string colourBlock);
         virtual ~Tile();
 };

@@ -2,9 +2,9 @@
 #include "UtilityTile.hpp"
 
 class PAMTile {
-    private:
-        
     public:
-        PAMTile();
+        PAMTile(int tileID, std::string letterCode,
+                std::string tileName, std::string colourBlock, 
+                int purchasePrice, int mortgageValue);
         ~PAMTile();
 };

@@ -20,6 +20,9 @@ class PropertyTile : public Tile {
         int purchasePrice_; // harga beli pertama kali
 
     public:
-        PropertyTile();
+        PropertyTile(int tileID, std::string letterCode,
+                    std::string tileName, std::string colourBlock,
+                    // tambahan di PropertyTile
+                    int purchasePrice, int mortgageValue);
         virtual ~PropertyTile();
 };

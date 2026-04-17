@@ -2,9 +2,9 @@
 #include "UtilityTile.hpp"
 
 class PLNTile : public UtilityTile{
-    private:
-        
     public:
-        PLNTile();
+        PLNTile(int tileID, std::string letterCode,
+                std::string tileName, std::string colourBlock, 
+                int purchasePrice, int mortgageValue);
         ~PLNTile();
 };

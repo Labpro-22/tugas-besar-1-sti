@@ -8,6 +8,11 @@ class StreetTile : public PropertyTile {
         std::map<int, int> rentPricePerLevel_; // Key : Level, Value : Rent Price
 
     public:
-        StreetTile();
+        StreetTile(int tileID, std::string letterCode,
+                std::string tileName, std::string colourBlock, 
+                int purchasePrice, int mortgageValue,
+                // khusus street
+                std::map<int, int> rentPricePerLevel, // Key : Level, Value : Rent Price
+                std::map<int, int> buildPrice_);
         ~StreetTile();
 };
