@@ -15,6 +15,6 @@ void PLNTile::onLand(Player* player)
 
 void PLNTile::executeTile(Player& p)
 {
-    (void)p;
     std::cout << "[Landed] Menginjak petak PLN. Siapkan biaya listrik!" << std::endl;
+    UtilityTile::executeTile(p);
 }

@@ -15,6 +15,6 @@ void PAMTile::onLand(Player* player)
 
 void PAMTile::executeTile(Player& p)
 {
-    (void)p;
     std::cout << "[Landed] Menginjak petak PAM. Tagihan air menunggu." << std::endl;
+    UtilityTile::executeTile(p);
 }

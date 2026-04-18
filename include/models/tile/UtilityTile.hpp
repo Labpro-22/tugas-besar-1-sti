@@ -1,5 +1,7 @@
 #pragma once
+#include <algorithm>
 #include <map>
+#include <sstream>
 #include "RailRoadTile.hpp"
 class UtilityTile : public PropertyTile {
     private:
