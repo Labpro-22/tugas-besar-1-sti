@@ -25,8 +25,7 @@ MoveCard::MoveCard()
 
 void MoveCard::activate(Player& owner)
 {
-    // TODO: Integrasi Player
-    (void)owner;
+    owner.moveForward(steps_);
 }
 
 int MoveCard::getSteps() const

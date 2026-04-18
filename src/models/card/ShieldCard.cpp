@@ -6,8 +6,7 @@ ShieldCard::ShieldCard()
 
 void ShieldCard::activate(Player& owner)
 {
-    // TODO: Integrasi Player
-    (void)owner;
+    owner.activateShield();
 }
 
 bool ShieldCard::isActive() const

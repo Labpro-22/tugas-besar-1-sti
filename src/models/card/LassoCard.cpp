@@ -3,7 +3,7 @@
 LassoCard::LassoCard()
     : SkillCard("Lasso Card", "Menarik satu lawan di depan ke petak pemain saat ini") {}
 
-void LassoCard::activate(Player& owner) {
-    // TODO: Integrasi Player + Monopoly
-    (void)owner;
+void LassoCard::activate(Player& owner)
+{
+    owner.useLasso();
 }

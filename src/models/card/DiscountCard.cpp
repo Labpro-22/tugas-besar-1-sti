@@ -14,8 +14,8 @@ DiscountCard::DiscountCard()
 
 void DiscountCard::activate(Player& owner)
 {
-    // TODO: Integrasi Player
-    (void)owner;
+
+    owner.applyDiscount(discountPercent_);
 }
 
 int DiscountCard::getDiscountPercent() const
