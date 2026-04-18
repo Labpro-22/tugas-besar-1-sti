@@ -1,15 +1,18 @@
 #pragma once
-#include "Tile.hpp"
+#include "../injector/injector.hpp"
 #include <vector>
 class Board
 {
     private:
         // perlu simpan size ga :/
-        std::vector<Tile*> tiles_;
+        std::vector<ITile*> tiles_;
     public:
         Board();
         ~Board();
-        void addTile(Tile* tile);
+        void addTile(ITile* tile);
+        
+        // geser ke tile setelah ditambahin distance (hasil roll dadu)
+        ITile* moveToNextTile(int distance);
 };
 
 
