@@ -1,0 +1,60 @@
+10 15
+4
+vin 1500 JKT ACTIVE
+2
+MoveCard 5
+TeleportCard
+gat 600 PEN JAILED_1
+1
+ShieldCard
+jen 2200 SBY ACTIVE
+0
+mor 0 GO BANKRUPT
+0
+gat mor vin jen
+gat
+28
+GRT street vin OWNED 1 0 1
+TSK street vin OWNED 1 0 2
+GBR railroad jen OWNED 1 0 0
+BGR street gat MORTGAGED 1 0 0
+DPK street BANK BANK 1 0 0
+BKS street BANK BANK 1 0 0
+MGL street BANK BANK 1 0 0
+PLN utility jen OWNED 1 0 0
+SOL street BANK BANK 1 0 0
+YOG street BANK BANK 1 0 0
+STB railroad BANK BANK 1 0 0
+MAL street jen OWNED 1 0 3
+SMG street jen OWNED 1 0 4
+SBY street jen OWNED 2 2 5
+MKS street BANK BANK 1 0 0
+BLP street BANK BANK 1 0 0
+MND street BANK BANK 1 0 0
+TUG railroad BANK BANK 1 0 0
+PLB street BANK BANK 1 0 0
+PKB street BANK BANK 1 0 0
+PAM utility BANK BANK 1 0 0
+MED street BANK BANK 1 0 0
+BDG street BANK BANK 1 0 0
+DEN street BANK BANK 1 0 0
+MTR street BANK BANK 1 0 0
+GUB railroad BANK BANK 1 0 0
+JKT street vin OWNED 1 0 0
+IKN street vin OWNED 1 0 0
+6
+MoveCard
+DiscountCard
+ShieldCard
+TeleportCard
+LassoCard
+DemolitionCard
+8
+1 vin BELI Beli Garut (GRT) seharga M60
+2 vin BELI Beli Tasikmalaya (TSK) seharga M60
+3 vin BANGUN Bangun rumah di Garut (GRT)
+4 jen RAILROAD Stasiun Gambir (GBR) otomatis dimiliki jen
+5 jen UTILITY PLN otomatis dimiliki jen
+7 jen FESTIVAL Surabaya (SBY) aktif x2 durasi 3
+8 mor BANKRUPT mor bangkrut ke Bank
+9 gat GADAI Bogor (BGR) digadaikan
