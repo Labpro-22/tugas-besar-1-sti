@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
-class Tile {
+#include "../injector/injector.hpp"
+class Tile : public ITile{
     protected:
         int tileID_;
         std::string letterCode_; // kode petak dari properti
@@ -8,7 +9,7 @@ class Tile {
         std::string colourBlock_;
         
     public:
-        Tile(int tileID, std::string letterCode, 
+        Tile(int tileID, std::string letterCode,
             std::string tileName, std::string colourBlock);
         virtual ~Tile();
 };

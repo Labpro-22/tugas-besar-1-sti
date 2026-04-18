@@ -10,4 +10,5 @@ class RailRoadTile : public PropertyTile {
                     std::string tileName, std::string colourBlock,
                     int purchasePrice, int mortgageValue);
         ~RailRoadTile();
+        void onLand(Player* player) override;
 };
