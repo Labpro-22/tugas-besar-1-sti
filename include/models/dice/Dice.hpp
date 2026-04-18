@@ -9,11 +9,7 @@ class Dice : IDice {
         ~Dice() override;
         int roll() override;
 
-        int rollSettingan (int die1, int die2) override{
-            die1_ = die1;
-            die2_ = die2_;
-            return die1 + die2;
-        }
+        int rollSettingan (int die1, int die2) override;
 
         bool isDouble() override;
 };
