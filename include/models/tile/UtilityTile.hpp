@@ -9,4 +9,5 @@ class UtilityTile : public PropertyTile {
                 std::string tileName, std::string colourBlock, 
                 int purchasePrice, int mortgageValue);
         virtual ~UtilityTile();
+        virtual void executeTile(Player& p) override;
 };

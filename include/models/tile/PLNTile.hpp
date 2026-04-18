@@ -8,5 +8,6 @@ class PLNTile : public UtilityTile{
                 int purchasePrice, int mortgageValue);
         ~PLNTile();
         void onLand(Player* player) override;
+        void executeTile(Player& p) override;
 
 };

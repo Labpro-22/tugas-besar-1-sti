@@ -11,4 +11,5 @@ class RailRoadTile : public PropertyTile {
                     int purchasePrice, int mortgageValue);
         ~RailRoadTile();
         void onLand(Player* player) override;
+        void executeTile(Player& p) override;
 };
