@@ -32,7 +32,7 @@ class Player {
         Board& board_;
     public:
         // kasih turn kapan???
-        Player(std::string username);
+        Player(std::string username, Board* board, IDice* dice);
         ~Player();
 
         // full 1 turn dia jalan roll dice dll-nya
