@@ -1,6 +1,9 @@
 #pragma once
 #include <iostream>
 #include "../inventory/Inventory.hpp"
+#include "../injector/injector.hpp"
+#include "../board/Board.hpp"
+
 // class Inventory;
 enum PlayerStatus {
     ACTIVE,
@@ -22,6 +25,11 @@ class Player {
         Inventory inventory_; // belom ada kelasnya wait ye
         static inline int countPlayer = 0;
 
+        // Dice
+        IDice* dice_;
+
+        // Board
+        Board& board_;
     public:
         // kasih turn kapan???
         Player(std::string username);
