@@ -8,7 +8,7 @@ private:
 	int remainingTurns_;
 
 public:
-	static constexpr int kCardCount = 3;
+	static const int kCardCount = 3;
 
 	DiscountCard();
 	void activate(Player& owner) override;

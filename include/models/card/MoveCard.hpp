@@ -7,7 +7,7 @@ private:
 	int steps_;
 
 public:
-	static constexpr int kCardCount = 4;
+	static const int kCardCount = 4;
 
 	MoveCard();
 	void activate(Player& owner) override;

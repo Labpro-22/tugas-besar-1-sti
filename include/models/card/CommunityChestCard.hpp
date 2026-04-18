@@ -11,7 +11,7 @@ public:
         ElectionPay200ToEachPlayer
     };
 
-    static constexpr int kInstructionCount = 3;
+    static const int kInstructionCount = 3;
 
     CommunityChestCard();
     CommunityChestCard(Instruction instruction);

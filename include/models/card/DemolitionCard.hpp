@@ -4,7 +4,7 @@
 
 class DemolitionCard : public SkillCard {
 public:
-	static constexpr int kCardCount = 2;
+	static const int kCardCount = 2;
 
 	DemolitionCard();
 	void activate(Player& owner) override;

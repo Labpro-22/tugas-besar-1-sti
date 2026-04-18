@@ -10,7 +10,7 @@ public:
         GoToJail
     };
 
-    static constexpr int kInstructionCount = 3;
+    static const int kInstructionCount = 3;
 
     ChanceCard();
     ChanceCard(Instruction instruction);

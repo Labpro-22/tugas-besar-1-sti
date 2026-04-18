@@ -7,7 +7,7 @@ private:
 	int remainingTurns_;
 
 public:
-	static constexpr int kCardCount = 2;
+	static const int kCardCount = 2;
 
 	ShieldCard();
 	void activate(Player& owner) override;
