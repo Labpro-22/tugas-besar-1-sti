@@ -13,6 +13,8 @@ class Board
         
         // geser ke tile setelah ditambahin distance (hasil roll dadu)
         ITile* moveToNextTile(int distance);
+
+        int getJailPosition();
 };
 
 

@@ -1,18 +1,8 @@
-#include "../../../include/models/tile/SpecialTile.hpp"
+#include "models/tile/PrisonTile.hpp"
+#include "models/player/Player.hpp"
+#include "models/monopoly/Monopoly.hpp"
 #include <iostream>
-#include "../../../include/models/player/Player.hpp"
-
-void GoTile::executeTile(Player* p) {
-    // TODO: Kalau melewati doang tuh dihandle Player
-    std::cout << "Kamu mendarat di Petak Go!\n";
-    std::cout << "Menerima bonus gaji sebesar M" << getSalary() << "\n";
-    
-    int oldBalance = p->getBalance();
-    p->addMoney(getSalary());
-
-    std::cout << "Uang kamu: M" << oldBalance << " -> M" << p->getBalance() << "\n";
-    std::cout << "---\n";
-}
+#include <limits>
 
 void PrisonTile::executeTile(Player* p) {
     std::cout << "Kamu mendarat di Petak Penjara!\n";
@@ -29,9 +19,9 @@ int PrisonTile::tryExitPrison(Player *p) {
     std::cout << "Status Tahanan: Giliran ke-" << turns << "\n";
 
     if (turns > 3) {
-        std::cout << "Batas waktu habis! Kamu wajib membayar denda M" << dendaPenjara << ".\n";
+        std::cout << "Batas waktu habis! Kamu wajib membayar denda M" << getFineCost() << ".\n";
         
-        if (p->getBalance() < dendaPenjara) {
+        if (p->getBalance() < getFineCost()) {
             std::cout << "Uangmu tidak cukup (M" << p->getBalance() << "). Kamu bangkrut!\n";
             // TODO: Recheck di Exception
             throw InsufficientFundsException();
@@ -46,7 +36,7 @@ int PrisonTile::tryExitPrison(Player *p) {
         return 0;
     }
 
-    bool punyaKartu = p->getInventory().hasJailFreeCard();
+    bool punyaKartu = false;
 
     std::cout << "Pilih cara untuk keluar:\n";
     std::cout << "1. Bayar denda M" << getFineCost() << "\n";
@@ -109,24 +99,4 @@ int PrisonTile::tryExitPrison(Player *p) {
     }
 
     return 0;
-}
-
-void FreeParkingTile::executeTile(Player* p) {
-    std::cout << "Kamu mendarat di petak Bebas Parkir!\n";
-    std::cout << "Beristirahatlah sejenak...\n";
-    std::cout << "---\n";
-}
-
-void GoToJailTile::executeTile(Player* p) {
-    std::cout << "Kamu mendarat di petak Pergi Ke Penjara!\n";
-    std::cout << "Polisi menangkapmu! Bidakmu langsung dipindahkan ke Penjara.\n";
-
-    p->setStatus(JAILED);
-
-    // TODO: implement fungsi di Board
-    int posisiPenjara = p->getBoard().getJailPosition();
-    // TODO: di fungsinya harus ngecek status Player dulu, biar ga dikasih salary
-    p->setPosition(posisiPenjara);
-    
-    std::cout << "---\n";
 }
