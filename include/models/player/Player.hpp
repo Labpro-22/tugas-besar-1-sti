@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "../inventory/Inventory.hpp"
+// #include "models/inventory/Inventory.hpp"
 #include "../injector/injector.hpp"
 #include "../board/Board.hpp"
 
@@ -22,7 +22,7 @@ class Player {
         int doubleRollCount_; // default 0
         int countJail_; // default
         int playerTurn; // urutan ke berapa
-        Inventory inventory_; // belom ada kelasnya wait ye
+        // Inventory inventory_; // belom ada kelasnya wait ye
         static inline int countPlayer = 0;
 
         // Dice
@@ -37,4 +37,28 @@ class Player {
 
         // full 1 turn dia jalan roll dice dll-nya
         void takeTurn();
+        
+        int getBalance() const;
+        void addMoney(int amount);
+        void deductMoney(int amount);
+        
+        PlayerStatus getStatus() const;
+        void setStatus(PlayerStatus status);
+        
+        int getPosition() const;
+        void setPosition(int pos);
+        
+        Board& getBoard() const;
+        
+        // Untuk Penjara
+        void incrementJailTurn();
+        int getCountJail() const;
+        void resetJailTurn();
+
+        // Untuk PPH
+        int getTotalPropertyValue() const;
+        int getTotalBuildingValue() const;
+        
+        // Untuk referensi ke Monopoly (sesuai diagram terakhir)
+        class Monopoly& getMonopoly();
 };
