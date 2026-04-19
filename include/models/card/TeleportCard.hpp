@@ -3,9 +3,9 @@
 #include "models/card/SkillCard.hpp"
 
 class TeleportCard : public SkillCard {
-public:
-	static const int kCardCount = 2;
+	public:
+		static const int kCardCount = 2;
 
-	TeleportCard();
-	void activate(Player& owner) override;
+		TeleportCard();
+		void activate(Player& owner) override;
 };

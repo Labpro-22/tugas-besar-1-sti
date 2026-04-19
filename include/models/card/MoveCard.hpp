@@ -3,14 +3,14 @@
 #include "models/card/SkillCard.hpp"
 
 class MoveCard : public SkillCard {
-private:
-	int steps_;
+	private:
+		int steps_;
 
-public:
-	static const int kCardCount = 4;
+	public:
+		static const int kCardCount = 4;
 
-	MoveCard();
-	void activate(Player& owner) override;
+		MoveCard();
+		void activate(Player& owner) override;
 
-	int getSteps() const;
+		int getSteps() const;
 };

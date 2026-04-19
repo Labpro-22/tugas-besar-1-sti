@@ -3,16 +3,16 @@
 #include "models/card/SkillCard.hpp"
 
 class ShieldCard : public SkillCard {
-private:
-	int remainingTurns_;
+	private:
+		int remainingTurns_;
 
-public:
-	static const int kCardCount = 2;
+	public:
+		static const int kCardCount = 2;
 
-	ShieldCard();
-	void activate(Player& owner) override;
+		ShieldCard();
+		void activate(Player& owner) override;
 
-	bool isActive() const;
-	int getRemainingTurns() const;
-	void consumeTurn();
+		bool isActive() const;
+		int getRemainingTurns() const;
+		void consumeTurn();
 };

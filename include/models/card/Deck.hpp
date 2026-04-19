@@ -5,32 +5,31 @@
 #include <stack>
 #include <algorithm>
 #include <random>
+#include "../../../src/models/card/Deck.cpp"
 
 template <typename T>
 class Deck {
-private:
-	std::stack<T*> drawPile_;
-	std::vector<T*> discardPile_;
-	int capacity_;
+	private:
+		std::stack<T*> drawPile_;
+		std::vector<T*> discardPile_;
+		int capacity_;
 
-public:
-	Deck(int capacity = 0);
+	public:
+		Deck(int capacity = 0);
 
-	// Inisialisasi deck dengan kumpulan pointer kartu
-	void initDeck(const std::vector<T*>& initialCards);
+		// Inisialisasi deck dengan kumpulan pointer kartu
+		void initDeck(const std::vector<T*>& initialCards);
 
-	// Mengambil kartu (Otomatis reshuffle jika drawPile kosong)
-	T* drawDeck();
+		// Mengambil kartu (Otomatis reshuffle jika drawPile kosong)
+		T* drawDeck();
 
-	// Memasukkan kartu kembali ke tumpukan buangan
-	void pushToDiscard(T* item);
+		// Memasukkan kartu kembali ke tumpukan buangan
+		void pushToDiscard(T* item);
 
-	// Mengacak kartu menggunakan Mersenne Twister
-	void shuffleDeck();
+		// Mengacak kartu menggunakan Mersenne Twister
+		void shuffleDeck();
 
-	int getDrawCount() const;
-	int getDiscardCount() const;
+		int getDrawCount() const;
+		int getDiscardCount() const;
 };
-
-#include "../../../src/models/card/Deck.cpp"
 

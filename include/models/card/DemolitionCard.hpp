@@ -3,9 +3,9 @@
 #include "models/card/SkillCard.hpp"
 
 class DemolitionCard : public SkillCard {
-public:
-	static const int kCardCount = 2;
+	public:
+		static const int kCardCount = 2;
 
-	DemolitionCard();
-	void activate(Player& owner) override;
+		DemolitionCard();
+		void activate(Player& owner) override;
 };
