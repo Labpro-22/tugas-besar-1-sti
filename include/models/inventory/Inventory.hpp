@@ -1,7 +1,7 @@
 #include "models/tile/property_tile/PropertyTile.hpp"
+#include "models/card/skillcard/ShieldCard.hpp"
 #include <iostream>
 #include <vector>
-class SkillCard;
 
 class Inventory {
     private:
