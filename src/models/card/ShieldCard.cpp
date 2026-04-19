@@ -1,12 +1,16 @@
 #include "models/card/ShieldCard.hpp"
 
+#include <iostream>
+
 ShieldCard::ShieldCard()
     : SkillCard("ShieldCard", "Melindungi pemain dari sanksi merugikan selama 1 giliran"),
       remainingTurns_(1) {}
 
 void ShieldCard::activate(Player& owner)
 {
-    owner.activateShield();
+    (void)owner;
+    remainingTurns_ = 1;
+    std::cout << "[SHIELD] Perlindungan aktif selama 1 giliran.\n";
 }
 
 bool ShieldCard::isActive() const

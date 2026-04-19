@@ -1,5 +1,6 @@
 #include "models/card/DiscountCard.hpp"
 
+#include <iostream>
 #include <random>
 
 DiscountCard::DiscountCard()
@@ -14,8 +15,10 @@ DiscountCard::DiscountCard()
 
 void DiscountCard::activate(Player& owner)
 {
-
-    owner.applyDiscount(discountPercent_);
+    (void)owner;
+    remainingTurns_ = 1;
+    std::cout << "[DISCOUNT] Diskon " << discountPercent_
+              << "% aktif untuk 1 giliran berikutnya.\n";
 }
 
 int DiscountCard::getDiscountPercent() const

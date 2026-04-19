@@ -25,7 +25,7 @@ MoveCard::MoveCard()
 
 void MoveCard::activate(Player& owner)
 {
-    owner.moveForward(steps_);
+    owner.setPosition(owner.getPosition() + steps_);
 }
 
 int MoveCard::getSteps() const
