@@ -1,4 +1,4 @@
-#include "../tile/PropertyTile.hpp"
+#include "models/tile/property_tile/PropertyTile.hpp"
 #include <iostream>
 #include <vector>
 class SkillCard;

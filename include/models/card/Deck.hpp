@@ -5,7 +5,6 @@
 #include <stack>
 #include <algorithm>
 #include <random>
-#include "../../../src/models/card/Deck.cpp"
 
 template <typename T>
 class Deck {
