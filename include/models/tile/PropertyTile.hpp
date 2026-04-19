@@ -25,4 +25,5 @@ class PropertyTile : public Tile {
                     // tambahan di PropertyTile
                     int purchasePrice, int mortgageValue);
         virtual ~PropertyTile();
+        virtual void executeTile(Player& p) override;
 };
