@@ -12,4 +12,8 @@ class UtilityTile : public PropertyTile {
                 int purchasePrice, int mortgageValue);
         virtual ~UtilityTile();
         virtual void executeTile(Player& p) override;
+
+        // getter n setter
+        static void setUtilityFactor(const std::map<int, int>& factors);
+        static const std::map<int, int>& getUtilityFactor();
 };

@@ -71,3 +71,14 @@ void UtilityTile::executeTile(Player& p)
     std::cout << "[UTILITY] Rumus sewa: total_dadu(" << diceTotal << ") x " << factor << " = " << rent << std::endl;
     std::cout << "[TODO] Integrasi dadu, saldo" << std::endl;
 }
+
+// getter n setter
+void UtilityTile::setUtilityFactor(const std::map<int, int>& factors)
+{
+    utilityFactor_ = factors;
+}
+
+const std::map<int, int>& UtilityTile::getUtilityFactor()
+{
+    return utilityFactor_;
+}
