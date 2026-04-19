@@ -14,4 +14,8 @@ class RailRoadTile : public PropertyTile {
         ~RailRoadTile();
         void onLand(Player* player) override;
         void executeTile(Player& p) override;
+
+        // getter n setter
+        static void setRailRoadRentPrices(const std::map<int, int>& prices);
+        static const std::map<int, int>& getRailRoadRentPrices();
 };

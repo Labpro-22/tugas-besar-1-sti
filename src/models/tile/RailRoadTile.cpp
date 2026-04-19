@@ -76,3 +76,14 @@ void RailRoadTile::executeTile(Player& p)
     std::cout << "[RAILROAD] Sewa yang harus dibayar: " << rent << std::endl;
     std::cout << "[TODO] Integrasi saldo" << std::endl;
 }
+
+// getter n setter
+void RailRoadTile::setRailRoadRentPrices(const std::map<int, int>& prices)
+{
+    railRoadRentPrices_ = prices;
+}
+
+const std::map<int, int>& RailRoadTile::getRailRoadRentPrices()
+{
+    return railRoadRentPrices_;
+}
