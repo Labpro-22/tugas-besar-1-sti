@@ -1,42 +1,20 @@
 #pragma once
 #include <iostream>
-// #include "models/inventory/Inventory.hpp"
 #include "../injector/injector.hpp"
 #include "../board/Board.hpp"
 
-// class Inventory;
-enum PlayerStatus {
-    ACTIVE,
-    BANKRUPT,
-    JAILED
-};
 
 // belom ada : urutan turn
 class Player {
-    private:
-        int id_; // auto increment dari countplayer itu
-        std::string username_; //username pemain
-        int balance_; // jumlah uang pemain
-        int position; // kode petak tempat pemain berada
-        PlayerStatus status_; // default ACTIVE
-        int doubleRollCount_; // default 0
-        int countJail_; // default
-        int playerTurn; // urutan ke berapa
-        // Inventory inventory_; // belom ada kelasnya wait ye
-        static inline int countPlayer = 0;
-
-        // Dice
-        IDice* dice_;
-
-        // Board
-        Board& board_;
     public:
+        enum PlayerStatus {
+            ACTIVE,
+            BANKRUPT,
+            JAILED
+        };
         // kasih turn kapan???
-        Player(std::string username, Board* board, IDice* dice);
+        Player(std::string username, int initialBalance, int playerTurn);
         ~Player();
-
-        // full 1 turn dia jalan roll dice dll-nya
-        void takeTurn();
         
         int getBalance() const;
         void addMoney(int amount);
@@ -48,9 +26,8 @@ class Player {
         int getPosition() const;
         void setPosition(int pos);
         
-        Board& getBoard() const;
-        
         // Untuk Penjara
+        bool thisTurnFreeFromJail() const;
         void incrementJailTurn();
         int getCountJail() const;
         void resetJailTurn();
@@ -58,7 +35,20 @@ class Player {
         // Untuk PPH
         int getTotalPropertyValue() const;
         int getTotalBuildingValue() const;
+
+        // cek bankrupt atau engga
+        bool isBankrupt() const;
         
-        // Untuk referensi ke Monopoly (sesuai diagram terakhir)
-        class Monopoly& getMonopoly();
+
+    private:
+        int id_; // auto increment dari countplayer itu
+        std::string username_; //username pemain
+        int balance_; // jumlah uang pemain
+        int position; // kode petak tempat pemain berada
+        PlayerStatus status_; // default ACTIVE
+        int doubleRollCount_; // default 0
+        int countJail_; // default
+        int playerTurn_; // urutan ke berapa
+        // Inventory inventory_; // belom ada kelasnya wait ye
+        static inline int countPlayer = 0;
 };
