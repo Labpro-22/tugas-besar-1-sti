@@ -1,5 +1,7 @@
 #pragma once
+#include <algorithm>
 #include <map>
+#include <sstream>
 #include "RailRoadTile.hpp"
 class UtilityTile : public PropertyTile {
     private:
@@ -9,4 +11,9 @@ class UtilityTile : public PropertyTile {
                 std::string tileName, std::string colourBlock, 
                 int purchasePrice, int mortgageValue);
         virtual ~UtilityTile();
+        virtual void executeTile(Player& p) override;
+
+        // getter n setter
+        static void setUtilityFactor(const std::map<int, int>& factors);
+        static const std::map<int, int>& getUtilityFactor();
 };

@@ -8,5 +8,6 @@ class PAMTile : public UtilityTile{
                 int purchasePrice, int mortgageValue);
         ~PAMTile();
         void onLand(Player* player) override;
+        void executeTile(Player& p) override;
 
 };

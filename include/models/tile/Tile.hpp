@@ -12,4 +12,6 @@ class Tile : public ITile{
         Tile(int tileID, std::string letterCode,
             std::string tileName, std::string colourBlock);
         virtual ~Tile();
+
+        virtual void executeTile(Player& p) = 0;
 };
