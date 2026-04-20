@@ -7,6 +7,4 @@ class SpecialTile : public ActionTile {
     public:
         SpecialTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock)
             : ActionTile(tileID, letterCode, tileName, colourBlock) {}
-        
-        virtual void executeTile(Player* p) override = 0;
 };

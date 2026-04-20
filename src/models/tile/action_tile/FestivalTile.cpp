@@ -4,8 +4,7 @@
 #include <iostream>
 #include <string>
 #include <limits>
-
-void FestivalTile::executeTile(Player* p) {
+void FestivalTile::onLand(Player& p) {
     std::cout << "Kamu mendarat di petak Festival!\n\n";
 
     Inventory& inv = p->getInventory();

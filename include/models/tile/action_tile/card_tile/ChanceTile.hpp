@@ -7,5 +7,5 @@ class ChanceTile : public CardTile {
         ChanceTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock)
             : CardTile(tileID, letterCode, tileName, colourBlock) {}
             
-        void executeTile(Player* p) override;
+        void onLand(Player& p) override;
 };

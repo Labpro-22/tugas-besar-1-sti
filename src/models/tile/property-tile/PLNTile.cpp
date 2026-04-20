@@ -5,16 +5,7 @@ PLNTile::PLNTile(int tileID, std::string letterCode, std::string tileName, std::
 
 PLNTile::~PLNTile() {}
 
-void PLNTile::onLand(Player* player)
-{
-    if (player != nullptr)
-    {
-        executeTile(*player);
-    }
-}
-
-void PLNTile::executeTile(Player& p)
-{
+void PLNTile::onLand(Player& p) {
     std::cout << "[Landed] Menginjak petak PLN. Siapkan biaya listrik!" << std::endl;
     UtilityTile::executeTile(p);
 }

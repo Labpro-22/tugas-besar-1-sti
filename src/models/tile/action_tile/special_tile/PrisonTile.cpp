@@ -4,7 +4,7 @@
 #include <iostream>
 #include <limits>
 
-void PrisonTile::executeTile(Player* p) {
+void PrisonTile::onLand(Player& p) {
     std::cout << "Kamu mendarat di Petak Penjara!\n";
     std::cout << "Kamu dapat melanjutkan perjalanan di giliran selanjutnya.\n";
     std::cout << "---\n";

@@ -5,7 +5,7 @@ PAMTile::PAMTile(int tileID, std::string letterCode, std::string tileName, std::
 
 PAMTile::~PAMTile() {}
 
-void PAMTile::onLand(Player* player)
+void PAMTile::onLand(Player& p)
 {
     if (player != nullptr)
     {

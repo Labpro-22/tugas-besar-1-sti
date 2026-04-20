@@ -9,6 +9,6 @@ class GoTile : public SpecialTile {
         GoTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock, int salary)
             : SpecialTile(tileID, letterCode, tileName, colourBlock), salary_(salary) {}
         
-        void executeTile(Player* p) override;
+        void onLand(Player& p) override;
         int getSalary() const { return salary_; }
 };

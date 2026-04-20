@@ -2,7 +2,7 @@
 #include "models/player/Player.hpp"
 #include <iostream>
 
-void GoToJailTile::executeTile(Player* p) {
+void GoToJailTile::onLand(Player& p) {
     std::cout << "Kamu mendarat di petak Pergi Ke Penjara!\n";
     std::cout << "Polisi menangkapmu! Bidakmu langsung dipindahkan ke Penjara.\n";
 

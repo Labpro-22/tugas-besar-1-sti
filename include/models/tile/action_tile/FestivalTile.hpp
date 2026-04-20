@@ -7,5 +7,5 @@ class FestivalTile : public ActionTile {
         FestivalTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock)
             : ActionTile(tileID, letterCode, tileName, colourBlock) {}
             
-        void executeTile(Player* p) override;
+        void onLand(Player& p) override;
 };

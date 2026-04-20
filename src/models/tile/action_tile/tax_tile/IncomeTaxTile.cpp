@@ -21,7 +21,7 @@ float IncomeTaxTile::getTaxPercentage() const {
     return taxPercentage_;
 }
 
-void IncomeTaxTile::executeTile(Player* p) {
+void IncomeTaxTile::onLand(Player& p) {
     std::cout << "Kamu mendarat di Pajak Penghasilan (PPH)!\n";
     std::cout << "Pilih opsi pembayaran pajak:\n";
     std::cout << "1. Bayar flat M" << getPPHFlatCost() << "\n";

@@ -11,9 +11,3 @@ PropertyTile::PropertyTile(int tileID, std::string letterCode, std::string tileN
       purchasePrice_(purchasePrice) {}
 
 PropertyTile::~PropertyTile() {}
-
-void PropertyTile::executeTile(Player& p)
-{
-    (void)p;
-    std::cout << "[Landed] Anda tiba di properti: " << tileName_ << std::endl;
-}

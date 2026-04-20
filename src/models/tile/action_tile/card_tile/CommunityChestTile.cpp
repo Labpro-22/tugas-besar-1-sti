@@ -5,7 +5,7 @@
 #include <string>
 #include <limits>
 
-void CommunityChestTile::executeTile(Player* p) {
+void CommunityChestTile::onLand(Player& p){
     std::cout << "Kamu mendarat di Petak Dana Umum!\n";
     std::cout << "Mengambil kartu...\n";
 

@@ -5,7 +5,7 @@
 #include <string>
 #include <limits>
 
-void ChanceTile::executeTile(Player* p) {
+void ChanceTile::onLand(Player& p) {
     std::cout << "Kamu mendarat di Petak Kesempatan!\n";
     std::cout << "Mengambil kartu...\n";
 

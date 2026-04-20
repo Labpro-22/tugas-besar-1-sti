@@ -13,7 +13,7 @@ int LuxuryGoodsTaxTile::getPBMFlatCost() const {
     return flatCost_;
 }
 
-void LuxuryGoodsTaxTile::executeTile(Player* p) {
+void LuxuryGoodsTaxTile::onLand(Player& p) {
     std::cout << "Kamu mendarat di Pajak Barang Mewah (PBM)!\n";
     
     int taxToPay = getPBMFlatCost();

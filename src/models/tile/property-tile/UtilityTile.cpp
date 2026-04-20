@@ -15,8 +15,7 @@ UtilityTile::UtilityTile(int tileID, std::string letterCode, std::string tileNam
 
 UtilityTile::~UtilityTile() {}
 
-void UtilityTile::executeTile(Player& p)
-{
+void UtilityTile::onLand(Player& p) {
     std::cout << "[Landed] Anda tiba di utilitas: " << tileName_ << std::endl;
 
     std::ostringstream tagBuilder;

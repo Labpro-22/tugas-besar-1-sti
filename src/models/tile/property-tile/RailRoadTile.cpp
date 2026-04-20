@@ -17,24 +17,14 @@ RailRoadTile::RailRoadTile(int tileID, std::string letterCode, std::string tileN
 
 RailRoadTile::~RailRoadTile() {}
 
-void RailRoadTile::onLand(Player* player)
-{
-    if (player != nullptr)
-    {
-        executeTile(*player);
-    }
-}
-
-void RailRoadTile::executeTile(Player& p)
-{
+void RailRoadTile::onLand(Player& p) {
     std::ostringstream tagBuilder;
     tagBuilder << &p;
     const std::string currentPlayerTag = tagBuilder.str();
 
     std::cout << "[Landed] Anda tiba di stasiun: " << tileName_ << std::endl;
 
-    if (propertyStatus_ == BANK || ownerUsername_ == "BANK")
-    {
+    if (propertyStatus_ == BANK || ownerUsername_ == "BANK") {
         ownerUsername_ = currentPlayerTag;
         propertyStatus_ = OWNED;
         ++g_ownerRailroadCount[ownerUsername_];
@@ -44,14 +34,12 @@ void RailRoadTile::executeTile(Player& p)
         return;
     }
 
-    if (propertyStatus_ == MORTGAGED)
-    {
+    if (propertyStatus_ == MORTGAGED) {
         std::cout << "[RAILROAD] Stasiun sedang digadaikan, tidak ada sewa." << std::endl;
         return;
     }
 
-    if (ownerUsername_ == currentPlayerTag)
-    {
+    if (ownerUsername_ == currentPlayerTag) {
         std::cout << "[RAILROAD] Ini milik Anda." << std::endl;
         return;
     }
@@ -59,8 +47,7 @@ void RailRoadTile::executeTile(Player& p)
     const int ownerRailroadCount = std::max(1, g_ownerRailroadCount[ownerUsername_]);
 
     int rent = 25;
-    if (!railRoadRentPrices_.empty())
-    {
+    if (!railRoadRentPrices_.empty()) {
         auto it = railRoadRentPrices_.find(ownerRailroadCount);
         if (it != railRoadRentPrices_.end())
         {
@@ -78,8 +65,7 @@ void RailRoadTile::executeTile(Player& p)
 }
 
 // getter n setter
-void RailRoadTile::setRailRoadRentPrices(const std::map<int, int>& prices)
-{
+void RailRoadTile::setRailRoadRentPrices(const std::map<int, int>& prices) {
     railRoadRentPrices_ = prices;
 }
 

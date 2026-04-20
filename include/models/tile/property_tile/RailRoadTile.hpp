@@ -12,7 +12,7 @@ class RailRoadTile : public PropertyTile {
                     std::string tileName, std::string colourBlock,
                     int purchasePrice, int mortgageValue);
         ~RailRoadTile();
-        void onLand(Player* player) override;
+        void onLand(Player& p) override;
 
         // getter n setter
         static void setRailRoadRentPrices(const std::map<int, int>& prices);

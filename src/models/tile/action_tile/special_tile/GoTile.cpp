@@ -2,7 +2,7 @@
 #include "models/player/Player.hpp"
 #include <iostream>
 
-void GoTile::executeTile(Player* p) {
+void GoTile::onLand(Player& p) {
     // TODO: Kalau melewati doang tuh dihandle Player
     std::cout << "Kamu mendarat di Petak Go!\n";
     std::cout << "Menerima bonus gaji sebesar M" << getSalary() << "\n";
