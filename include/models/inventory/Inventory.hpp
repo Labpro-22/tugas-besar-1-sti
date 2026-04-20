@@ -2,7 +2,7 @@
 #include "models/card/skillcard/ShieldCard.hpp"
 #include <iostream>
 #include <vector>
-
+#include "models/tile/property_tile/StreetTile.hpp"
 class Inventory {
     private:
         std::vector<PropertyTile*> properties_;
@@ -21,7 +21,9 @@ class Inventory {
         std::vector<SkillCard*> getSkillCards();
         void addSkillCards(SkillCard* killCard);
         void removeSkillCard(SkillCard* skillCard);
-        
-        // kasus kalo make gimana nntlah
+
+        int countAllPropertyValueBasedOnPurchasePrice() const;
+        int countAllBuildingsBasedOnPurchasePrice() const;
+
 
 };
