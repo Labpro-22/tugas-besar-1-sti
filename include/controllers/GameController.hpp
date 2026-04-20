@@ -3,6 +3,8 @@
 #include "models/player/Player.hpp"
 #include "views/CommandInterface.hpp"
 #include "views/GameViewInterface.hpp"
+#include "models/injector/injector.hpp"
+#include "models/tile/action_tile/special_tile/PrisonTile.hpp"
 
 #include <vector>
 class GameController {
@@ -20,6 +22,8 @@ class GameController {
         GameController(Board& board, IDice& dice, GameViewInterface& view, CommandInterface& command);
         ~GameController();
         void processTurn(Player& p);
+        void normalTurn(Player& p, int firstDisplacement);
+        void auction(Player& p);
 
         void chooseSpecialCard(Player& p);
         void handleRollDice(Player& p);

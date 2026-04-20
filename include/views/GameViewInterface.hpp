@@ -6,6 +6,8 @@
 #include "models/tile/action_tile/tax_tile/TaxTile.hpp"
 class GameViewInterface {
     public:
+
+        virtual void kasihmsg(std::string) = 0;
         // Kasih tunjuk boardnya
         virtual void cetakPapan();
 

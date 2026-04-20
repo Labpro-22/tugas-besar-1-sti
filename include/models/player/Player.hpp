@@ -15,6 +15,8 @@ class Player {
         // kasih turn kapan???
         Player(std::string username, int initialBalance, int playerTurn);
         ~Player();
+
+        void incrementDoubleCount();
         
         int getBalance() const;
         void addMoney(int amount);
@@ -27,7 +29,10 @@ class Player {
         void setPosition(int pos);
         
         // Untuk Penjara
-        bool thisTurnFreeFromJail() const;
+        bool isInJail() const;
+        bool thisTurnAutoFreeFromJail() const;
+
+
         void incrementJailTurn();
         int getCountJail() const;
         void resetJailTurn();
