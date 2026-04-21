@@ -4,27 +4,29 @@
 #include "controllers/GameController.hpp"
 #include "models/dice/Dice.hpp"
 #include <iostream>
+#include <memory>
+#include "views/GameViewInterface.hpp"
+#include <algorithm>
+#include <random>
 
-class Command; // either CLI / gui
-class Vieww; // either CLI/ gui
 class Monopoly {
     private:
+        std::unique_ptr<GameViewInterface> view_;
+        std::unique_ptr<CommandInterface> command_;
         static inline int maxTurn_;
         static inline int initialBalance_;
-        
-        std::vector<Player&> players_;
-        Board& board_;
-        Dice& dice_;
 
+        std::vector<std::unique_ptr<Player>> registerPlayers(int numOfPlayers);
+        void shufflePlayersTurn(std::vector<std::unique_ptr<Player>>& players_);
+        Board& loadConfig();
+        // LoadState();
+        
     public:
-        Monopoly();
+        Monopoly(std::unique_ptr<GameViewInterface> view, std::unique_ptr<CommandInterface> command);
         ~Monopoly();
 
         static void setMaxTurn(int maxTurn);
         static void setInitialBalance(int initialBalance);
-        
-        // selesai ketika ada yg menang atau udh maxturn
-        void playGame();
 
-        bool hasWinner();
+        void startGame();
 };
