@@ -15,9 +15,22 @@ class Reader
         std::string specialTileConfigFileName;
         std::string othersConfigFileName;
 
+        // untuk readProperty
+        int goSalary_;
+        int jailFine_;
+        int maxTurn_;
+        int startingBalance_;
+
         // build folderName + fileName
         std::string buildPath(const std::string& fileName) const;
-        
+
+    public:
+        /*Buka folder sekaligus isi itu filename masing"*/
+        Reader(std::string folderName);
+
+        // load config jadi
+        ~Reader();
+
         // baca property
         Board readProperty(); // board
 
@@ -28,18 +41,15 @@ class Reader
         void readUtility();
         
         // pake set static aja
-
         void readTax();
 
         void readSpecial();
 
         void readMisc();
 
-    public:
-        /*Buka folder sekaligus isi itu filename masing"*/
-        Reader(std::string folderName);
-
-        // load config jadi
-        ~Reader();
+        int getGoSalary() const;
+        int getJailFine() const;
+        int getMaxTurn() const;
+        int getStartingBalance() const;
 };
 
