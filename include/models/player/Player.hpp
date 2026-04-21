@@ -13,8 +13,11 @@ class Player {
             JAILED
         };
         // kasih turn kapan???
-        Player(std::string username, int initialBalance, int playerTurn);
+        Player(std::string username, int initialBalance);
         ~Player();
+
+        // SET TURN
+        void setTurn(int turn);
 
         // MONEY RELATED
         int getBalance() const;

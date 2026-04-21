@@ -1,13 +1,17 @@
 #include "models/player/Player.hpp"
 
-Player::Player(std::string username, int initialBalance, int playerTurn) :
+Player::Player(std::string username, int initialBalance) :
     id_(countPlayer++), username_(username),
     balance_(initialBalance), position_(0),
     status_(PlayerStatus::ACTIVE), doubleRollCount_(0),
-    countJail_(0), playerTurn_(playerTurn) {}
+    countJail_(0), playerTurn_(0) {}
 
 Player::~Player() = default;
 
+// SET TURN
+void Player::setTurn(int turn) {
+    playerTurn_ = turn;
+}
 // MONEY RELATED
 int Player::getBalance() const {
     return balance_;
