@@ -15,6 +15,9 @@ class Reader
         std::string specialTileConfigFileName;
         std::string othersConfigFileName;
 
+        // build folderName + fileName
+        std::string buildPath(const std::string& fileName) const;
+        
         // baca property
         Board readProperty(); // board
 
