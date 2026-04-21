@@ -254,5 +254,39 @@ void Reader::readSpecial()
 
 void Reader::readMisc()
 {
-    // TODO
+    std::ifstream file(buildPath(othersConfigFileName).c_str());
+    if (!file.is_open())
+    {
+        throw LoadConfigFailed(buildPath(othersConfigFileName));
+    }
+
+    std::string header;
+    if (!std::getline(file, header))
+    {
+        throw ConfigException(2, "misc.txt kosong");
+    }
+
+    std::string line;
+    if (!std::getline(file, line))
+    {
+        throw ConfigException(2, "misc.txt tidak memiliki baris data");
+    }
+
+    std::istringstream iss(line);
+    int maxTurn = 0;
+    int saldoAwal = 0;
+
+    if (!(iss >> maxTurn >> saldoAwal))
+    {
+        throw ConfigException(3, "Format tidak valid di misc.txt");
+    }
+
+    if (saldoAwal < 0)
+    {
+        throw ConfigException(4, "Saldo awal tidak boleh negatif di misc.txt");
+    }
+
+    // maxTurn boleh negatif -> permainan berakhir dengan salah satu pemain tidak bankrut 
+    maxTurn_ = maxTurn;
+    startingBalance_ = saldoAwal;
 }
