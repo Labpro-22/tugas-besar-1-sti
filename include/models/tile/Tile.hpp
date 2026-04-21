@@ -5,7 +5,7 @@
 // Forward Declaration, karena ada looping include: Tile -> Player -> Board -> Tile. Mencegah itu dengan ini, kalau error tinggal uncomment saja
 // class Player;
 
-class Tile : public ITile{
+class Tile {
     protected:
         int tileID_;
         std::string letterCode_; // kode petak dari properti
@@ -18,7 +18,7 @@ class Tile : public ITile{
             std::string tileName, std::string colourBlock);
         virtual ~Tile();
 
-        virtual void executeTile(Player* p) = 0;
+        virtual void onLand(Player& p) = 0;
         virtual void getDetail() const;
 
         // Getter

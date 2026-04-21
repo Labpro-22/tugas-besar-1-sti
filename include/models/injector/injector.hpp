@@ -9,8 +9,8 @@ class IDice {
         virtual bool isDouble() = 0;
 };
 
-class ITile {
-    public:
-        virtual ~ITile() {};
-        virtual void onLand(Player* player) = 0;
-};
+// class ITile {
+//     public:
+//         virtual ~ITile() {};
+//         virtual void onLand(Player* player) = 0;
+// };

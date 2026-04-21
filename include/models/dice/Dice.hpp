@@ -1,6 +1,6 @@
 #include "../injector/injector.hpp"
 #include <random>
-class Dice : IDice {
+class Dice : public IDice {
     private:
         int die1_ = 0;
         int die2_ = 0;

@@ -1,20 +1,28 @@
 #pragma once
-#include "../injector/injector.hpp"
+#include "models/tile/Tile.hpp"
 #include <vector>
 class Board
 {
     private:
         // perlu simpan size ga :/
-        std::vector<ITile*> tiles_;
+        int size_; // default
+        int jailPosition_;
+        int startPosition_;
+        std::vector<Tile&> tiles_;
     public:
-        Board();
+        Board(int size);
         ~Board();
-        void addTile(ITile* tile);
+        void addTile(Tile& tile);
         
         // geser ke tile setelah ditambahin distance (hasil roll dadu)
-        ITile* moveToNextTile(int distance);
+        Tile& moveToNextTile(int distance);
+        Tile& getCurrentTile(int id);
 
-        int getJailPosition();
+        int getJailPosition() const;
+        void setJailPosition(int pos);
+        int getStartPosition() const;
+        void setStartPosition(int pos);
+
 };
 
 

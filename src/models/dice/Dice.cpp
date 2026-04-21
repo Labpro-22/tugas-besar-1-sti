@@ -1,4 +1,4 @@
-#include "../../../include/models/dice/dice.hpp"
+#include "models/dice/Dice.hpp"
 Dice::Dice() {}
 
 Dice::~Dice() {}

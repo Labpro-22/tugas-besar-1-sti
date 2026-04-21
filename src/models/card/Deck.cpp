@@ -5,8 +5,7 @@ template <typename T>
 Deck<T>::Deck(int capacity) : capacity_(capacity) {}
 
 template <typename T>
-void Deck<T>::initDeck(const std::vector<T*>& initialCards)
-{
+void Deck<T>::initDeck(const std::vector<T*>& initialCards) {
 	while (!drawPile_.empty()) drawPile_.pop();
 	discardPile_.clear();
 
@@ -19,8 +18,7 @@ void Deck<T>::initDeck(const std::vector<T*>& initialCards)
 }
 
 template <typename T>
-T* Deck<T>::drawDeck()
-{
+T* Deck<T>::drawDeck() {
 	if (drawPile_.empty())
     {
 		if (discardPile_.empty()) return nullptr;
@@ -33,8 +31,7 @@ T* Deck<T>::drawDeck()
 }
 
 template <typename T>
-void Deck<T>::pushToDiscard(T* item)
-{
+void Deck<T>::pushToDiscard(T* item) {
 	if (item)
     {
 		discardPile_.push_back(item);
@@ -42,8 +39,7 @@ void Deck<T>::pushToDiscard(T* item)
 }
 
 template <typename T>
-void Deck<T>::shuffleDeck()
-{
+void Deck<T>::shuffleDeck() {
 	if (discardPile_.empty()) return;
 
 	static std::random_device rd;
@@ -59,13 +55,11 @@ void Deck<T>::shuffleDeck()
 }
 
 template <typename T>
-int Deck<T>::getDrawCount() const
-{
+int Deck<T>::getDrawCount() const {
 	return static_cast<int>(drawPile_.size());
 }
 
 template <typename T>
-int Deck<T>::getDiscardCount() const
-{
+int Deck<T>::getDiscardCount() const {
 	return static_cast<int>(discardPile_.size());
 }
