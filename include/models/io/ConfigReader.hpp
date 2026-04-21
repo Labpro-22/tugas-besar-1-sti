@@ -2,6 +2,19 @@
 #include <iostream>
 #include "../board/Board.hpp"
 
+#include "../models/tile/property_tile/RailRoadTile.hpp"
+#include "../models/tile/property_tile/UtilityTile.hpp"
+#include "../models/tile/property_tile/StreetTile.hpp"
+#include "../models/tile/property_tile/PLNTile.hpp"
+#include "../models/tile/property_tile/PAMTile.hpp"
+#include "../models/tile/action_tile/ActionTile.hpp"
+#include "../models/tile/action_tile/special_tile/SpecialTile.hpp"
+#include "../models/tile/action_tile/tax_tile/IncomeTaxTile.hpp"
+#include "../models/tile/action_tile/tax_tile/LuxuryGoodsTaxTile.hpp"
+
+#include "models/exception/ConfigException.hpp"
+#include "models/exception/LoadConfigFailed.hpp"
+
 // develop guidance :
 
 class Reader

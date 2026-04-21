@@ -6,17 +6,6 @@
 #include <map>
 #include <stdexcept>
 
-#include "models/tile/RailRoadTile.hpp"
-#include "models/tile/UtilityTile.hpp"
-#include "models/tile/StreetTile.hpp"
-#include "models/tile/PLNTile.hpp"
-#include "models/tile/PAMTile.hpp"
-#include "models/tile/ActionTile.hpp"
-#include "models/tile/SpecialTile.hpp"
-
-#include "models/exception/ConfigException.hpp"
-#include "models/exception/LoadConfigFailed.hpp"
-
 Reader::Reader(std::string folderName)
     : folderName(folderName), 
     propertyConfigFileName("property.txt"), 
