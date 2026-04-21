@@ -126,7 +126,43 @@ Board Reader::readProperty()
 
 void Reader::readTax()
 {
-    // TODO
+    std::ifstream file(buildPath(taxConfigFileName).c_str());
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Gagal membuka file tax config.");
+    }
+
+    std::string header;
+    if (!std::getline(file, header))
+    {
+        throw std::runtime_error("tax.txt kosong.");
+    }
+
+    std::string line;
+    if (!std::getline(file, line))
+    {
+        throw std::runtime_error("Isi tax.txt tidak ditemukan.");
+    }
+
+    std::istringstream iss(line);
+
+    int pphFlat = 0;
+    float pphPercentage = 0.0f;
+    int pbmFlat = 0;
+
+    if (!(iss >> pphFlat >> pphPercentage >> pbmFlat))
+    {
+        throw std::runtime_error("Format tax.txt tidak valid.");
+    }
+
+    if (pphFlat < 0 || pphPercentage < 0.0f || pbmFlat < 0)
+    {
+        throw std::runtime_error("Nilai tax.txt tidak boleh negatif.");
+    }
+
+    IncomeTaxTile::setPPHFlatCost(pphFlat);
+    IncomeTaxTile::setTaxPercentage(pphPercentage);
+    LuxuryGoodsTaxTile::setPBMFlatCost(pbmFlat);
 }
 
 void Reader::readSpecial()
