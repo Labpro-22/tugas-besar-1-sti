@@ -75,7 +75,7 @@ void Reader::readRailRoad()
     std::string header;
     if (!std::getline(file, header))
     {
-        throw ConfigException(1002, "railroad.txt kosong.");
+        throw ConfigException(2, "railroad.txt kosong.");
     }
 
     std::map<int, int> railroadRentMap;
@@ -97,7 +97,7 @@ void Reader::readRailRoad()
 
         if (!(iss >> count >> rent))
         {
-            throw ConfigException(1003, "Format railroad.txt tidak valid.");
+            throw ConfigException(3, "Format railroad.txt tidak valid.");
         }
 
         railroadRentMap[count] = rent;
@@ -105,12 +105,12 @@ void Reader::readRailRoad()
 
     if (!hasData)
     {
-        throw ConfigException(1002, "railroad.txt tidak memiliki data.");
+        throw ConfigException(2, "railroad.txt tidak memiliki data.");
     }
 
     if (railroadRentMap.empty())
     {
-        throw ConfigException(1002, "railroad.txt kosong atau tidak valid.");
+        throw ConfigException(2, "railroad.txt kosong atau tidak valid.");
     }
 
     RailRoadTile::setRailRoadRentPrices(railroadRentMap);
@@ -127,7 +127,7 @@ void Reader::readUtility()
     std::string header;
     if (!std::getline(file, header))
     {
-        throw ConfigException(1002, "utility.txt kosong.");
+        throw ConfigException(2, "utility.txt kosong.");
     }
 
     std::map<int, int> utilityFactorMap;
@@ -149,7 +149,7 @@ void Reader::readUtility()
 
         if (!(iss >> count >> factor))
         {
-            throw ConfigException(1003, "Format utility.txt tidak valid.");
+            throw ConfigException(3, "Format utility.txt tidak valid.");
         }
 
         utilityFactorMap[count] = factor;
@@ -157,12 +157,12 @@ void Reader::readUtility()
 
     if (!hasData)
     {
-        throw ConfigException(1002, "utility.txt tidak memiliki data.");
+        throw ConfigException(2, "utility.txt tidak memiliki data.");
     }
 
     if (utilityFactorMap.empty())
     {
-        throw ConfigException(1002, "utility.txt kosong atau tidak valid.");
+        throw ConfigException(2, "utility.txt kosong atau tidak valid.");
     }
 
     UtilityTile::setUtilityFactor(utilityFactorMap);
@@ -184,13 +184,13 @@ void Reader::readTax()
     std::string header;
     if (!std::getline(file, header))
     {
-        throw ConfigException(1002, "tax.txt kosong.");
+        throw ConfigException(2, "tax.txt kosong.");
     }
 
     std::string line;
     if (!std::getline(file, line))
     {
-        throw ConfigException(1002, "Isi tax.txt tidak ditemukan.");
+        throw ConfigException(2, "Isi tax.txt tidak ditemukan.");
     }
 
     std::istringstream iss(line);
@@ -201,12 +201,12 @@ void Reader::readTax()
 
     if (!(iss >> pphFlat >> pphPercentage >> pbmFlat))
     {
-        throw ConfigException(1003, "Format tax.txt tidak valid.");
+        throw ConfigException(3, "Format tax.txt tidak valid.");
     }
 
     if (pphFlat < 0 || pphPercentage < 0.0f || pbmFlat < 0)
     {
-        throw ConfigException(1004, "Nilai tax.txt tidak boleh negatif.");
+        throw ConfigException(4, "Nilai tax.txt tidak boleh negatif.");
     }
 
     IncomeTaxTile::setPPHFlatCost(pphFlat);
@@ -216,7 +216,40 @@ void Reader::readTax()
 
 void Reader::readSpecial()
 {
-    // TODO
+    std::ifstream file(buildPath(specialTileConfigFileName).c_str());
+    if (!file.is_open())
+    {
+        throw LoadConfigFailed("Gagal membuka file special config: " + buildPath(specialTileConfigFileName));
+    }
+
+    std::string header;
+    if (!std::getline(file, header))
+    {
+        throw ConfigException(2, "special.txt kosong");
+    }
+
+    std::string line;
+    if (!std::getline(file, line))
+    {
+        throw ConfigException(2, "special.txt tidak memiliki baris data");
+    }
+
+    std::istringstream iss(line);
+    int salary = 0;
+    int fine = 0;
+
+    if (!(iss >> salary >> fine))
+    {
+        throw ConfigException(3, "Format tidak valid di special.txt");
+    }
+
+    if (salary < 0 || fine < 0)
+    {
+        throw ConfigException(4, "Nilai negatif tidak diizinkan di special.txt");
+    }
+
+    goSalary_ = salary;
+    jailFine_ = fine;
 }
 
 void Reader::readMisc()
