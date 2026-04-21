@@ -4,28 +4,28 @@
 #include <vector>
 
 class CommunityChestCard {
-public:
-    enum Instruction {
-        BirthdayCollect100FromEachPlayer,
-        DoctorFeePay700,
-        ElectionPay200ToEachPlayer
-    };
+    public:
+        enum Instruction {
+            BirthdayCollect100FromEachPlayer,
+            DoctorFeePay700,
+            ElectionPay200ToEachPlayer
+        };
 
-    static const int kInstructionCount = 3;
+        static const int kInstructionCount = 3;
 
-    CommunityChestCard();
-    CommunityChestCard(Instruction instruction);
+        CommunityChestCard();
+        CommunityChestCard(Instruction instruction);
 
-    void useCommunityChest(class Player& owner, const std::vector<class Player*>& allPlayers) const;
+        void useCommunityChest(class Player& owner, const std::vector<class Player*>& allPlayers) const;
 
-    Instruction getInstruction() const;
-    const std::string& getDescription() const;
+        Instruction getInstruction() const;
+        const std::string& getDescription() const;
 
-    static CommunityChestCard randomCard();
+        static CommunityChestCard randomCard();
 
-private:
-    Instruction instruction_;
-    std::string description_;
+    private:
+        Instruction instruction_;
+        std::string description_;
 
-    static std::string instructionToDescription(Instruction instruction);
+        static std::string instructionToDescription(Instruction instruction);
 };
