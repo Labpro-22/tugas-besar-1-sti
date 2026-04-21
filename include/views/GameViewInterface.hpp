@@ -7,6 +7,8 @@
 class GameViewInterface {
     public:
 
+        virtual void displayWelcomeMessage();
+
         virtual void kasihmsg(std::string) = 0;
         // Kasih tunjuk boardnya
         virtual void cetakPapan();

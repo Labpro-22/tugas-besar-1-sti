@@ -1,9 +1,36 @@
 #include "controllers/GameController.hpp"
 
-GameController::GameController(Board& board, IDice& dice, GameViewInterface& view, CommandInterface& command)
-    : board_(board), dice_(dice),  view_(view), command_(command) {}
+GameController::GameController(std::vector<std::unique_ptr<Player>>& players,
+    Board& board, IDice& dice, GameViewInterface& view, 
+    CommandInterface& command)
+    : players_(players), board_(board), dice_(dice),  
+    view_(view), command_(command) {}
 
 GameController::~GameController() = default;
+
+void GameController::playGame(int latestTurn, int maxTurn) {
+    int i = latestTurn;
+    while (i < maxTurn && !hasSoleWinner()) {
+        for (auto& player : players_) {
+            if (!player->isBankrupt()) {
+                processTurn(*player);
+            }
+        }
+        i++;
+    }
+
+    // cek pemenangnya satu doang atau banyak
+}
+
+bool GameController::hasSoleWinner() const{
+    size_t countNotBankrupt = 0;
+    for (auto& player : players_) {
+        if (!player->isBankrupt()) {
+            countNotBankrupt++;
+        }
+    }
+    return countNotBankrupt == players_.size() - 1;
+}
 
 void GameController::processTurn(Player& p) {
     Tile& currentTile = board_.getCurrentTile(p.getPosition());
@@ -34,7 +61,7 @@ void GameController::processTurn(Player& p) {
 
             if (dice_.isDouble()) {
                 // baru bs keluar
-                Tile& nextTile = board_.moveToNextTile(displacement);
+                Tile& nextTile = board_.moveToNextTile(p->move(displacement));
                 nextTile.onLand(p);
                 return;
             }
@@ -61,7 +88,7 @@ void GameController::processTurn(Player& p) {
 }
 
 void GameController::normalTurn(Player& p, int firstDisplacement) {
-    Tile& nextTile = board_.moveToNextTile(firstDisplacement);
+    Tile& nextTile = board_.moveToNextTile(p.move(firstDisplacement));
     nextTile.onLand(p);
     if (dice_.isDouble()) {
         command_.cmd("Selamat anda mendapatkan double! Silahkan lanjutkan giliran anda!\n");
@@ -80,19 +107,10 @@ void GameController::normalTurn(Player& p, int firstDisplacement) {
             displacement = dice_.roll();
         }
 
-        nextTile = board_.moveToNextTile(displacement);
+        nextTile = board_.moveToNextTile(p.move(displacement));
         nextTile.onLand(p);
 
         // add double count
         p.incrementDoubleCount();
     }
 }
-
-void GameController::chooseSpecialCard(Player& p) {
-
-}
-
-void GameController::dropExtraSpecialCard(Player& p) {
-
-}
-
