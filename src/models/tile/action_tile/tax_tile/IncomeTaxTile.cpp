@@ -1,9 +1,4 @@
 #include "models/tile/action_tile/tax_tile/IncomeTaxTile.hpp"
-#include "models/player/Player.hpp"
-#include "models/exception/Exception.hpp"
-#include <iostream>
-#include <string>
-#include <limits>
 
 void IncomeTaxTile::setPPHFlatCost(int cost) {
     flatCost_ = cost;
@@ -21,7 +16,9 @@ float IncomeTaxTile::getTaxPercentage() const {
     return taxPercentage_;
 }
 
-void IncomeTaxTile::onLand(Player& p) {
+OnLandResult IncomeTaxTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
+    (void)command;
+    (void)view;
     std::cout << "Kamu mendarat di Pajak Penghasilan (PPH)!\n";
     std::cout << "Pilih opsi pembayaran pajak:\n";
     std::cout << "1. Bayar flat M" << getPPHFlatCost() << "\n";
@@ -39,7 +36,7 @@ void IncomeTaxTile::onLand(Player& p) {
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
     }
 
-    int oldBalance = p->getBalance();
+    int oldBalance = p.getBalance();
     int taxToPay = 0;
 
     if (pilihan == 1) {
@@ -52,15 +49,15 @@ void IncomeTaxTile::onLand(Player& p) {
             // TODO: recheck parameter
             throw PPHPaymentFailed();
         } else {
-            p->deductMoney(taxToPay);
-            std::cout << "Uang kamu: M" << oldBalance << " -> M" << p->getBalance() << "\n";
+            p.deductMoney(taxToPay);
+            std::cout << "Uang kamu: M" << oldBalance << " -> M" << p.getBalance() << "\n";
         }
         
     } else {
-        int cash = p->getBalance();
+        int cash = p.getBalance();
         // TODO: Buat getter properti di Player
-        int propertyVal = p->getTotalPropertyValue();
-        int buildingVal = p->getTotalBuildingValue();
+        int propertyVal = p.getTotalPropertyValue();
+        int buildingVal = p.getTotalBuildingValue();
         int totalWealth = cash + propertyVal + buildingVal;
         
         taxToPay = static_cast<int>(totalWealth * getTaxPercentage() * 0.01);
@@ -79,9 +76,10 @@ void IncomeTaxTile::onLand(Player& p) {
             // TODO: recheck parameter
             throw PBMPaymentFailed();
         } else {
-            p->deductMoney(taxToPay);
-            std::cout << "Uang kamu: M" << oldBalance << " -> M" << p->getBalance() << "\n";
+            p.deductMoney(taxToPay);
+            std::cout << "Uang kamu: M" << oldBalance << " -> M" << p.getBalance() << "\n";
         }
     }
     std::cout << "---\n";
+    return OnLandResult::Done;
 }
