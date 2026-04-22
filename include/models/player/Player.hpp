@@ -57,6 +57,12 @@ class Player {
         // Inventory related
         std::vector<SkillCard*> getSkillCards();
         std::vector<PropertyTile*> getProperties();
+
+        void addProperty(PropertyTile* propertyTile);
+        void removeProperty(PropertyTile* propertyTile);
+        bool ownsProperty(PropertyTile* propertyTile) const;
+
+        Inventory& getInventory();
         
 
     private:
