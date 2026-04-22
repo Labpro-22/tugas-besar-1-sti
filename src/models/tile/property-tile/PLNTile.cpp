@@ -5,7 +5,6 @@ PLNTile::PLNTile(int tileID, std::string letterCode, std::string tileName, std::
 
 PLNTile::~PLNTile() {}
 
-void PLNTile::onLand(Player& p) {
-    std::cout << "[Landed] Menginjak petak PLN. Siapkan biaya listrik!" << std::endl;
-    UtilityTile::executeTile(p);
+OnLandResult PLNTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
+    return UtilityTile::onLand(p, command, view);
 }
