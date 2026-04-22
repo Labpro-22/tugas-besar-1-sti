@@ -63,7 +63,9 @@ class Player {
         bool ownsProperty(PropertyTile* propertyTile) const;
 
         Inventory& getInventory();
-        
+
+        int getLastDiceTotal() const;
+        void setLastDiceTotal(int diceTotal);
 
     private:
         int id_; // auto increment dari countplayer itu
@@ -76,4 +78,5 @@ class Player {
         int playerTurn_; // urutan ke berapa
         Inventory inventory_; // belom ada kelasnya wait ye
         static inline int countPlayer = 0;
+        int lastDiceTotal_;
 };

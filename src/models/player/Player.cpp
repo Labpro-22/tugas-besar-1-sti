@@ -4,7 +4,7 @@ Player::Player(std::string username, int initialBalance) :
     id_(countPlayer++), username_(username),
     balance_(initialBalance), position_(0),
     status_(PlayerStatus::ACTIVE), doubleRollCount_(0),
-    countJail_(0), playerTurn_(0) {}
+    countJail_(0), playerTurn_(0), lastDiceTotal_(0) {}
 
 Player::~Player() = default;
 
@@ -130,4 +130,12 @@ bool Player::ownsProperty(PropertyTile* propertyTile) const {
 
 Inventory& Player::getInventory() {
     return inventory_;
+}
+
+int Player::getLastDiceTotal() const {
+    return lastDiceTotal_;
+}
+
+void Player::setLastDiceTotal(int diceTotal) {
+    lastDiceTotal_ = diceTotal;
 }

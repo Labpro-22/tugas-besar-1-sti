@@ -355,6 +355,7 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
 
     // proses di dalam land
     p.setPosition(nextTile.getTileID());
+    p.setLastDiceTotal(firstDisplacement);
     OnLandResult result = nextTile.onLand(p, command_, view_);
 
     switch (result) {
