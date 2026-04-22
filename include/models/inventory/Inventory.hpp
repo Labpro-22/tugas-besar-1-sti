@@ -13,12 +13,14 @@ class Inventory {
         ~Inventory();
 
         // properties
-        std::vector<PropertyTile*> getProperties();
+        std::vector<PropertyTile*> getProperties() const;
         void addProperty(PropertyTile *propertyTile);
         void removeProperty(PropertyTile *PropertyTile);
+        bool hasProperty(PropertyTile* propertyTile) const;
+        void clearProperties();
 
         // skill cards
-        std::vector<SkillCard*> getSkillCards();
+        std::vector<SkillCard*> getSkillCards() const;
         void addSkillCards(SkillCard* killCard);
         void removeSkillCard(SkillCard* skillCard);
 
