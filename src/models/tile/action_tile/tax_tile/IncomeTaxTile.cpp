@@ -49,7 +49,7 @@ OnLandResult IncomeTaxTile::onLand(Player& p, CommandInterface& command, GameVie
             }
 
             view.showMessage("---\n");
-            return OnLandResult::TriggerAuction;
+            return OnLandResult::TriggerBankruptcyAuction;
         }
 
         p.deductMoney(taxToPay);
@@ -83,7 +83,7 @@ OnLandResult IncomeTaxTile::onLand(Player& p, CommandInterface& command, GameVie
         }
 
         view.showMessage("---\n");
-        return OnLandResult::TriggerAuction;
+        return OnLandResult::TriggerBankruptcyAuction;
     }
 
     p.deductMoney(taxToPay);
