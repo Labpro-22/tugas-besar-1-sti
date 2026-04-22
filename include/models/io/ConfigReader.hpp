@@ -8,9 +8,18 @@
 #include "../models/tile/property_tile/PLNTile.hpp"
 #include "../models/tile/property_tile/PAMTile.hpp"
 #include "../models/tile/action_tile/ActionTile.hpp"
+#include "../models/tile/action_tile/FestivalTile.hpp"
+#include "../models/tile/action_tile/card_tile/CardTile.hpp"
+#include "../models/tile/action_tile/card_tile/ChanceTile.hpp"
+#include "../models/tile/action_tile/card_tile/CommunityChestTile.hpp"
+#include "../models/tile/action_tile/special_tile/FreeParkingTile.hpp"
+#include "../models/tile/action_tile/special_tile/GoTile.hpp"
+#include "../models/tile/action_tile/special_tile/GoToJailTile.hpp"
+#include "../models/tile/action_tile/special_tile/PrisonTile.hpp"
 #include "../models/tile/action_tile/special_tile/SpecialTile.hpp"
 #include "../models/tile/action_tile/tax_tile/IncomeTaxTile.hpp"
 #include "../models/tile/action_tile/tax_tile/LuxuryGoodsTaxTile.hpp"
+#include "../models/tile/action_tile/tax_tile/TaxTile.hpp"
 
 #include "models/exception/ConfigException.hpp"
 #include "models/exception/LoadConfigFailed.hpp"
@@ -25,6 +34,7 @@ class Reader
         std::string railRoadConfigFileName;
         std::string utilityConfigFileName;
         std::string taxConfigFileName;
+        std::string actionConfigFileName;
         std::string specialTileConfigFileName;
         std::string othersConfigFileName;
 
@@ -45,7 +55,7 @@ class Reader
         ~Reader();
 
         // baca property
-        Board readProperty(); // board
+        std::vector<Tile*> readProperty(); // board
 
         // set map static yang jadi attribut kelas railroad
         void readRailRoad();
@@ -55,6 +65,10 @@ class Reader
         
         // pake set static aja
         void readTax();
+
+        std::vector<Tile*> readAction();
+
+        Board createBoard();
 
         void readSpecial();
 

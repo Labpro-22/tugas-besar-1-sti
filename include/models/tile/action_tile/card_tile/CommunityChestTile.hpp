@@ -4,8 +4,8 @@
 
 class CommunityChestTile : public CardTile {
     public:
-        CommunityChestTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock)
-            : CardTile(tileID, letterCode, tileName, colourBlock) {}
+        CommunityChestTile(int tileID, std::string letterCode, std::string tileName)
+            : CardTile(tileID, letterCode, tileName) {}
             
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 };
