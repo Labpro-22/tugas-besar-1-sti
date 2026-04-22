@@ -26,4 +26,24 @@ class PropertyTile : public Tile {
         virtual ~PropertyTile();
         int getPurchasePrice() const;
         int getLevel() const;
+        void setLevel(int level);
+        int getMortgageValue() const;
+
+        std::string getOwnerUsername() const;
+        void setOwnerUsername(const std::string& ownerUsername);
+
+        PropertyStatus getPropertyStatus() const;
+        void setPropertyStatus(PropertyStatus status);
+
+        int getFestivalMultiplier() const;
+        void setFestivalMultiplier(int multiplier);
+
+        int getFestivalDuration() const;
+        void setFestivalDuration(int duration);
+
+        bool isOwnedByBank() const;
+        bool isOwnedBy(const std::string& username) const;
+
+        void resetFestivalEffect();
+        void resetAfterBankruptcyToBank();
 };
