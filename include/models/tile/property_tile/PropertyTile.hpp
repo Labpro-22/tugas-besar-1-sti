@@ -26,4 +26,15 @@ class PropertyTile : public Tile {
         virtual ~PropertyTile();
         int getPurchasePrice() const;
         int getLevel() const;
+
+        int canDoubleFestival() const; // ga bs double kalo itunya msh = 3 atau ga multipliernya = 8
+
+        int doubleTheMultiplier();
+
+        int resetTurnTo3(); // jadikan max lagi
+
+        bool alreadyMaxMultiplier()const;
+
+        bool festivalActive();
+
 };

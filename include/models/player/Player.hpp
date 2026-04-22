@@ -54,9 +54,12 @@ class Player {
         // cek bankrupt atau engga
         bool isBankrupt() const;
 
+
         // Inventory related
         std::vector<SkillCard*> getSkillCards();
         std::vector<PropertyTile*> getProperties();
+        bool hasProperty(std::string tileCode);
+        PropertyTile& getProperty(std::string code);
         
 
     private:

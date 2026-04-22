@@ -25,5 +25,5 @@ class Inventory {
         int countAllPropertyValueBasedOnPurchasePrice() const;
         int countAllBuildingsBasedOnPurchasePrice() const;
 
-
+        bool isExistsTileBasedOnCode(std::string code) const;
 };
