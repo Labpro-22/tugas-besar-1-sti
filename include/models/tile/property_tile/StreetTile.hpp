@@ -15,5 +15,7 @@ class StreetTile : public PropertyTile {
                 std::map<int, int> rentPricePerLevel, // Key : Level, Value : Rent Price
                 std::map<int, int> buildPrice_);
         ~StreetTile();
-        void onLand(Player& p) override;
+        OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
+
+        std::map<int, int> getBuildPrice() const;
 };

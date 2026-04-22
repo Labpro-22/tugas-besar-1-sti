@@ -10,5 +10,5 @@ class LuxuryGoodsTaxTile : public TaxTile {
             : TaxTile(tileID, letterCode, tileName, colourBlock) {}
         static void setPBMFlatCost(int cost);
         int getPBMFlatCost() const;
-        void executeTile(Player* p) override;
+        OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 };

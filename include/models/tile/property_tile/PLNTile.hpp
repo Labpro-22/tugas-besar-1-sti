@@ -7,5 +7,5 @@ class PLNTile : public UtilityTile{
                 std::string tileName, std::string colourBlock, 
                 int purchasePrice, int mortgageValue);
         ~PLNTile();
-        void onLand(Player& p) override;
+        OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 };

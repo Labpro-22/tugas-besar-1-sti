@@ -6,6 +6,4 @@ class TaxTile : public ActionTile {
     public:
         TaxTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock)
             : ActionTile(tileID, letterCode, tileName, colourBlock) {}
-        
-        virtual void executeTile(Player* p) override = 0;
 };

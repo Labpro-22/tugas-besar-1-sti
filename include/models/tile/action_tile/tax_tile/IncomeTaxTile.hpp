@@ -14,5 +14,5 @@ class IncomeTaxTile : public TaxTile {
         static void setTaxPercentage(float percentage);
         int getPPHFlatCost() const;
         float getTaxPercentage() const;
-        void executeTile(Player* p) override;
+        OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 };
