@@ -87,3 +87,13 @@ int Player::getTotalBuildingValue() const {
 bool Player::isBankrupt() const {
     return status_ == PlayerStatus::BANKRUPT;
 }
+
+// Inventory related
+
+std::vector<SkillCard*> Player::getSkillCards(){
+    return inventory_.getSkillCards();
+}
+std::vector<PropertyTile*> Player::getProperties(){
+    return inventory_.getProperties();
+
+}

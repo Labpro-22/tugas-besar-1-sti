@@ -6,10 +6,9 @@
 #include "models/tile/action_tile/tax_tile/TaxTile.hpp"
 class GameViewInterface {
     public:
+        // Joker of all trades oakwoawkaw
+        virtual void showMessage(std::string) = 0;
 
-        virtual void displayWelcomeMessage();
-
-        virtual void kasihmsg(std::string) = 0;
         // Kasih tunjuk boardnya
         virtual void cetakPapan();
 
@@ -20,26 +19,26 @@ class GameViewInterface {
         // roll settingan
         virtual void aturDadu();
 
-        virtual void cetakAkta(const Tile& tile);
+        virtual void cetakAkta();
 
         // cetak properti
-        virtual void cetakProperti(const PropertyTile& propertyTile);
+        virtual void cetakProperti();
 
         // kasih lihat mo beli
-        virtual bool beliProperti(const Player& player, const PropertyTile& propertyTile);
-        virtual void beliRailroad(const RailRoadTile& railRoadTile); //otomatis
-        virtual void beliUtility(const UtilityTile& utilityTile); //otomatis
+        virtual bool beliProperti();
+        virtual void beliRailroad(); //otomatis
+        virtual void beliUtility(); //otomatis
 
         // bayar sewa
-        virtual void bayarSewa(const Player& player, const PropertyTile& propertyTile);
+        virtual void bayarSewa();
 
-        virtual void bayarPajak(const Player& player, const TaxTile& taxTile);
+        virtual void bayarPajak();
 
-        virtual void gadai(const Player& player);
+        virtual void gadai();
 
-        virtual void tebus(const Player& player);
+        virtual void tebus();
 
-        virtual void bangun(const Player& player);
+        virtual void bangun();
 
 
         // lelang???

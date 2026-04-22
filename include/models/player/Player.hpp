@@ -1,9 +1,10 @@
 #pragma once
 #include <iostream>
 #include "../injector/injector.hpp"
-#include "../board/Board.hpp"
-#include "../inventory/Inventory.hpp"
-
+#include "models/board/Board.hpp"
+#include "models/inventory/Inventory.hpp"
+#include "models/card/skillcard/SkillCard.hpp"
+#include "models/tile/property_tile/PropertyTile.hpp"
 // belom ada : urutan turn
 class Player {
     public:
@@ -15,6 +16,9 @@ class Player {
         // kasih turn kapan???
         Player(std::string username, int initialBalance);
         ~Player();
+
+        // GETTER USERNAME
+        std::string getUsername() const;
 
         // SET TURN
         void setTurn(int turn);
@@ -29,6 +33,7 @@ class Player {
         void setStatus(PlayerStatus status);
 
         // MOVEMENT OR POSITION RELATED
+        int notViolatingDoubleRollCount() const;
         int getPosition() const;
         void setPosition(int pos);
         int move(int displacement);
@@ -48,6 +53,10 @@ class Player {
 
         // cek bankrupt atau engga
         bool isBankrupt() const;
+
+        // Inventory related
+        std::vector<SkillCard*> getSkillCards();
+        std::vector<PropertyTile*> getProperties();
         
 
     private:

@@ -1,9 +1,17 @@
 #pragma once
 #include <iostream>
 #include "../injector/injector.hpp"
+#include "views/CommandInterface.hpp"
+#include "views/GameViewInterface.hpp"
 
-// Forward Declaration, karena ada looping include: Tile -> Player -> Board -> Tile. Mencegah itu dengan ini, kalau error tinggal uncomment saja
-// class Player;
+enum class OnLandResult {
+    Done,
+    TriggerAuction,
+    TakeChanceCard,
+    TakeCommunityChest,
+    TriggerBankruptcyAuction, //
+    // tambahin lagi
+};
 
 class Tile {
     protected:
@@ -18,7 +26,7 @@ class Tile {
             std::string tileName, std::string colourBlock);
         virtual ~Tile();
 
-        virtual void onLand(Player& p) = 0;
+        virtual OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) = 0;
         virtual void getDetail() const;
 
         // Getter
