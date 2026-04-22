@@ -1,7 +1,10 @@
 #pragma once
 
 #include <string>
+#include <memory>
 #include <vector>
+
+#include "models/player/Player.hpp"
 
 class CommunityChestCard {
     public:
@@ -16,7 +19,7 @@ class CommunityChestCard {
         CommunityChestCard();
         CommunityChestCard(Instruction instruction);
 
-        void useCommunityChest(class Player& owner, const std::vector<class Player*>& allPlayers) const;
+        void useCommunityChest(Player& owner, const std::vector<std::unique_ptr<Player>>& allPlayers) const;
 
         Instruction getInstruction() const;
         const std::string& getDescription() const;

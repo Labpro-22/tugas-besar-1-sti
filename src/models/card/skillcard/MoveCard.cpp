@@ -21,8 +21,14 @@ MoveCard::MoveCard()
     description = "Bergerak maju " + std::to_string(steps_) + " petak.";
 }
 
+MoveCard::MoveCard(int steps)
+    : SkillCard("MoveCard", "")
+    , steps_(steps) {
+    description = "Bergerak maju " + std::to_string(steps_) + " petak.";
+}
+
 void MoveCard::activate(Player& owner) {
-    owner.setPosition(owner.getPosition() + steps_);
+    owner.move(steps_);
 }
 
 int MoveCard::getSteps() const {

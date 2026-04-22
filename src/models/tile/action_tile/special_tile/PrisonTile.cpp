@@ -3,36 +3,41 @@
 #include "core/Monopoly.hpp"
 #include <iostream>
 #include <limits>
+#include <stdexcept>
 
-void PrisonTile::onLand(Player& p) {
+OnLandResult PrisonTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
+    (void)p;
+    (void)command;
+    (void)view;
     std::cout << "Kamu mendarat di Petak Penjara!\n";
     std::cout << "Kamu dapat melanjutkan perjalanan di giliran selanjutnya.\n";
     std::cout << "---\n";
+    return OnLandResult::Done;
 }
 
-int PrisonTile::tryExitPrison(Player *p) {
+int PrisonTile::tryExitPrison(Player& p) {
     // TODO: implementasi fungsi di Player
-    p->incrementJailTurn();
-    int turns = p->getCountJail();
-    int oldBalance = p->getBalance();
+    p.incrementJailTurn();
+    int turns = p.getCountJail();
+    int oldBalance = p.getBalance();
     
     std::cout << "Status Tahanan: Giliran ke-" << turns << "\n";
 
     if (turns > 3) {
         std::cout << "Batas waktu habis! Kamu wajib membayar denda M" << getFineCost() << ".\n";
         
-        if (p->getBalance() < getFineCost()) {
-            std::cout << "Uangmu tidak cukup (M" << p->getBalance() << "). Kamu bangkrut!\n";
+        if (p.getBalance() < getFineCost()) {
+            std::cout << "Uangmu tidak cukup (M" << p.getBalance() << "). Kamu bangkrut!\n";
             // TODO: Recheck di Exception
             throw InsufficientFundsException();
         }
         
-        p->deductMoney(getFineCost());
-        p->setStatus(ACTIVE);
+        p.deductMoney(getFineCost());
+        p.setStatus(Player::ACTIVE);
         // TODO: implementasi fungsi di Player
-        p->resetJailTurn();
+        p.resetJailTurn();
         std::cout << "Kamu membayar denda M" << getFineCost() << " dan bebas!\n";
-        std::cout << "Uang kamu: M" << oldBalance << " -> M" << p->getBalance() << "\n";
+        std::cout << "Uang kamu: M" << oldBalance << " -> M" << p.getBalance() << "\n";
         return 0;
     }
 
@@ -56,15 +61,15 @@ int PrisonTile::tryExitPrison(Player *p) {
     std::cout << "\n";
 
     if (pilihan == 1) {
-        if (p->getBalance() < getFineCost()) {
-            std::cout << "Uangmu tidak cukup (M" << p->getBalance() << "). Kamu bangkrut!\n";
+        if (p.getBalance() < getFineCost()) {
+            std::cout << "Uangmu tidak cukup (M" << p.getBalance() << "). Kamu bangkrut!\n";
             throw InsufficientFundsException();
         }
-        p->deductMoney(getFineCost());
-        p->setStatus(ACTIVE);
-        p->resetJailTurn();
+        p.deductMoney(getFineCost());
+        p.setStatus(Player::ACTIVE);
+        p.resetJailTurn();
         std::cout << "Kamu membayar denda M" << getFineCost() << " dan bebas!\n";
-        std::cout << "Uang kamu: M" << oldBalance << " -> M" << p->getBalance() << "\n";
+        std::cout << "Uang kamu: M" << oldBalance << " -> M" << p.getBalance() << "\n";
         return 0;
 
     // } else if (pilihan == 2) {
@@ -75,7 +80,7 @@ int PrisonTile::tryExitPrison(Player *p) {
     //     return 0;
 
     } else {
-        Monopoly& m = p->getMonopoly(); 
+        Monopoly& m = p.getMonopoly(); 
         m.getDice()[0].rollRandom();
         m.getDice()[1].rollRandom();
         int v1 = m.getDice()[0].getFaceValue();
@@ -86,8 +91,8 @@ int PrisonTile::tryExitPrison(Player *p) {
         
         if (v1 == v2) {
             std::cout << "DOUBLE! Kamu terbebas dari penjara!\n";
-            p->setStatus(ACTIVE);
-            p->resetJailTurn();
+            p.setStatus(Player::ACTIVE);
+            p.resetJailTurn();
             
             // TODO: Confirm penanganan di takeTurn
             return hasilDadu; 

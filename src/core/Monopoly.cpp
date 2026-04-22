@@ -14,7 +14,7 @@ void Monopoly::setInitialBalance(int initialBalance) {
 void Monopoly::startGame() {
     view_->showMessage("Selamat datang!\nPutra-putri terbaik bangsa!");
     // minta folder yang mau di-load
-    Board& board = loadConfig();
+    std::unique_ptr<Board> board = loadConfig();
 
     // tanyain apakah mulai game baru atau yang udah ada
         // if udah ada artinya minta game state-nya
@@ -38,7 +38,7 @@ void Monopoly::startGame() {
     Dice dice = Dice();
 
     // tar
-    GameController gameController(players, board, dice, *view_, *command_); // tar lg pusing command sm si view bedanya apa
+    GameController gameController(players, *board, dice, *view_, *command_); // tar lg pusing command sm si view bedanya apa
     gameController.playGame(latestTurn, maxTurn_);
 }
 
@@ -66,7 +66,7 @@ void Monopoly::shufflePlayersTurn(std::vector<std::unique_ptr<Player>>& players)
     }
 }
 
-Board& Monopoly::loadConfig() {
+std::unique_ptr<Board> Monopoly::loadConfig() {
     std::string folderName = command_->askFolderForConfig();
 
     // proses sampe ga nil si ??

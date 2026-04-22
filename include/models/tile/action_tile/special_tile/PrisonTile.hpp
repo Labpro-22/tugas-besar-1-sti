@@ -10,6 +10,6 @@ class PrisonTile : public SpecialTile {
             : SpecialTile(tileID, letterCode, tileName, colourBlock), fineCost_(fineCost) {}
         
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
-        int tryExitPrison(Player *p);
+        int tryExitPrison(Player& p);
         int getFineCost() const { return fineCost_; }
 };

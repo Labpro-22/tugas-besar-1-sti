@@ -11,6 +11,7 @@ class DiscountCard : public SkillCard {
 		static const int kCardCount = 3;
 
 		DiscountCard();
+		DiscountCard(int discountPercent, int remainingTurns);
 		void activate(Player& owner) override;
 
 		int getDiscountPercent() const;

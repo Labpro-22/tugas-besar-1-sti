@@ -15,7 +15,7 @@ DiscountCard::DiscountCard()
 }
 
 void DiscountCard::activate(Player& owner) {
-    (void)owner;
+    owner.activateDiscount(discountPercent_, remainingTurns_);
     remainingTurns_ = 1;
     std::cout << "[DISCOUNT] Diskon " << discountPercent_
               << "% aktif untuk 1 giliran berikutnya.\n";
@@ -34,3 +34,8 @@ void DiscountCard::consumeTurn() {
         --remainingTurns_;
     }
 }
+
+DiscountCard::DiscountCard(int discountPercent, int remainingTurns)
+        : SkillCard("Discount Card", "Memberikan diskon acak selama 1 giliran"),
+            discountPercent_(discountPercent),
+            remainingTurns_(remainingTurns) {}
