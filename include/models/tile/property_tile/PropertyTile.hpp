@@ -24,4 +24,6 @@ class PropertyTile : public Tile {
                     // tambahan di PropertyTile
                     int purchasePrice, int mortgageValue);
         virtual ~PropertyTile();
+        int getPurchasePrice() const;
+        int getLevel() const;
 };

@@ -7,5 +7,5 @@ class PAMTile : public UtilityTile{
                 std::string tileName, std::string colourBlock, 
                 int purchasePrice, int mortgageValue);
         ~PAMTile();
-        void onLand(Player& p) override;
+        OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 };

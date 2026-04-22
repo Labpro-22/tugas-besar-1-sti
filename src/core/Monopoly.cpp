@@ -12,7 +12,7 @@ void Monopoly::setInitialBalance(int initialBalance) {
 }
 
 void Monopoly::startGame() {
-    view_->displayWelcomeMessage();
+    view_->showMessage("Selamat datang!\nPutra-putri terbaik bangsa!");
     // minta folder yang mau di-load
     Board& board = loadConfig();
 

@@ -1,15 +1,22 @@
 #include "../injector/injector.hpp"
 #include <random>
-class Dice : public IDice {
+class Dice {
     private:
         int die1_ = 0;
         int die2_ = 0;
     public:
         Dice();
-        ~Dice() override;
-        int roll() override;
+        ~Dice();
+        void roll();
 
-        int rollSettingan (int die1, int die2) override;
+        void rollSettingan (int die1, int die2);
 
-        bool isDouble() override;
+        int getRollResult() const;
+
+        bool isDouble();
+
+        int getDie2() const;
+
+        int getDie1() const;
+
 };

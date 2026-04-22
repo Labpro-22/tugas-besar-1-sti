@@ -9,7 +9,7 @@ class PrisonTile : public SpecialTile {
         PrisonTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock, int fineCost)
             : SpecialTile(tileID, letterCode, tileName, colourBlock), fineCost_(fineCost) {}
         
-        void onLand(Player& p) override;
+        OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
         int tryExitPrison(Player *p);
         int getFineCost() const { return fineCost_; }
 };
