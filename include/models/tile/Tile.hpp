@@ -9,7 +9,8 @@ enum class OnLandResult {
     TriggerAuction,
     TakeChanceCard,
     TakeCommunityChest,
-    TriggerBankruptcyAuction, //
+    TriggerBankruptcyAuction, 
+    TriggerMoveToJail, 
     // tambahin lagi
 };
 

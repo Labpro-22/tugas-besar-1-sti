@@ -179,6 +179,7 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
     Tile& nextTile = board_.moveToNextTile(p.move(firstDisplacement));
 
     // proses di dalam land
+    p.setPosition(nextTile.getTileID());
     OnLandResult result = nextTile.onLand(p, command_, view_);
 
     switch (result) {
@@ -209,6 +210,10 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
             processTakeCommunityChest(p);
             break;
         case OnLandResult::Done: // yang kelar
+            break;
+        case OnLandResult::TriggerMoveToJail: // move to jail
+            p.setPosition(board_.getJailPosition());
+            view_.showMessage("Kamu dipindahkan ke penjara");
             break;
             // go to jail perlu?
         default:
