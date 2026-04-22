@@ -8,6 +8,8 @@
 #include <functional>
 #include <memory>
 #include <cstddef>
+#include <algorithm>
+#include <vector>
 // belom ada : urutan turn
 class Player {
     public:
@@ -75,6 +77,8 @@ class Player {
         std::size_t getSkillCardCount() const;
         const SkillCard* getSkillCardAt(std::size_t idx) const;
         std::unique_ptr<SkillCard> takeSkillCard(std::size_t idx);
+
+        static const std::vector<Player*>& getAllPlayers();
         
 
     private:
@@ -91,4 +95,5 @@ class Player {
         int discountTurns_; // discount turn
         Inventory inventory_; // belom ada kelasnya wait ye
         static inline int countPlayer = 0;
+        static inline std::vector<Player*> allPlayers_ = {};
 };

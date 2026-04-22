@@ -14,7 +14,7 @@ MoveCard::MoveCard()
         steps_ = 67;
     }
     else {
-        std::uniform_int_distribution<int> normalDist(1, 6);
+        std::uniform_int_distribution<int> normalDist(1, 12);
         steps_ = normalDist(gen);
     }
 

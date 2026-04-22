@@ -1,13 +1,19 @@
 #include "models/player/Player.hpp"
-
 Player::Player(std::string username, int initialBalance) :
     id_(countPlayer++), username_(username),
     balance_(initialBalance), position_(0),
     status_(PlayerStatus::ACTIVE), doubleRollCount_(0),
     countJail_(0), playerTurn_(0), shieldTurns_(0),
-    discountPercent_(0), discountTurns_(0) {}
+    discountPercent_(0), discountTurns_(0) {
+    allPlayers_.push_back(this);
+}
 
-Player::~Player() = default;
+Player::~Player() {
+    auto it = std::find(allPlayers_.begin(), allPlayers_.end(), this);
+    if (it != allPlayers_.end()) {
+        allPlayers_.erase(it);
+    }
+}
 
 // SET TURN
 void Player::setTurn(int turn) {
@@ -168,4 +174,8 @@ const SkillCard* Player::getSkillCardAt(std::size_t idx) const {
 
 std::unique_ptr<SkillCard> Player::takeSkillCard(std::size_t idx) {
     return inventory_.takeSkillCard(idx);
+}
+
+const std::vector<Player*>& Player::getAllPlayers() {
+    return allPlayers_;
 }
