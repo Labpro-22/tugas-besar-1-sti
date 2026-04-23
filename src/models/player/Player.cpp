@@ -1,4 +1,5 @@
 #include "models/player/Player.hpp"
+#include <stdexcept>
 Player::Player(std::string username, int initialBalance) :
     id_(countPlayer++), username_(username),
     balance_(initialBalance), position_(0),
@@ -74,6 +75,10 @@ void Player::incrementDoubleCount() {
 
 bool Player::safeToGetMoreDouble() const {
     return doubleRollCount_ + 1 < 3;
+}
+
+int Player::notViolatingDoubleRollCount() const {
+    return doubleRollCount_ < 3;
 }
 
 // Jail related
@@ -187,6 +192,26 @@ bool Player::ownsProperty(PropertyTile* propertyTile) const {
         }
     }
     return false;
+}
+
+bool Player::hasProperty(std::string tileCode) {
+    std::vector<PropertyTile*> properties = inventory_.getProperties();
+    for (PropertyTile* p : properties) {
+        if (p != nullptr && p->getLetterCode() == tileCode) {
+            return true;
+        }
+    }
+    return false;
+}
+
+PropertyTile& Player::getProperty(std::string code) {
+    std::vector<PropertyTile*> properties = inventory_.getProperties();
+    for (PropertyTile* p : properties) {
+        if (p != nullptr && p->getLetterCode() == code) {
+            return *p;
+        }
+    }
+    throw std::runtime_error(std::string("Property not found: ") + code);
 }
 
 Inventory& Player::getInventory() {
