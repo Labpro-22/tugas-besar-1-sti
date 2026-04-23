@@ -5,16 +5,6 @@ PAMTile::PAMTile(int tileID, std::string letterCode, std::string tileName, std::
 
 PAMTile::~PAMTile() {}
 
-void PAMTile::onLand(Player& p)
-{
-    if (player != nullptr)
-    {
-        executeTile(*player);
-    }
-}
-
-void PAMTile::executeTile(Player& p)
-{
-    std::cout << "[Landed] Menginjak petak PAM. Tagihan air menunggu." << std::endl;
-    UtilityTile::executeTile(p);
+OnLandResult PAMTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
+    return UtilityTile::onLand(p, command, view);
 }

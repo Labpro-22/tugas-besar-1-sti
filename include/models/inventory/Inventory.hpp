@@ -18,9 +18,11 @@ class Inventory {
         ~Inventory();
 
         // properties
-        std::vector<std::reference_wrapper<PropertyTile>> getProperties();
-        void addProperty(PropertyTile& propertyTile);
-        void removeProperty(const PropertyTile& propertyTile);
+        std::vector<PropertyTile*> getProperties() const;
+        void addProperty(PropertyTile *propertyTile);
+        void removeProperty(PropertyTile *PropertyTile);
+        bool hasProperty(PropertyTile* propertyTile) const;
+        void clearProperties();
 
         // skill cards
         const std::vector<std::unique_ptr<SkillCard>>& getSkillCards() const;

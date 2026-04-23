@@ -3,7 +3,7 @@ Player::Player(std::string username, int initialBalance) :
     id_(countPlayer++), username_(username),
     balance_(initialBalance), position_(0),
     status_(PlayerStatus::ACTIVE), doubleRollCount_(0),
-    countJail_(0), playerTurn_(0), shieldTurns_(0),
+    countJail_(0), playerTurn_(0), lastDiceTotal_(0), shieldTurns_(0),
     discountPercent_(0), discountTurns_(0) {
     allPlayers_.push_back(this);
 }
@@ -13,6 +13,10 @@ Player::~Player() {
     if (it != allPlayers_.end()) {
         allPlayers_.erase(it);
     }
+}
+
+std::string Player::getUsername() const {
+    return username_;
 }
 
 // SET TURN
@@ -152,14 +156,50 @@ void Player::consumeDiscount() {
 
 // Inventory related
 
-const std::vector<std::unique_ptr<SkillCard>>& Player::getSkillCards() const {
+std::vector<SkillCard*> Player::getSkillCards() {
     return inventory_.getSkillCards();
 }
-std::vector<std::reference_wrapper<PropertyTile>> Player::getProperties() {
+std::vector<PropertyTile*> Player::getProperties() {
     return inventory_.getProperties();
-
 }
 
+void Player::addProperty(PropertyTile* propertyTile) {
+    if (propertyTile == nullptr) return;
+
+    inventory_.addProperty(propertyTile);
+    propertyTile->setOwnerUsername(username_);
+    propertyTile->setPropertyStatus(OWNED);
+}
+
+void Player::removeProperty(PropertyTile* propertyTile) {
+    if (propertyTile == nullptr) return;
+
+    inventory_.removeProperty(propertyTile);
+}
+
+bool Player::ownsProperty(PropertyTile* propertyTile) const {
+    if (propertyTile == nullptr) return false;
+
+    std::vector<PropertyTile*> properties = inventory_.getProperties();
+    for (size_t i = 0; i < properties.size(); i++) {
+        if (properties[i]->getTileID() == propertyTile->getTileID()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+Inventory& Player::getInventory() {
+    return inventory_;
+}
+
+int Player::getLastDiceTotal() const {
+    return lastDiceTotal_;
+}
+
+void Player::setLastDiceTotal(int diceTotal) {
+    lastDiceTotal_ = diceTotal;
+}
 void Player::addSkillCard(std::unique_ptr<SkillCard> skillCard) {
     inventory_.addSkillCards(std::move(skillCard));
 }
