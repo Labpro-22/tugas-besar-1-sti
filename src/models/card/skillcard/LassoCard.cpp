@@ -7,11 +7,8 @@ LassoCard::LassoCard()
 void LassoCard::activate(Player& owner) {
     const int ownerPos = owner.getPosition();
 
-    Player* nearestAhead = nullptr;
-    int nearestAheadPos = std::numeric_limits<int>::max();
-
-    Player* wrapCandidate = nullptr;
-    int wrapCandidatePos = std::numeric_limits<int>::max();
+    int targetTilePos = std::numeric_limits<int>::max();
+    bool foundAhead = false;
 
     for (Player* candidate : Player::getAllPlayers()) {
         if (candidate == nullptr || candidate == &owner) {
@@ -23,24 +20,42 @@ void LassoCard::activate(Player& owner) {
 
         const int pos = candidate->getPosition();
         if (pos > ownerPos) {
-            if (pos < nearestAheadPos) {
-                nearestAheadPos = pos;
-                nearestAhead = candidate;
+            if (!foundAhead || pos < targetTilePos) {
+                foundAhead = true;
+                targetTilePos = pos;
             }
-        } else {
-            if (pos < wrapCandidatePos) {
-                wrapCandidatePos = pos;
-                wrapCandidate = candidate;
-            }
+            continue;
+        }
+
+        if (!foundAhead && pos < targetTilePos) {
+            targetTilePos = pos;
         }
     }
 
-    Player* target = nearestAhead != nullptr ? nearestAhead : wrapCandidate;
-    if (target == nullptr) {
+    if (targetTilePos == std::numeric_limits<int>::max()) {
         std::cout << "[LASSO] Tidak ada lawan yang bisa ditarik.\n";
         return;
     }
 
-    target->setPosition(ownerPos);
-    std::cout << "[LASSO] " << target->getUsername() << " ditarik ke petak " << ownerPos << ".\n";
+    int pulledCount = 0;
+    for (Player* candidate : Player::getAllPlayers()) {
+        if (candidate == nullptr || candidate == &owner) {
+            continue;
+        }
+        if (candidate->isBankrupt()) {
+            continue;
+        }
+
+        if (candidate->getPosition() == targetTilePos) {
+            candidate->setPosition(ownerPos);
+            ++pulledCount;
+            std::cout << "[LASSO] " << candidate->getUsername() << " ditarik ke petak " << ownerPos << ".\n";
+        }
+    }
+
+    if (pulledCount == 0) {
+        std::cout << "[LASSO] Tidak ada lawan yang bisa ditarik.\n";
+    } else if (pulledCount > 1) {
+        std::cout << "[LASSO] Total " << pulledCount << " pemain ditarik dari petak " << targetTilePos << ".\n";
+    }
 }
