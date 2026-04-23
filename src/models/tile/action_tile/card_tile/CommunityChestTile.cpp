@@ -5,22 +5,7 @@
 #include <string>
 #include <limits>
 
-void CommunityChestTile::onLand(Player& p){
-    std::cout << "Kamu mendarat di Petak Dana Umum!\n";
-    std::cout << "Mengambil kartu...\n";
-
-    // TODO: Recheck getter di Board
-    Deck<CommunityChestCard>& deck = p->getBoard().getCommunityChestDeck();
-    
-    CommunityChestCard* drawnCard = deck.drawDeck();
-
-    // TODO: Recheck getter di ChanceCard
-    std::cout << "Kartu: \"" << drawnCard->getDescription() << "\"\n";
-
-    drawnCard->useCommunityChest(p);
-
-    // TODO: Recheck metode di Deck
-    deck.returnAndReshuffle(drawnCard);
-
-    std::cout << "---\n";
+OnLandResult CommunityChestTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
+    view.showMessage("Kamu mendarat di Community Chest Tile!\n");
+    return OnLandResult::TakeCommunityChest;
 }

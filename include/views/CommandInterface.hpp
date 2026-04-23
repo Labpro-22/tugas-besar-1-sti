@@ -55,4 +55,8 @@ class CommandInterface {
         virtual int askNumOfPlayer() = 0;
         virtual std::string askPlayerUsername() = 0;
         virtual bool askWantToLoadState() = 0;
+        virtual std::string getTileToGetFestival() = 0;
+
+        // buy
+        virtual bool askWantToBuyProperty() = 0;
 };

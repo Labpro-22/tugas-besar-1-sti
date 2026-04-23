@@ -46,6 +46,8 @@ class PropertyTile : public Tile {
 
         void resetFestivalEffect();
         void resetAfterBankruptcyToBank();
+        std::string getOwnerUsername() const;
+        std::string setOwnerUsernameToBank();
 
         int canDoubleFestival() const; // ga bs double kalo itunya msh = 3 atau ga multipliernya = 8
 
