@@ -35,6 +35,7 @@ class GameController {
         void processRedeem();
         void processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn);
         void processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn);
+        void processFestival(Player& p);
 
         void processTakeChanceCard(Player& p);
         void processTakeCommunityChest(Player& p);
