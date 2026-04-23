@@ -8,6 +8,9 @@
 #include <stdexcept>
 #include <utility>
 #include "models/tile/property_tile/StreetTile.hpp"
+#include "models/tile/property_tile/RailRoadTile.hpp"
+#include "models/tile/property_tile/UtilityTile.hpp"
+
 class Inventory {
     private:
         std::vector<PropertyTile*> properties_;
@@ -36,4 +39,7 @@ class Inventory {
         int countAllBuildingsBasedOnPurchasePrice() const;
 
         bool isExistsTileBasedOnCode(std::string code) const;
+
+        int countRailRoads() const;
+        int countUtilities() const;
 };

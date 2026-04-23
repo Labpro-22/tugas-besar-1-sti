@@ -126,3 +126,23 @@ bool Inventory::isExistsTileBasedOnCode(std::string code) const {
     }
     return false;
 }
+
+int Inventory::countRailRoads() const {
+    int count = 0;
+    for (PropertyTile* p : properties_) {
+        if (dynamic_cast<RailRoadTile*>(p) != nullptr) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int Inventory::countUtilities() const {
+    int count = 0;
+    for (PropertyTile* p : properties_) {
+        if (dynamic_cast<UtilityTile*>(p) != nullptr) {
+            count++;
+        }
+    }
+    return count;
+}

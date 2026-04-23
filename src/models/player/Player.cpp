@@ -244,3 +244,11 @@ std::unique_ptr<SkillCard> Player::takeSkillCard(std::size_t idx) {
 const std::vector<Player*>& Player::getAllPlayers() {
     return allPlayers_;
 }
+
+int Player::countRailroad() const {
+    return inventory_.countRailRoads();
+}
+
+int Player::countUtilities() const {
+    return inventory_.countUtilities();
+}

@@ -92,6 +92,9 @@ class Player {
         std::unique_ptr<SkillCard> takeSkillCard(std::size_t idx);
 
         static const std::vector<Player*>& getAllPlayers();
+
+        int countRailroad() const;
+        int countUtilities() const;
         
 
     private:
