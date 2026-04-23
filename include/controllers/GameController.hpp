@@ -26,15 +26,15 @@ class GameController {
         void playGame(int latesTurn, int maxTurn);
         void processTurn(Player& p);
         void processMovement(Player& p, int firstDisplacement);
-        void processSpecialCardUse(Player& p);
+        void processSpecialCardUse(Player& p, bool& hasUsedSkillCardThisTurn);
         void processPickAndDropSpecialCard(Player& p);
         void processRollDice(Player& p);
         void processAuction(Player& p, PropertyTile& propertyTile);
         void processMortgage();
         void processBuyBuilding();
         void processRedeem();
-        void processJailTurn(Player& p);
-        void processNormalTurn(Player& p);
+        void processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn);
+        void processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn);
 
         void processTakeChanceCard(Player& p);
         void processTakeCommunityChest(Player& p);

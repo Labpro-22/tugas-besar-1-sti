@@ -5,6 +5,11 @@
 #include "models/inventory/Inventory.hpp"
 #include "models/card/skillcard/SkillCard.hpp"
 #include "models/tile/property_tile/PropertyTile.hpp"
+#include <functional>
+#include <memory>
+#include <cstddef>
+#include <algorithm>
+#include <vector>
 // belom ada : urutan turn
 class Player {
     public:
@@ -54,9 +59,26 @@ class Player {
         // cek bankrupt atau engga
         bool isBankrupt() const;
 
+        // shield
+        void activateShield(int turns = 1);
+        bool isShielded() const;
+        void consumeShield();
+
+        // discount
+        void activateDiscount(int percent, int turns = 1);
+        bool isDiscounted() const;
+        int getDiscountPercent() const;
+        void consumeDiscount();
+
         // Inventory related
-        std::vector<SkillCard*> getSkillCards();
-        std::vector<PropertyTile*> getProperties();
+        const std::vector<std::unique_ptr<SkillCard>>& getSkillCards() const;
+        std::vector<std::reference_wrapper<PropertyTile>> getProperties();
+        void addSkillCard(std::unique_ptr<SkillCard> skillCard);
+        std::size_t getSkillCardCount() const;
+        const SkillCard* getSkillCardAt(std::size_t idx) const;
+        std::unique_ptr<SkillCard> takeSkillCard(std::size_t idx);
+
+        static const std::vector<Player*>& getAllPlayers();
         
 
     private:
@@ -68,6 +90,10 @@ class Player {
         int doubleRollCount_; // default 0
         int countJail_; // default
         int playerTurn_; // urutan ke berapa
+        int shieldTurns_; // shield turn
+        int discountPercent_; // discount percent
+        int discountTurns_; // discount turn
         Inventory inventory_; // belom ada kelasnya wait ye
         static inline int countPlayer = 0;
+        static inline std::vector<Player*> allPlayers_ = {};
 };

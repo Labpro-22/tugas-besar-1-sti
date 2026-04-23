@@ -1,40 +1,39 @@
 #include "../../../include/models/card/Deck.hpp"
 
-
 template <typename T>
 Deck<T>::Deck(int capacity) : capacity_(capacity) {}
 
 template <typename T>
-void Deck<T>::initDeck(const std::vector<T*>& initialCards) {
+void Deck<T>::initDeck(std::vector<std::unique_ptr<T>> initialCards) {
 	while (!drawPile_.empty()) drawPile_.pop();
 	discardPile_.clear();
 
-	for (T* card : initialCards)
+	for (auto& card : initialCards)
     {
-		discardPile_.push_back(card);
+		discardPile_.push_back(std::move(card));
 	}
 	capacity_ = static_cast<int>(discardPile_.size());
 	shuffleDeck();
 }
 
 template <typename T>
-T* Deck<T>::drawDeck() {
+std::unique_ptr<T> Deck<T>::drawDeck() {
 	if (drawPile_.empty())
     {
-		if (discardPile_.empty()) return nullptr;
+		if (discardPile_.empty()) return {};
 		shuffleDeck();
 	}
 
-	T* card = drawPile_.top();
+	std::unique_ptr<T> card = std::move(drawPile_.top());
 	drawPile_.pop();
 	return card;
 }
 
 template <typename T>
-void Deck<T>::pushToDiscard(T* item) {
+void Deck<T>::pushToDiscard(std::unique_ptr<T> item) {
 	if (item)
     {
-		discardPile_.push_back(item);
+		discardPile_.push_back(std::move(item));
 	}
 }
 
@@ -47,9 +46,9 @@ void Deck<T>::shuffleDeck() {
 
 	std::shuffle(discardPile_.begin(), discardPile_.end(), g);
 
-	for (T* card : discardPile_)
+	for (auto& card : discardPile_)
     {
-		drawPile_.push(card);
+		drawPile_.push(std::move(card));
 	}
 	discardPile_.clear();
 }

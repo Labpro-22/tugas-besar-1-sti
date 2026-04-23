@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "models/card/skillcard/SkillCard.hpp"
+#include "models/player/Player.hpp"
 
 class SkillCard {
 	protected:
