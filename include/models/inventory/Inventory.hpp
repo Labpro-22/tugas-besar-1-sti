@@ -10,7 +10,7 @@
 #include "models/tile/property_tile/StreetTile.hpp"
 class Inventory {
     private:
-        std::vector<std::reference_wrapper<PropertyTile>> properties_;
+        std::vector<PropertyTile*> properties_;
         std::vector<std::unique_ptr<SkillCard>> skillCards_;// tar perlu jd interface?
     public:
         // init owned properties sm owned skill cards
@@ -25,7 +25,7 @@ class Inventory {
         void clearProperties();
 
         // skill cards
-        const std::vector<std::unique_ptr<SkillCard>>& getSkillCards() const;
+        std::vector<SkillCard*> getSkillCards() const;
         void addSkillCards(std::unique_ptr<SkillCard> skillCard);
         void removeSkillCard(const SkillCard& skillCard);
         std::size_t getSkillCardCount() const;
