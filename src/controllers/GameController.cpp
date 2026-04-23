@@ -1,4 +1,6 @@
 #include "controllers/GameController.hpp"
+#include "models/card/skillcard/MoveCard.hpp"
+#include "models/card/skillcard/TeleportCard.hpp"
 
 GameController::GameController(std::vector<std::unique_ptr<Player>>& players,
     Board& board, Dice& dice, GameViewInterface& view,
@@ -456,7 +458,9 @@ void GameController::processFestival(Player& p) {
     std::string chosenPropCode;
     PropertyTile* propTile = nullptr; // nantilah ubah malas
     do {
-        chosenPropCode = command_.getTileToGetFestival();
+        view_.showMessage("Masukkan kode properti untuk festival: ");
+        Command cmd = command_.getCommand();
+        chosenPropCode = cmd.getStringArg();
         if (!board_.has(chosenPropCode)) {
             // continue
             view_.showMessage("Kode tidak valid!\n");
