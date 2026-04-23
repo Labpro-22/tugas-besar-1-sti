@@ -8,6 +8,7 @@
 #include "views/GameViewInterface.hpp"
 #include <algorithm>
 #include <random>
+#include "models/card/skillcard/SkillCard.hpp"
 
 class Monopoly {
     private:

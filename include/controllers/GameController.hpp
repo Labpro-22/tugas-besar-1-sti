@@ -1,3 +1,4 @@
+#pragma once
 #include "models/board/Board.hpp"
 #include "models/player/Player.hpp"
 #include "views/CommandInterface.hpp"
@@ -7,7 +8,9 @@
 #include "models/tile/property_tile/PropertyTile.hpp"
 #include <memory>
 #include <vector>
-
+#include "models/card/Deck.hpp"
+#include "models/card/skillcard/SkillCard.hpp"
+#include "models/card/skillcard/LassoCard.hpp"
 class GameController {
     public:
         enum class GameState  {
@@ -19,9 +22,9 @@ class GameController {
             BANKRUT,
         };
 
-        GameController(std::vector<std::unique_ptr<Player>>& players, 
+        GameController(std::vector<std::unique_ptr<Player>> players, 
             Board& board, Dice& dice, GameViewInterface& view, 
-            CommandInterface& command);
+            CommandInterface& command, Deck<SkillCard>& specialCardDeck_);
         ~GameController();
 
         void playGame(int latesTurn, int maxTurn);
@@ -43,14 +46,17 @@ class GameController {
         void processTakeChanceCard(Player& p);
         void processTakeCommunityChest(Player& p);
         bool hasSoleWinner() const;
+        void decideWinner() const;
+
 
     private:
         // Deck<SpecialCard>...
+        Deck<SkillCard>& specialCardDeck_;
         Board& board_;
         Dice& dice_;
         GameViewInterface& view_;
         CommandInterface& command_;
-        std::vector<std::unique_ptr<Player>>& players_; // gabs pake &
+        std::vector<std::unique_ptr<Player>> players_; 
 
         GameState state_;
 };
