@@ -391,3 +391,101 @@ std::string Auction::getStatusText() const {
 
     return oss.str();
 }
+
+void Auction::runAuction(Player& triggerPlayer, PropertyTile& propertyTile, AuctionCause cause, CommandInterface& command) {
+    start(triggerPlayer, propertyTile, cause);
+
+    while (!isFinished()) {
+        Player* current = getCurrentPlayer();
+        if (current == nullptr) {
+            break;
+        }
+
+        view_.showMessage("\nGiliran: " + current->getUsername() + "\n");
+
+        int minBid = getMinBid();
+
+        if (canCurrentPlayerPass()) {
+            view_.showMessage("Aksi lelang:\n");
+            view_.showMessage("0 -> PASS\n");
+            view_.showMessage(std::to_string(minBid) + "+ -> BID\n");
+        } else {
+            view_.showMessage("Wajib BID (tidak boleh PASS).\n");
+            view_.showMessage("Masukkan bid >= " + std::to_string(minBid) + "\n");
+        }
+
+        view_.showMessage("Saldo: M" + std::to_string(current->getBalance()) + "\n");
+        view_.showMessage("Input: ");
+
+        int input = command.getInt(0, current->getBalance());
+
+        if (input == 0) {
+            if (canCurrentPlayerPass()) {
+                passCurrentPlayer();
+            } else {
+                view_.showMessage("Tidak boleh PASS di giliran ini!\n");
+            }
+        } else {
+            if (canCurrentPlayerBid(input)) {
+                bidCurrentPlayer(input);
+            } else {
+                view_.showMessage("Bid tidak valid!\n");
+            }
+        }
+    }
+}
+
+void Auction::runBankruptcyAuction(Player& bankruptPlayer, CommandInterface& command) {
+    view_.showMessage(bankruptPlayer.getUsername() + " dinyatakan BANGKRUT kepada Bank!\n");
+
+    int remainingMoney = bankruptPlayer.getBalance();
+    if (remainingMoney > 0) {
+        view_.showMessage("Uang sisa M" + std::to_string(remainingMoney) +
+                          " diserahkan ke Bank.\n");
+        bankruptPlayer.deductMoney(remainingMoney);
+    }
+
+    std::vector<PropertyTile*> properties = bankruptPlayer.getProperties();
+
+    bankruptPlayer.setStatus(Player::PlayerStatus::BANKRUPT);
+
+    if (properties.empty()) {
+        view_.showMessage("Pemain tidak memiliki properti untuk dilelang.\n");
+        return;
+    }
+
+    view_.showMessage("Seluruh properti dikembalikan ke Bank.\n");
+
+    for (PropertyTile* property : properties) {
+        if (property == nullptr) {
+            continue;
+        }
+
+        bankruptPlayer.removeProperty(property);
+        property->resetAfterBankruptcyToBank();
+    }
+
+    view_.showMessage("Properti akan dilelang satu per satu.\n");
+
+    for (PropertyTile* property : properties) {
+        if (property == nullptr) {
+            continue;
+        }
+
+        view_.showMessage("Lelang properti: " + property->getTileName() +
+                          " (" + property->getLetterCode() + ")\n");
+
+        runAuction(bankruptPlayer, *property, AuctionCause::BANKRUPTCY_TO_BANK,command);
+    }
+
+    view_.showMessage(bankruptPlayer.getUsername() + " telah keluar dari permainan.\n");
+
+    int activePlayers = 0;
+    for (size_t i = 0; i < players_.size(); i++) {
+        if (!players_[i]->isBankrupt()) {
+            activePlayers++;
+        }
+    }
+
+    view_.showMessage("Permainan berlanjut dengan " + std::to_string(activePlayers) + " pemain tersisa.\n");
+}

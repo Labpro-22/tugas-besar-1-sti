@@ -92,6 +92,10 @@ public:
     std::string getStatusText() const; // untuk GUI tampilkan status lelang, termasuk properti yang dilelang, penyebab lelang, pemain dengan penawaran tertinggi, dan giliran pemain saat ini
 
     void reset(); // reset state internal lelang, untuk dipakai sebelum start() agar bisa dipakai berulang kali untuk properti berikutnya
+
+    void runAuction(Player& triggerPlayer, PropertyTile& propertyTile, AuctionCause cause, CommandInterface& command);
+
+    void runBankruptcyAuction(Player& bankruptPlayer, CommandInterface& command);
 };
 
 /*
