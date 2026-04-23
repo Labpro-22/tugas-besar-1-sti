@@ -13,7 +13,7 @@ class PropertyTile : public Tile {
         int festivalDuration_; // adalah durasi dari festival yang bernilai 0–3 (0 = tidak aktif)
         PropertyStatus propertyStatus_; //  status dari properti yang bernilai BANK, OWNED, atau MORTGAGED
         int level_; // bernilai 0–4 untuk rumah, atau H untuk hotel. Untuk properti selain street, isi dengan 0.
-                    // conflict dengan "kosong (Level 0) hingga hotel (Level 5). "
+        // conflict dengan "kosong (Level 0) hingga hotel (Level 5). "
                     
         int mortgageValue_; // nilai gadai
         int purchasePrice_; // harga beli pertama kali
@@ -46,4 +46,15 @@ class PropertyTile : public Tile {
 
         void resetFestivalEffect();
         void resetAfterBankruptcyToBank();
+
+        int canDoubleFestival() const; // ga bs double kalo itunya msh = 3 atau ga multipliernya = 8
+
+        int doubleTheMultiplier();
+
+        int resetTurnTo3(); // jadikan max lagi
+
+        bool alreadyMaxMultiplier()const;
+
+        bool festivalActive();
+
 };

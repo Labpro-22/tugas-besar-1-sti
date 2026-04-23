@@ -18,7 +18,7 @@ class Monopoly {
 
         std::vector<std::unique_ptr<Player>> registerPlayers(int numOfPlayers);
         void shufflePlayersTurn(std::vector<std::unique_ptr<Player>>& players_);
-        Board& loadConfig();
+        std::unique_ptr<Board> loadConfig();
         // LoadState();
         
     public:

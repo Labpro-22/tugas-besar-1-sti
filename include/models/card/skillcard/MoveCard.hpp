@@ -10,6 +10,7 @@ class MoveCard : public SkillCard {
 		static const int kCardCount = 4;
 
 		MoveCard();
+		MoveCard(int steps);
 		void activate(Player& owner) override;
 
 		int getSteps() const;

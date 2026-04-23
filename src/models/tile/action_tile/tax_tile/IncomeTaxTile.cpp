@@ -1,9 +1,4 @@
 #include "models/tile/action_tile/tax_tile/IncomeTaxTile.hpp"
-#include "models/player/Player.hpp"
-#include "models/exception/Exception.hpp"
-#include <iostream>
-#include <string>
-#include <limits>
 
 void IncomeTaxTile::setPPHFlatCost(int cost) {
     flatCost_ = cost;

@@ -2,14 +2,11 @@
 #include "models/player/Player.hpp"
 #include <iostream>
 
-void GoTile::onLand(Player& p) {
-    // TODO: Kalau melewati doang tuh dihandle Player
-    std::cout << "Kamu mendarat di Petak Go!\n";
-    std::cout << "Menerima bonus gaji sebesar M" << getSalary() << "\n";
+OnLandResult GoTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
+    view.showMessage("Kamu mendarat di GoTile, kamu mendapatkan uang sebanyak X!\n");
     
-    int oldBalance = p->getBalance();
-    p->addMoney(getSalary());
+    p.addMoney(getSalary());
 
-    std::cout << "Uang kamu: M" << oldBalance << " -> M" << p->getBalance() << "\n";
-    std::cout << "---\n";
+    view.showMessage("Uang kamu sebesar X\n");
+    return OnLandResult::Done;
 }
