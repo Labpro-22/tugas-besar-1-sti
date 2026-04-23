@@ -59,4 +59,6 @@ class PropertyTile : public Tile {
 
         bool festivalActive();
 
+        bool isMortgaged() const;
+
 };

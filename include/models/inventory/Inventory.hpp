@@ -25,6 +25,7 @@ class Inventory {
 
         // properties
         std::vector<PropertyTile*> getProperties() const;
+        std::vector<PropertyTile*> getMortgagedProperties() const;
         void addProperty(PropertyTile *propertyTile);
         void removeProperty(PropertyTile *PropertyTile);
         bool hasProperty(PropertyTile* propertyTile) const;

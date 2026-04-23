@@ -8,6 +8,16 @@ std::vector<PropertyTile*> Inventory::getProperties() const {
     return properties_;
 }
 
+std::vector<PropertyTile*> Inventory::getMortgagedProperties() const {
+    std::vector<PropertyTile*> mortgagedProps;
+    for (size_t i = 0; i < getProperties().size(); i++) {
+        if (getProperties().at(i) != nullptr && getProperties().at(i)->isMortgaged()) {
+            mortgagedProps.push_back(getProperties().at(i));
+        }
+    }
+    return mortgagedProps;
+}
+
 void Inventory::addProperty(PropertyTile *propertyTile) {
     if (propertyTile == nullptr) return;
 

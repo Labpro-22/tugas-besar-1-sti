@@ -13,15 +13,6 @@
 #include "models/card/skillcard/LassoCard.hpp"
 class GameController {
     public:
-        enum class GameState  {
-            WAITING_FOR_ROLL_DICE,
-            FREE_SUDAH_ROLL_DICE,
-            INJAIL,
-
-            LELANG,
-            BANKRUT,
-        };
-
         GameController(std::vector<std::unique_ptr<Player>> players, 
             Board& board, Dice& dice, GameViewInterface& view, 
             CommandInterface& command, Deck<SkillCard>& specialCardDeck_);
@@ -37,9 +28,9 @@ class GameController {
         void processBankruptcyToBank(Player& p);
         void transferProperty(Player& from, Player& to, PropertyTile& propertyTile);
 
-        void processMortgage();
-        void processBuyBuilding();
-        void processRedeem();
+        void processMortgage(Player& p);
+        void processBuyBuilding(Player& p);
+        void processRedeem(Player& p);
         void processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn);
         void processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn);
         void processFestival(Player& p);
@@ -48,7 +39,6 @@ class GameController {
         bool hasSoleWinner() const;
         void decideWinner() const;
 
-
     private:
         // Deck<SpecialCard>...
         Deck<SkillCard>& specialCardDeck_;
@@ -56,8 +46,9 @@ class GameController {
         Dice& dice_;
         GameViewInterface& view_;
         CommandInterface& command_;
-        std::vector<std::unique_ptr<Player>> players_; 
+        std::vector<std::unique_ptr<Player>> players_;
 
-        GameState state_;
+        int goSalary_;
+        int jailFine_;
 };
 
