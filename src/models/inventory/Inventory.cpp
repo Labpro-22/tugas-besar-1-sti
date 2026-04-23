@@ -13,6 +13,12 @@ void Inventory::addProperty(PropertyTile *propertyTile) {
 
     if (!hasProperty(propertyTile)) {
         properties_.push_back(propertyTile);
+        if (dynamic_cast<RailRoadTile*>(propertyTile) != nullptr) {
+            countRailRoads_++;
+        }
+        if (dynamic_cast<PropertyTile*>(propertyTile) != nullptr) {
+            countUtilities_++;
+        }
     }
 }
 
@@ -22,6 +28,12 @@ void Inventory::removeProperty(PropertyTile *propertyTile) {
     for (size_t i = 0; i < properties_.size(); i++) {
         if (properties_[i] == propertyTile) {
             properties_.erase(properties_.begin() + i);
+            if (dynamic_cast<RailRoadTile*>(propertyTile) != nullptr) {
+                countRailRoads_--;
+            }
+            if (dynamic_cast<PropertyTile*>(propertyTile) != nullptr) {
+                countUtilities_--;
+            }
             return;
         }
     }
@@ -128,21 +140,9 @@ bool Inventory::isExistsTileBasedOnCode(std::string code) const {
 }
 
 int Inventory::countRailRoads() const {
-    int count = 0;
-    for (PropertyTile* p : properties_) {
-        if (dynamic_cast<RailRoadTile*>(p) != nullptr) {
-            count++;
-        }
-    }
-    return count;
+    return countRailRoads_;
 }
 
 int Inventory::countUtilities() const {
-    int count = 0;
-    for (PropertyTile* p : properties_) {
-        if (dynamic_cast<UtilityTile*>(p) != nullptr) {
-            count++;
-        }
-    }
-    return count;
+    return countUtilities_;
 }

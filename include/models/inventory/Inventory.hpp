@@ -1,3 +1,4 @@
+#pragma once
 #include "models/tile/property_tile/PropertyTile.hpp"
 #include "models/card/skillcard/ShieldCard.hpp"
 #include <functional>
@@ -15,6 +16,8 @@ class Inventory {
     private:
         std::vector<PropertyTile*> properties_;
         std::vector<std::unique_ptr<SkillCard>> skillCards_;// tar perlu jd interface?
+        int countUtilities_;
+        int countRailRoads_;
     public:
         // init owned properties sm owned skill cards
         Inventory();
