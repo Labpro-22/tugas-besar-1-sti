@@ -4,9 +4,9 @@
 
 GameController::GameController(std::vector<std::unique_ptr<Player>> players,
     Board& board, Dice& dice, GameViewInterface& view,
-    CommandInterface& command, Deck<SkillCard>& specialCardDeck)
-    : players_(std::move(players)), board_(board), dice_(dice),
-    view_(view), command_(command), specialCardDeck_(specialCardDeck) {}
+    CommandInterface& command)
+    : players_(players), board_(board), dice_(dice),
+    view_(view), command_(command), auction_(players_, view_){}
 
 GameController::~GameController() = default;
 
@@ -166,261 +166,6 @@ void GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn) 
     }
 }
 
-// PROCES SKILL CARD USAGE ====================================================================================================
-void GameController::processPickAndDropSpecialCard(Player& p) {
-    std::unique_ptr<SkillCard> newObtainedCard = specialCardDeck_.drawDeck();
-    view_.showMessage("KARTU YANG DIDAPATKAN ..........");
-    bool throwNewObtained = false; // latest
-    int selected = p.getSkillCardCount() + 1;
-
-    try {
-        // push ke dalam stack
-        p.getInventory().addSkillCards(std::move(newObtainedCard));
-    }
-    catch(const std::exception& e) {
-        std::cerr << e.what() << '\n'; ///////
-        view_.showMessage("Silahkan pilih yang mau dibuang terlebih dahulu\n");
-
-        int selected = command_.getInt(1,  p.getSkillCardCount() + 1);
-        if (selected  == p.getSkillCardCount() + 1) {
-            throwNewObtained = true;
-        }
-
-        if (throwNewObtained) {
-            // Balikin ke deck aja
-            specialCardDeck_.pushToDiscard(std::move(newObtainedCard));
-        } else {
-            std::unique_ptr<SkillCard> thrownAwayCard = p.getInventory().removeSkillCardAt(selected);
-            p.getInventory().addSkillCards(std::move(newObtainedCard));
-            specialCardDeck_.pushToDiscard(std::move(thrownAwayCard));
-        }
-        return;
-    }
-
-    // bisa langsung push
-    p.getInventory().addSkillCards(std::move(newObtainedCard));
-    view_.showMessage("Kartu X berhasil dibuang, Kartu Y kembali diterima!\n");
-}
-
-/*
-Memproses penggunaan skill card
-Notes : MoveCard, LassoCard, TeleportCard
-*/
-void GameController::processSpecialCardUse(Player& p, bool& hasUsedSkillCardThisTurn) {
-    if (hasUsedSkillCardThisTurn) {
-        view_.showMessage("Kartu kemampuan hanya boleh dipakai maksimal 1 kali per giliran.\n");
-        return;
-    }
-
-    if (p.getSkillCardCount() == 0) {
-        view_.showMessage("Kamu tidak punya kartu kemampuan untuk digunakan.\n");
-        return;
-    }
-
-    view_.showMessage("Silahkan pilih kartu yang mau kamu pakai!\n");
-
-    // NOTES : ga perlu pake loop kirim aja biar si interface yg ngurus
-    // for (std::size_t i = 0; i < p.getSkillCardCount(); ++i) {
-    //     const SkillCard* card = p.getSkillCardAt(i);
-    //     view_.showMessage(std::to_string(i + 1) + ". " + card->getName() + " - " + card->getDescription() + "\n");
-    // }
-
-    int selected = command_.getInt(1, p.getSkillCardCount());
-    std::size_t selectedIndex = static_cast<std::size_t>(selected - 1);
-    const SkillCard* selectedCard = p.getSkillCardAt(selectedIndex);
-
-    if (p.isInJail()) {
-        if (dynamic_cast<const MoveCard*>(selectedCard) != nullptr ||
-            dynamic_cast<const TeleportCard*>(selectedCard) != nullptr ||
-            dynamic_cast<const LassoCard*>(selectedCard) != nullptr) {
-            view_.showMessage("Saat di penjara, kartu Move/Teleport tidak dapat digunakan.\n");
-            return;
-        }
-    }
-
-    std::unique_ptr<SkillCard> usedCard = p.removeSkillCardAt(selectedIndex);
-    usedCard->activate(p);
-    // masukkan balik dong ke deck-nya
-    view_.showMessage("Kartu " + usedCard->getName() + " telah dipakai.\n");
-
-    specialCardDeck_.pushToDiscard(std::move(usedCard));
-    hasUsedSkillCardThisTurn = true;
-}
-
-// AUCTION RELATED ========================================================================================
-void GameController::transferProperty(Player& from, Player& to, PropertyTile& propertyTile) {
-    PropertyStatus oldStatus = propertyTile.getPropertyStatus();
-
-    from.removeProperty(&propertyTile);
-    to.addProperty(&propertyTile);
-
-    propertyTile.setPropertyStatus(oldStatus);
-}
-
-// Bisa di-consider perlu kelas sendiri "AuctionController" atau engga
-void GameController::processAuction(Player& triggerPlayer, PropertyTile& propertyTile) {
-    view_.showMessage("Properti " + propertyTile.getTileName() + " (" + propertyTile.getLetterCode() + ") akan dilelang!\n");
-
-    // cari index trigger player
-    int triggerIdx = -1;
-    for (size_t i = 0; i < players_.size(); i++) {
-        if (players_[i].get() == &triggerPlayer) {
-            triggerIdx = static_cast<int>(i);
-            break;
-        }
-    }
-
-    if (triggerIdx == -1) {
-        view_.showMessage("Trigger player tidak ditemukan. Lelang dibatalkan.\n");
-        return;
-    }
-
-    // untuk peserta lelang: udah sesuai urutan
-    // kalo trigger player gak bankrupt -> ikut putaran terakhir
-    // kalo bakrupt -> ga ikut
-    std::vector<Player*> participants;
-    int n = static_cast<int>(players_.size());
-
-    for (int step = 1; step <= n; step++) {
-        int idx = (triggerIdx + step) % n;
-        Player* candidate = players_[idx].get();
-
-        if (candidate->isBankrupt()) {
-            continue;
-        }
-
-        if (candidate == &triggerPlayer && triggerPlayer.isBankrupt()) {
-            continue;
-        }
-
-        participants.push_back(candidate);
-    }
-
-    if (participants.empty()) {
-        view_.showMessage("Tidak ada peserta valid untuk lelang.\n");
-        return;
-    }
-
-    view_.showMessage("Urutan lelang dimulai dari pemain setelah " + triggerPlayer.getUsername() + ".\n");
-
-    int highestBid = -1;
-    Player* currentWinner = nullptr;
-    int consecutivePasses = 0;
-    int idx = 0;
-
-    while (true) {
-        Player* currentPlayer = participants[idx];
-        view_.showMessage("\nGiliran: " + currentPlayer->getUsername() + "\n");
-
-        bool forcedBid = (currentWinner == nullptr && consecutivePasses == static_cast<int>(participants.size()) - 1);
-
-        if (forcedBid) {
-            view_.showMessage("Semua pemain sebelumnya PASS. Kamu wajib melakukan bid.\n");
-            view_.showMessage("Masukkan bid (minimal 0, maksimal " + std::to_string(currentPlayer->getBalance()) + "): ");
-            int bid = command_.getInt(0, currentPlayer->getBalance());
-
-            highestBid = bid;
-            currentWinner = currentPlayer;
-            consecutivePasses = 0;
-
-            view_.showMessage("Penawaran tertinggi: M" + std::to_string(highestBid) +
-                            " (" + currentWinner->getUsername() + ")\n");
-        } else {
-            int minBid;
-            if (highestBid < 0) {
-                minBid = 0;
-            } else {
-                minBid = highestBid + 1;
-            }
-            view_.showMessage("Aksi auction:\n");
-            view_.showMessage("- masukkan 0 untuk PASS\n");
-            view_.showMessage("- masukkan angka >= " + std::to_string(minBid) + " untuk BID\n");
-            view_.showMessage("Masukkan pilihan (maksimal " + std::to_string(currentPlayer->getBalance()) + "): ");
-
-            int input = command_.getInt(0, currentPlayer->getBalance());
-
-            if (input == 0) {
-                view_.showMessage(currentPlayer->getUsername() + " memilih PASS.\n");
-                consecutivePasses++;
-
-                if (currentWinner != nullptr &&
-                    consecutivePasses >= static_cast<int>(participants.size()) - 1) {
-                    break;
-                }
-            } else {
-                if (input < minBid) {
-                    view_.showMessage("Bid tidak valid karena harus lebih tinggi dari bid sebelumnya.\n");
-                    // giliran pemain yang sama diulang
-                    continue;
-                }
-
-                highestBid = input;
-                currentWinner = currentPlayer;
-                consecutivePasses = 0;
-
-                view_.showMessage("Penawaran tertinggi: M" + std::to_string(highestBid) +
-                                " (" + currentWinner->getUsername() + ")\n");
-            }
-        }
-
-        idx = (idx + 1) % static_cast<int>(participants.size());
-    }
-
-    view_.showMessage("\nLelang selesai!\n");
-
-    if (currentWinner != nullptr) {
-        currentWinner->deductMoney(highestBid);
-        currentWinner->addProperty(&propertyTile);
-
-        view_.showMessage("Pemenang: " + currentWinner->getUsername() + "\n");
-        view_.showMessage("Harga akhir: M" + std::to_string(highestBid) + "\n");
-        view_.showMessage("Properti " + propertyTile.getTileName() + " (" + propertyTile.getLetterCode() +
-                        ") kini dimiliki " + currentWinner->getUsername() + ".\n");
-    } else {
-        view_.showMessage("Tidak ada pemenang lelang.\n");
-    }
-}
-
-void GameController::processBankruptcyToBank(Player& p) {
-    view_.showMessage("\n" + p.getUsername() + " dinyatakan BANGKRUT kepada Bank!\n");
-
-    int remainingMoney = p.getBalance();
-    if (remainingMoney > 0) {
-        view_.showMessage("Uang sisa M" + std::to_string(remainingMoney) + " diserahkan ke Bank.\n");
-        p.deductMoney(remainingMoney);
-    }
-
-    std::vector<PropertyTile*> properties = p.getProperties();
-
-    if (properties.empty()) {
-        view_.showMessage("Pemain tidak memiliki properti untuk dilelang.\n");
-    } else {
-        view_.showMessage("Seluruh properti dikembalikan ke Bank dan akan dilelang satu per satu.\n");
-    }
-
-    for (PropertyTile* property : properties) {
-        if (property == nullptr) {
-            continue;
-        }
-
-        // pepas dari inventory 
-        p.removeProperty(property);
-
-        // reset jadi milik bank
-        property->resetAfterBankruptcyToBank();
-
-        view_.showMessage("\n-> Lelang: " + property->getTileName() +
-                        " (" + property->getLetterCode() + ")\n");
-
-        processAuction(p, *property);
-    }
-
-    p.setStatus(Player::PlayerStatus::BANKRUPT);
-
-    view_.showMessage(p.getUsername() + " telah keluar dari permainan.\n");
-}
-
-// TILE RELATED ========================================================================================
 void GameController::processMovement(Player& p, int firstDisplacement) {
     Tile& nextTile = board_.moveToNextTile(p.move(firstDisplacement));
 
@@ -443,14 +188,14 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
 
             // processAuction(p, nextTile);
             break;
-        case OnLandResult::TriggerBankruptcyAuction: 
-            PropertyTile* propertyTile = dynamic_cast<PropertyTile*>(&nextTile);
+        case OnLandResult::TriggerBankruptcyAuction: {
+            state_ = GameState::BANKRUT;
 
-            if (propertyTile != nullptr) {
-                processAuction(p, *propertyTile);
-            } else {
-                processBankruptcyToBank(p);
-            }
+            auction_.runBankruptcyAuction(p, command_);
+
+            state_ = GameState::WAITING_FOR_ROLL_DICE;
+            break;
+        }
             // Pemain bangkrut ke Bank (semua properti dilelang)
                 // Penyebab bankrut :
                 // tidak mampu memenuhi kewajiban pembayaran
