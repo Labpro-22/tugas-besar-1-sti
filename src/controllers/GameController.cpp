@@ -10,9 +10,10 @@ GameController::GameController(std::vector<std::unique_ptr<Player>> players,
 
 GameController::~GameController() = default;
 
+// MOST LIKELY UDAH AMAN
 void GameController::playGame(int latestTurn, int maxTurn) {
     int i = latestTurn;
-    while (i < maxTurn && !hasSoleWinner()) {
+    while ((i < maxTurn || maxTurn == -1) && !hasSoleWinner()) {
         for (auto& player : players_) {
             if (!player->isBankrupt()) {
                 processTurn(*player);
@@ -20,8 +21,20 @@ void GameController::playGame(int latestTurn, int maxTurn) {
         }
         i++;
     }
+    decideWinner();
+}
 
-    // cek pemenangnya satu doang atau banyak
+void GameController::decideWinner() const {
+    // Pemenang adalah pemain dengan uang terbanyak.
+    // Jika seri, pemain yang memiliki jumlah petak properti
+        // terbanyak yang menjadi pemenang.
+    // Jika seri, pemain yang memiliki jumlah
+        // kartu terbanyak yang menjadi pemenang.
+    // Jika seri, semua pemain yang masih
+        //seri menjadi pemenang.
+    // Jika kondisi bankruptcy terjadi sebelum
+        // mencapai batas maksimum giliran,
+        //ikuti aturan bankruptcy.
 }
 
 bool GameController::hasSoleWinner() const{
@@ -41,20 +54,55 @@ void GameController::processTurn(Player& p) {
 
     if (p.isInJail() && !p.thisTurnAutoFreeFromJail()) {
         processJailTurn(p, hasUsedSkillCardThisTurn);
-        p.consumeShield();
+        p.decreaseShieldCardTurn();
         return;
     } else if (p.isInJail() && p.thisTurnAutoFreeFromJail()) {
         // bayar denda
         // ya cari lah itu biaya penjara sisanya kyk biasa aja
     }
     processNormalTurn(p, hasUsedSkillCardThisTurn);
-    p.consumeShield();
+    p.decreaseShieldCardTurn();
 }
 
 void GameController::processPickAndDropSpecialCard(Player& p) {
-    (void)p;
+    std::unique_ptr<SkillCard> newObtainedCard = specialCardDeck_.drawDeck();
+    view_.showMessage("KARTU YANG DIDAPATKAN ..........");
+    bool throwNewObtained = false; // latest
+    int selected = p.getSkillCardCount() + 1;
+
+    try {
+        // push ke dalam stack
+        p.getInventory().addSkillCards(std::move(newObtainedCard));
+    }
+    catch(const std::exception& e) {
+        std::cerr << e.what() << '\n'; ///////
+        view_.showMessage("Silahkan pilih yang mau dibuang terlebih dahulu\n");
+
+        int selected = command_.getInt(1,  p.getSkillCardCount() + 1);
+        if (selected  == p.getSkillCardCount() + 1) {
+            throwNewObtained = true;
+        }
+
+        if (throwNewObtained) {
+            // Balikin ke deck aja
+            specialCardDeck_.pushToDiscard(std::move(newObtainedCard));
+        } else {
+            std::unique_ptr<SkillCard> thrownAwayCard = p.getInventory().removeSkillCardAt(selected);
+            p.getInventory().addSkillCards(std::move(newObtainedCard));
+            specialCardDeck_.pushToDiscard(std::move(thrownAwayCard));
+        }
+        return;
+    }
+
+    // bisa langsung push
+    p.getInventory().addSkillCards(std::move(newObtainedCard));
+    view_.showMessage("Kartu X berhasil dibuang, Kartu Y kembali diterima!\n");
 }
 
+/*
+Memproses penggunaan skill card
+Notes : MoveCard, LassoCard, TeleportCard
+*/
 void GameController::processSpecialCardUse(Player& p, bool& hasUsedSkillCardThisTurn) {
     if (hasUsedSkillCardThisTurn) {
         view_.showMessage("Kartu kemampuan hanya boleh dipakai maksimal 1 kali per giliran.\n");
@@ -67,32 +115,33 @@ void GameController::processSpecialCardUse(Player& p, bool& hasUsedSkillCardThis
     }
 
     view_.showMessage("Silahkan pilih kartu yang mau kamu pakai!\n");
-    for (std::size_t i = 0; i < p.getSkillCardCount(); ++i) {
-        const SkillCard* card = p.getSkillCardAt(i);
-        view_.showMessage(std::to_string(i + 1) + ". " + card->getName() + " - " + card->getDescription() + "\n");
-    }
 
-    int selected = command_.getInt(1, static_cast<int>(p.getSkillCardCount()));
+    // NOTES : ga perlu pake loop kirim aja biar si interface yg ngurus
+    // for (std::size_t i = 0; i < p.getSkillCardCount(); ++i) {
+    //     const SkillCard* card = p.getSkillCardAt(i);
+    //     view_.showMessage(std::to_string(i + 1) + ". " + card->getName() + " - " + card->getDescription() + "\n");
+    // }
+
+    int selected = command_.getInt(1, p.getSkillCardCount());
     std::size_t selectedIndex = static_cast<std::size_t>(selected - 1);
     const SkillCard* selectedCard = p.getSkillCardAt(selectedIndex);
 
     if (p.isInJail()) {
         if (dynamic_cast<const MoveCard*>(selectedCard) != nullptr ||
-            dynamic_cast<const TeleportCard*>(selectedCard) != nullptr) {
+            dynamic_cast<const TeleportCard*>(selectedCard) != nullptr ||
+            dynamic_cast<const LassoCard*>(selectedCard) != nullptr) {
             view_.showMessage("Saat di penjara, kartu Move/Teleport tidak dapat digunakan.\n");
             return;
         }
     }
 
-    std::unique_ptr<SkillCard> usedCard = p.takeSkillCard(selectedIndex);
+    std::unique_ptr<SkillCard> usedCard = p.removeSkillCardAt(selectedIndex);
     usedCard->activate(p);
-    hasUsedSkillCardThisTurn = true;
+    // masukkan balik dong ke deck-nya
     view_.showMessage("Kartu " + usedCard->getName() + " telah dipakai.\n");
 
-    // Sselama di Penjara,
-    // pemain tidak dapat bergerak (termasuk pergerakan yang di-invoke
-    // dari kartu seperti move dan teleport). Untuk kartu lainnya, kasus
-    // penggunaannya sama seperti biasa.
+    specialCardDeck_.pushToDiscard(std::move(usedCard));
+    hasUsedSkillCardThisTurn = true;
 }
 
 

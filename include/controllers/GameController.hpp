@@ -10,7 +10,7 @@
 #include <vector>
 #include "models/card/Deck.hpp"
 #include "models/card/skillcard/SkillCard.hpp"
-
+#include "models/card/skillcard/LassoCard.hpp"
 class GameController {
     public:
         enum class GameState  {
@@ -46,6 +46,8 @@ class GameController {
         void processTakeChanceCard(Player& p);
         void processTakeCommunityChest(Player& p);
         bool hasSoleWinner() const;
+        void decideWinner() const;
+
 
     private:
         // Deck<SpecialCard>...

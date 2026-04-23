@@ -118,7 +118,7 @@ const SkillCard* Inventory::getSkillCardAt(std::size_t idx) const {
     return skillCards_.at(idx).get();
 }
 
-std::unique_ptr<SkillCard> Inventory::takeSkillCard(std::size_t idx) {
+std::unique_ptr<SkillCard> Inventory::removeSkillCardAt(std::size_t idx) {
     if (idx >= skillCards_.size()) {
         // TODO
         //throw OutOfRangeException;

@@ -77,7 +77,7 @@ class Player {
         // shield
         void activateShield(int turns = 1);
         bool isShielded() const;
-        void consumeShield();
+        void decreaseShieldCardTurn();
 
         // discount
         void activateDiscount(int percent, int turns = 1);
@@ -89,7 +89,7 @@ class Player {
         void addSkillCard(std::unique_ptr<SkillCard> skillCard);
         std::size_t getSkillCardCount() const;
         const SkillCard* getSkillCardAt(std::size_t idx) const;
-        std::unique_ptr<SkillCard> takeSkillCard(std::size_t idx);
+        std::unique_ptr<SkillCard> removeSkillCardAt(std::size_t idx);
 
         static const std::vector<Player*>& getAllPlayers();
 

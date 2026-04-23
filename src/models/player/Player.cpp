@@ -126,7 +126,7 @@ bool Player::isShielded() const {
     return shieldTurns_ > 0;
 }
 
-void Player::consumeShield() {
+void Player::decreaseShieldCardTurn() {
     if (shieldTurns_ > 0) {
         --shieldTurns_;
     }
@@ -237,8 +237,8 @@ const SkillCard* Player::getSkillCardAt(std::size_t idx) const {
     return inventory_.getSkillCardAt(idx);
 }
 
-std::unique_ptr<SkillCard> Player::takeSkillCard(std::size_t idx) {
-    return inventory_.takeSkillCard(idx);
+std::unique_ptr<SkillCard> Player::removeSkillCardAt(std::size_t idx) {
+    return inventory_.removeSkillCardAt(idx);
 }
 
 const std::vector<Player*>& Player::getAllPlayers() {
