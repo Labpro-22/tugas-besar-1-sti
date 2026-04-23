@@ -48,6 +48,8 @@ class CommandInterface {
         // batas atas batas bawah inclusive
         virtual int getInt(int lowerBound, int upperBound) = 0;
 
+        virtual int getAuctionBidOrPass(int currentBid, int playerBalance) = 0;
+
         // Game setup
         virtual std::string askFolderForConfig() = 0;
         virtual int askNumOfPlayer() = 0;

@@ -4,15 +4,20 @@ Inventory::Inventory() {}
 
 Inventory::~Inventory() {}
 
-std::vector<std::reference_wrapper<PropertyTile>> Inventory::getProperties() {
+std::vector<PropertyTile*> Inventory::getProperties() const {
     return properties_;
 }
-void Inventory::addProperty(PropertyTile& propertyTile) {
-    properties_.push_back(propertyTile);
+void Inventory::addProperty(PropertyTile *propertyTile) {
+    if (propertyTile == nullptr) return;
+
+    if (!hasProperty(propertyTile)) {
+        properties_.push_back(propertyTile);
+    }
 }
 
 // better make id seperinya tp lg malas hehe
-void Inventory::removeProperty(const PropertyTile& propertyTile) {
+void Inventory::removeProperty(PropertyTile *propertyTile) {
+    if (propertyTile == nullptr) return;
     for (size_t i = 0; i < properties_.size(); i++) {
         if (propertyTile.getTileID() == properties_[i].get().getTileID()) {
             properties_.erase(properties_.begin() + i);
@@ -20,6 +25,21 @@ void Inventory::removeProperty(const PropertyTile& propertyTile) {
         }
     }
     
+}
+
+bool Inventory::hasProperty(PropertyTile* propertyTile) const {
+    if (propertyTile == nullptr) return false;
+
+    for (size_t i = 0; i < properties_.size(); i++) {
+        if (properties_[i].getTileID() == propertyTile->getTileID()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Inventory::clearProperties() {
+    properties_.clear();
 }
 
 const std::vector<std::unique_ptr<SkillCard>>& Inventory::getSkillCards() const {

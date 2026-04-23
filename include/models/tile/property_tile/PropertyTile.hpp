@@ -13,7 +13,7 @@ class PropertyTile : public Tile {
         int festivalDuration_; // adalah durasi dari festival yang bernilai 0–3 (0 = tidak aktif)
         PropertyStatus propertyStatus_; //  status dari properti yang bernilai BANK, OWNED, atau MORTGAGED
         int level_; // bernilai 0–4 untuk rumah, atau H untuk hotel. Untuk properti selain street, isi dengan 0.
-                    // conflict dengan "kosong (Level 0) hingga hotel (Level 5). "
+        // conflict dengan "kosong (Level 0) hingga hotel (Level 5). "
                     
         int mortgageValue_; // nilai gadai
         int purchasePrice_; // harga beli pertama kali
@@ -26,6 +26,26 @@ class PropertyTile : public Tile {
         virtual ~PropertyTile();
         int getPurchasePrice() const;
         int getLevel() const;
+        void setLevel(int level);
+        int getMortgageValue() const;
+
+        std::string getOwnerUsername() const;
+        void setOwnerUsername(const std::string& ownerUsername);
+
+        PropertyStatus getPropertyStatus() const;
+        void setPropertyStatus(PropertyStatus status);
+
+        int getFestivalMultiplier() const;
+        void setFestivalMultiplier(int multiplier);
+
+        int getFestivalDuration() const;
+        void setFestivalDuration(int duration);
+
+        bool isOwnedByBank() const;
+        bool isOwnedBy(const std::string& username) const;
+
+        void resetFestivalEffect();
+        void resetAfterBankruptcyToBank();
 
         int canDoubleFestival() const; // ga bs double kalo itunya msh = 3 atau ga multipliernya = 8
 

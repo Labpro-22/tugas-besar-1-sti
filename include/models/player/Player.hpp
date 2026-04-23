@@ -61,6 +61,17 @@ class Player {
 
 
         // Inventory related
+        std::vector<SkillCard*> getSkillCards();
+        std::vector<PropertyTile*> getProperties();
+
+        void addProperty(PropertyTile* propertyTile);
+        void removeProperty(PropertyTile* propertyTile);
+        bool ownsProperty(PropertyTile* propertyTile) const;
+
+        Inventory& getInventory();
+
+        int getLastDiceTotal() const;
+        void setLastDiceTotal(int diceTotal);
         bool hasProperty(std::string tileCode);
         PropertyTile& getProperty(std::string code);
         // shield
@@ -75,8 +86,6 @@ class Player {
         void consumeDiscount();
 
         // Inventory related
-        const std::vector<std::unique_ptr<SkillCard>>& getSkillCards() const;
-        std::vector<std::reference_wrapper<PropertyTile>> getProperties();
         void addSkillCard(std::unique_ptr<SkillCard> skillCard);
         std::size_t getSkillCardCount() const;
         const SkillCard* getSkillCardAt(std::size_t idx) const;
@@ -99,5 +108,6 @@ class Player {
         int discountTurns_; // discount turn
         Inventory inventory_; // belom ada kelasnya wait ye
         static inline int countPlayer = 0;
+        int lastDiceTotal_;
         static inline std::vector<Player*> allPlayers_ = {};
 };

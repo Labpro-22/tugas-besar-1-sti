@@ -192,10 +192,185 @@ void GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn) 
     }
 }
 
+void GameController::transferProperty(Player& from, Player& to, PropertyTile& propertyTile) {
+    PropertyStatus oldStatus = propertyTile.getPropertyStatus();
+
+    from.removeProperty(&propertyTile);
+    to.addProperty(&propertyTile);
+
+    propertyTile.setPropertyStatus(oldStatus);
+}
+
 // Bisa di-consider perlu kelas sendiri "AuctionController" atau engga
-void GameController::processAuction(Player& p, PropertyTile& propertyTile) {
-    // Kumpulin siapa aja yang ikut lelang
-    // Lanjutin sesuai spek :)
+void GameController::processAuction(Player& triggerPlayer, PropertyTile& propertyTile) {
+    state_ = GameState::LELANG;
+
+    view_.showMessage("Properti " + propertyTile.getTileName() + " (" + propertyTile.getLetterCode() + ") akan dilelang!\n");
+
+    // cari index trigger player
+    int triggerIdx = -1;
+    for (size_t i = 0; i < players_.size(); i++) {
+        if (players_[i].get() == &triggerPlayer) {
+            triggerIdx = static_cast<int>(i);
+            break;
+        }
+    }
+
+    if (triggerIdx == -1) {
+        view_.showMessage("Trigger player tidak ditemukan. Lelang dibatalkan.\n");
+        state_ = GameState::WAITING_FOR_ROLL_DICE;
+        return;
+    }
+
+    // untuk peserta lelang: udah sesuai urutan
+    // kalo trigger player gak bankrupt -> ikut putaran terakhir
+    // kalo bakrupt -> ga ikut
+    std::vector<Player*> participants;
+    int n = static_cast<int>(players_.size());
+
+    for (int step = 1; step <= n; step++) {
+        int idx = (triggerIdx + step) % n;
+        Player* candidate = players_[idx].get();
+
+        if (candidate->isBankrupt()) {
+            continue;
+        }
+
+        if (candidate == &triggerPlayer && triggerPlayer.isBankrupt()) {
+            continue;
+        }
+
+        participants.push_back(candidate);
+    }
+
+    if (participants.empty()) {
+        view_.showMessage("Tidak ada peserta valid untuk lelang.\n");
+        state_ = GameState::WAITING_FOR_ROLL_DICE;
+        return;
+    }
+
+    view_.showMessage("Urutan lelang dimulai dari pemain setelah " + triggerPlayer.getUsername() + ".\n");
+
+    int highestBid = -1;
+    Player* currentWinner = nullptr;
+    int consecutivePasses = 0;
+    int idx = 0;
+
+    while (true) {
+        Player* currentPlayer = participants[idx];
+        view_.showMessage("\nGiliran: " + currentPlayer->getUsername() + "\n");
+
+        bool forcedBid = (currentWinner == nullptr && consecutivePasses == static_cast<int>(participants.size()) - 1);
+
+        if (forcedBid) {
+            view_.showMessage("Semua pemain sebelumnya PASS. Kamu wajib melakukan bid.\n");
+            view_.showMessage("Masukkan bid (minimal 0, maksimal " + std::to_string(currentPlayer->getBalance()) + "): ");
+            int bid = command_.getInt(0, currentPlayer->getBalance());
+
+            highestBid = bid;
+            currentWinner = currentPlayer;
+            consecutivePasses = 0;
+
+            view_.showMessage("Penawaran tertinggi: M" + std::to_string(highestBid) +
+                              " (" + currentWinner->getUsername() + ")\n");
+        } else {
+            int minBid;
+            if (highestBid < 0) {
+                minBid = 0;
+            } else {
+                minBid = highestBid + 1;
+            }
+            view_.showMessage("Aksi auction:\n");
+            view_.showMessage("- masukkan 0 untuk PASS\n");
+            view_.showMessage("- masukkan angka >= " + std::to_string(minBid) + " untuk BID\n");
+            view_.showMessage("Masukkan pilihan (maksimal " + std::to_string(currentPlayer->getBalance()) + "): ");
+
+            int input = command_.getInt(0, currentPlayer->getBalance());
+
+            if (input == 0) {
+                view_.showMessage(currentPlayer->getUsername() + " memilih PASS.\n");
+                consecutivePasses++;
+
+                if (currentWinner != nullptr &&
+                    consecutivePasses >= static_cast<int>(participants.size()) - 1) {
+                    break;
+                }
+            } else {
+                if (input < minBid) {
+                    view_.showMessage("Bid tidak valid karena harus lebih tinggi dari bid sebelumnya.\n");
+                    // giliran pemain yang sama diulang
+                    continue;
+                }
+
+                highestBid = input;
+                currentWinner = currentPlayer;
+                consecutivePasses = 0;
+
+                view_.showMessage("Penawaran tertinggi: M" + std::to_string(highestBid) +
+                                  " (" + currentWinner->getUsername() + ")\n");
+            }
+        }
+
+        idx = (idx + 1) % static_cast<int>(participants.size());
+    }
+
+    view_.showMessage("\nLelang selesai!\n");
+
+    if (currentWinner != nullptr) {
+        currentWinner->deductMoney(highestBid);
+        currentWinner->addProperty(&propertyTile);
+
+        view_.showMessage("Pemenang: " + currentWinner->getUsername() + "\n");
+        view_.showMessage("Harga akhir: M" + std::to_string(highestBid) + "\n");
+        view_.showMessage("Properti " + propertyTile.getTileName() + " (" + propertyTile.getLetterCode() +
+                          ") kini dimiliki " + currentWinner->getUsername() + ".\n");
+    } else {
+        view_.showMessage("Tidak ada pemenang lelang.\n");
+    }
+
+    state_ = GameState::WAITING_FOR_ROLL_DICE;
+}
+
+void GameController::processBankruptcyToBank(Player& p) {
+    state_ = GameState::BANKRUT;
+
+    view_.showMessage("\n" + p.getUsername() + " dinyatakan BANGKRUT kepada Bank!\n");
+
+    int remainingMoney = p.getBalance();
+    if (remainingMoney > 0) {
+        view_.showMessage("Uang sisa M" + std::to_string(remainingMoney) + " diserahkan ke Bank.\n");
+        p.deductMoney(remainingMoney);
+    }
+
+    std::vector<PropertyTile*> properties = p.getProperties();
+
+    if (properties.empty()) {
+        view_.showMessage("Pemain tidak memiliki properti untuk dilelang.\n");
+    } else {
+        view_.showMessage("Seluruh properti dikembalikan ke Bank dan akan dilelang satu per satu.\n");
+    }
+
+    for (PropertyTile* property : properties) {
+        if (property == nullptr) {
+            continue;
+        }
+
+        // pepas dari inventory 
+        p.removeProperty(property);
+
+        // reset jadi milik bank
+        property->resetAfterBankruptcyToBank();
+
+        view_.showMessage("\n-> Lelang: " + property->getTileName() +
+                          " (" + property->getLetterCode() + ")\n");
+
+        processAuction(p, *property);
+    }
+
+    p.setStatus(Player::PlayerStatus::BANKRUPT);
+
+    view_.showMessage(p.getUsername() + " telah keluar dari permainan.\n");
+    state_ = GameState::WAITING_FOR_ROLL_DICE;
 }
 
 void GameController::processMovement(Player& p, int firstDisplacement) {
@@ -203,6 +378,7 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
 
     // proses di dalam land
     p.setPosition(nextTile.getTileID());
+    p.setLastDiceTotal(firstDisplacement);
     OnLandResult result = nextTile.onLand(p, command_, view_);
 
     switch (result) {
@@ -219,7 +395,14 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
 
             // processAuction(p, nextTile);
             break;
-        case OnLandResult::TriggerBankruptcyAuction: //
+        case OnLandResult::TriggerBankruptcyAuction: 
+            PropertyTile* propertyTile = dynamic_cast<PropertyTile*>(&nextTile);
+
+            if (propertyTile != nullptr) {
+                processAuction(p, *propertyTile);
+            } else {
+                processBankruptcyToBank(p);
+            }
             // Pemain bangkrut ke Bank (semua properti dilelang)
                 // Penyebab bankrut :
                 // tidak mampu memenuhi kewajiban pembayaran
@@ -241,7 +424,6 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
             p.setPosition(board_.getJailPosition());
             view_.showMessage("Kamu dipindahkan ke penjara");
             break;
-            // go to jail perlu?
         default:
             break;
     }

@@ -15,60 +15,69 @@ UtilityTile::UtilityTile(int tileID, std::string letterCode, std::string tileNam
 
 UtilityTile::~UtilityTile() {}
 
-void UtilityTile::onLand(Player& p) {
-    std::cout << "[Landed] Anda tiba di utilitas: " << tileName_ << std::endl;
+OnLandResult UtilityTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) 
+{
+    (void) command;
 
-    std::ostringstream tagBuilder;
-    tagBuilder << &p;
-    const std::string currentPlayerTag = tagBuilder.str();
+    view.showMessage("Kamu mendarat di " + getTileName() + "!\n");
 
-    if (propertyStatus_ == BANK || ownerUsername_ == "BANK")
-    {
-        ownerUsername_ = currentPlayerTag;
-        propertyStatus_ = OWNED;
-        ++g_ownerUtilityCount[ownerUsername_];
+    // belum dimiliki -> otomatis dimiliki 
+    if (getPropertyStatus() == BANK || getOwnerUsername() == "BANK") {
+        setOwnerUsername(p.getUsername());
+        setPropertyStatus(OWNED);
+        incrementOwnerCount(p.getUsername());
 
-        std::cout << "[UTILITY] Otomatis dimiliki pemain pertama yang tiba." << std::endl;
-        std::cout << "[UTILITY] Jumlah utility pemain ini: " << g_ownerUtilityCount[ownerUsername_] << std::endl;
-        return;
+        view.showMessage("Belum ada yang menginjaknya duluan, " + getTileName() + " kini menjadi milikmu!\n");
+        view.showMessage("---\n");
+        return OnLandResult::Done;
     }
 
-    if (propertyStatus_ == MORTGAGED)
-    {
-        std::cout << "[UTILITY] Utility sedang digadaikan, tidak ada sewa." << std::endl;
-        return;
+    // jika sedang digadaikan
+    if (getPropertyStatus() == MORTGAGED) {
+        view.showMessage("Utility ini sedang digadaikan [M]. Tidak ada sewa yang dikenakan.\n");
+        view.showMessage("---\n");
+        return OnLandResult::Done;
     }
 
-    if (ownerUsername_ == currentPlayerTag)
-    {
-        std::cout << "[UTILITY] Ini milik Anda." << std::endl;
-        return;
+    // kalau milik sendiri
+    if (getOwnerUsername() == p.getUsername()) {
+        view.showMessage("Utility ini adalah milikmu sendiri.\n");
+        view.showMessage("---\n");
+        return OnLandResult::Done;
     }
 
-    const int ownerUtilityCount = std::max(1, g_ownerUtilityCount[ownerUsername_]);
+    int ownerCount = getOwnerCount(getOwnerUsername());
+    if (ownerCount < 1) ownerCount = 1;
 
     int factor = 4;
-    if (!utilityFactor_.empty())
-    {
-        auto it = utilityFactor_.find(ownerUtilityCount);
-        if (it != utilityFactor_.end())
-        {
-            factor = it->second;
-        }
-        else
-        {
-            factor = utilityFactor_.rbegin()->second;
-        }
+    auto it = utilityFactor_.find(ownerCount);
+    if (it != utilityFactor_.end()) {
+        factor = it->second;
+    } else if (!utilityFactor_.empty()) {
+        factor = utilityFactor_.rbegin()->second;
     }
 
-    // Dice total belum tersedia dari API Player saat ini.
-    const int diceTotal = 0;
-    const int rent = diceTotal * factor;
+    int diceTotal = p.getLastDiceTotal();
+    int rent = diceTotal * factor;
 
-    std::cout << "[UTILITY] Pemilik memiliki " << ownerUtilityCount << " utility." << std::endl;
-    std::cout << "[UTILITY] Faktor pengali: " << factor << std::endl;
-    std::cout << "[UTILITY] Rumus sewa: total_dadu(" << diceTotal << ") x " << factor << " = " << rent << std::endl;
-    std::cout << "[TODO] Integrasi dadu, saldo" << std::endl;
+    view.showMessage("Kamu mendarat di " + getTileName() + ", milik " + getOwnerUsername() + "!\n");
+    view.showMessage("Total dadu    : " + std::to_string(diceTotal) + "\n");
+    view.showMessage("Faktor utility: " + std::to_string(factor) + "\n");
+    view.showMessage("Sewa          : M" + std::to_string(rent) + "\n");
+
+    int oldBalance = p.getBalance();
+    if (oldBalance < rent) {
+        view.showMessage("Kamu tidak mampu membayar sewa penuh! (M" + std::to_string(rent) + ")\n");
+        view.showMessage("Uang kamu saat ini: M" + std::to_string(oldBalance) + "\n");
+        view.showMessage("---\n");
+        return OnLandResult::TriggerAuction;
+    }
+
+    p.deductMoney(rent);
+    view.showMessage("Uang kamu: M" + std::to_string(oldBalance) + " -> M" + std::to_string(p.getBalance()) + "\n");
+    view.showMessage("---\n");
+
+    return OnLandResult::Done;
 }
 
 // getter n setter
@@ -80,4 +89,28 @@ void UtilityTile::setUtilityFactor(const std::map<int, int>& factors)
 const std::map<int, int>& UtilityTile::getUtilityFactor()
 {
     return utilityFactor_;
+}
+
+void UtilityTile::incrementOwnerCount(const std::string& username) 
+{
+    if (username != "BANK") {
+        ownerUtilityCount_[username]++;
+    }
+}
+
+void UtilityTile::decrementOwnerCount(const std::string& username) 
+{
+    if (username != "BANK" && ownerUtilityCount_.count(username)) {
+        ownerUtilityCount_[username]--;
+        if (ownerUtilityCount_[username] <= 0) {
+            ownerUtilityCount_.erase(username);
+        }
+    }
+}
+
+int UtilityTile::getOwnerCount(const std::string& username) 
+{
+    auto it = ownerUtilityCount_.find(username);
+    if (it == ownerUtilityCount_.end()) return 0;
+    return it->second;
 }
