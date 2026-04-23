@@ -51,6 +51,7 @@ class Player {
         void incrementJailTurn();
         int getCountJail() const;
         void resetJailTurn();
+        void Player::leaveJail();
 
         // Untuk PPH
         int getTotalPropertyValue() const;
@@ -74,6 +75,7 @@ class Player {
         void setLastDiceTotal(int diceTotal);
         bool hasProperty(std::string tileCode);
         PropertyTile& getProperty(std::string code);
+        std::vector<PropertyTile*> getMortgagedProperties() const;
         // shield
         void activateShield(int turns = 1);
         bool isShielded() const;
@@ -95,7 +97,6 @@ class Player {
 
         int countRailroad() const;
         int countUtilities() const;
-        
 
     private:
         int id_; // auto increment dari countplayer itu

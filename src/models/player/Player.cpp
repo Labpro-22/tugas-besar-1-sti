@@ -102,6 +102,10 @@ void Player::resetJailTurn() {
     countJail_ = 0;
 }
 
+void Player::leaveJail() {
+    status_ = PlayerStatus::ACTIVE;
+}
+
 // TAX RELATED
 int Player::getTotalPropertyValue() const {
     return inventory_.countAllPropertyValueBasedOnPurchasePrice();
@@ -251,4 +255,9 @@ int Player::countRailroad() const {
 
 int Player::countUtilities() const {
     return inventory_.countUtilities();
+}
+
+std::vector<PropertyTile*> Player::getMortgagedProperties() const {
+    return inventory_.getMortgagedProperties();
+
 }
