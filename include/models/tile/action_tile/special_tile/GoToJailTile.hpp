@@ -1,5 +1,6 @@
 #pragma once
 #include "SpecialTile.hpp"
+#include "models/player/Player.hpp"
 #include <string>
 
 class GoToJailTile : public SpecialTile {

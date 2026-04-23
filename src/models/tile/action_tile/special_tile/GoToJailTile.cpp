@@ -1,5 +1,4 @@
 #include "models/tile/action_tile/special_tile/GoToJailTile.hpp"
-#include "models/player/Player.hpp"
 #include <iostream>
 
 OnLandResult GoToJailTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {

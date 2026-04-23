@@ -9,7 +9,7 @@ CommunityChestCard::CommunityChestCard(Instruction instruction)
     : instruction_(instruction),
       description_(instructionToDescription(instruction)) {}
 
-void CommunityChestCard::useCommunityChest(Player& owner, const std::vector<Player*>& allPlayers) const {
+void CommunityChestCard::useCommunityChest(Player& owner, const std::vector<std::unique_ptr<Player>>& allPlayers) const {
     // TODO: Integrasi Player + Monopoly
     (void)owner;
     (void)allPlayers;

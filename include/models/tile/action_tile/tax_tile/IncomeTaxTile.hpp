@@ -1,6 +1,10 @@
 #pragma once
 #include "TaxTile.hpp"
 #include <string>
+#include "models/player/Player.hpp"
+#include "models/exception/Exception.hpp"
+#include <iostream>
+#include <limits>
 
 class IncomeTaxTile : public TaxTile {
     private:
