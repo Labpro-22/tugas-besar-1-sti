@@ -70,7 +70,7 @@ OnLandResult UtilityTile::onLand(Player& p, CommandInterface& command, GameViewI
         view.showMessage("Kamu tidak mampu membayar sewa penuh! (M" + std::to_string(rent) + ")\n");
         view.showMessage("Uang kamu saat ini: M" + std::to_string(oldBalance) + "\n");
         view.showMessage("---\n");
-        return OnLandResult::TriggerBankruptcyAuction;
+        return OnLandResult::TriggerAuction;
     }
 
     p.deductMoney(rent);
