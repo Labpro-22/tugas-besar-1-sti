@@ -232,6 +232,9 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
         case OnLandResult::TakeCommunityChest:
             processTakeCommunityChest(p);
             break;
+        case OnLandResult::Festival:
+            processFestival(p);
+            break;
         case OnLandResult::Done: // yang kelar
             break;
         case OnLandResult::TriggerMoveToJail: // move to jail
@@ -261,4 +264,51 @@ void GameController::processTakeCommunityChest(Player& p) {
     // "Anda mau nyaleg. Bayar M200 kepada setiap pemain."
 
     // CommunityChest parameternya hanya boleh pemain (yang punya) dan juga semua player
+}
+
+// pasti udh ada properti
+void GameController::processFestival(Player& p) {
+    view_.showMessage("Daftar properti milikmu...\n");
+
+    // cek valid atau engga
+    std::string chosenPropCode;
+    PropertyTile* propTile = nullptr; // nantilah ubah malas
+    do {
+        chosenPropCode = command_.getTileToGetFestival();
+        if (!board_.has(chosenPropCode)) {
+            // continue
+            view_.showMessage("Kode tidak valid!\n");
+            continue;
+
+        }
+
+        if (!p.hasProperty(chosenPropCode)) {
+            view_.showMessage("Tetot\n");
+            continue;
+        }
+
+        propTile = &p.getProperty(chosenPropCode);
+
+        if (!propTile->canDoubleFestival()) {
+            view_.showMessage("Ga bs double lagi woyyy\n");
+            propTile = nullptr;
+            continue;
+        }
+
+    } while (propTile == nullptr); // tar jgn pake nullptr la cek aja lg
+
+    if (propTile->festivalActive()) {
+        if (propTile->canDoubleFestival()) {
+            // lgsg double aja
+            if (!propTile->alreadyMaxMultiplier()) {
+                propTile->doubleTheMultiplier();
+            }
+            propTile->resetTurnTo3();
+        }
+    } else {
+        propTile->doubleTheMultiplier();
+        propTile->resetTurnTo3();
+    }
+
+    view_.showMessage("Hihi hiha!\n");
 }

@@ -59,6 +59,10 @@ class Player {
         // cek bankrupt atau engga
         bool isBankrupt() const;
 
+
+        // Inventory related
+        bool hasProperty(std::string tileCode);
+        PropertyTile& getProperty(std::string code);
         // shield
         void activateShield(int turns = 1);
         bool isShielded() const;

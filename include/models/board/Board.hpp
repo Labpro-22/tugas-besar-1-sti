@@ -20,6 +20,8 @@ class Board
         // geser ke tile setelah ditambahin distance (hasil roll dadu)
         Tile& moveToNextTile(int distance);
         Tile& getCurrentTile(int id);
+        bool has(std::string code);
+        
 
         int getJailPosition() const;
         void setJailPosition(int pos);
