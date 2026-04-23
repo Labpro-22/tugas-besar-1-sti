@@ -23,7 +23,7 @@ class PropertyTile : public Tile {
                     std::string tileName, std::string colourBlock,
                     // tambahan di PropertyTile
                     int purchasePrice, int mortgageValue);
-        virtual ~PropertyTile();
+        virtual ~PropertyTile() = default;
         int getPurchasePrice() const;
         int getLevel() const;
         void setLevel(int level);

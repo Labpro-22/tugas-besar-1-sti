@@ -7,6 +7,6 @@ class GoToJailTile : public SpecialTile {
     public:
         GoToJailTile(int tileID, std::string letterCode, std::string tileName)
             : SpecialTile(tileID, letterCode, tileName) {}
-        
+        ~GoToJailTile() = default;
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 };

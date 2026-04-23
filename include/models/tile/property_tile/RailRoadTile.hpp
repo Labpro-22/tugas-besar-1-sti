@@ -12,7 +12,7 @@ class RailRoadTile : public PropertyTile {
         RailRoadTile(int tileID, std::string letterCode,
                     std::string tileName, std::string colourBlock,
                     int purchasePrice, int mortgageValue);
-        ~RailRoadTile();
+        ~RailRoadTile() = default;
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 
         // getter n setter

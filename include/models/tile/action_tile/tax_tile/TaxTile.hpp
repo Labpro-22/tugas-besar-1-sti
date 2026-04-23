@@ -6,4 +6,5 @@ class TaxTile : public ActionTile {
     public:
         TaxTile(int tileID, std::string letterCode, std::string tileName)
             : ActionTile(tileID, letterCode, tileName) {}
+        ~TaxTile() = default;
 };

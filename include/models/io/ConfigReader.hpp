@@ -55,7 +55,7 @@ class Reader
         ~Reader();
 
         // baca property
-        std::vector<Tile*> readProperty(); // board
+        std::vector<Tile*> readProperty();
 
         // set map static yang jadi attribut kelas railroad
         void readRailRoad();

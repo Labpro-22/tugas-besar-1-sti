@@ -183,7 +183,9 @@ std::vector<Tile*> Reader::readProperty()
         int tileId, purchasePrice, mortgageValue;
         std::string letterCode, tileName, tileType, colourBlock;
 
-        if (!(iss >> tileId >> letterCode >> tileName >> tileType >> colourBlock >> purchasePrice >> mortgageValue)) continue;
+        if (!(iss >> tileId >> letterCode >> tileName >> tileType >> colourBlock >> purchasePrice >> mortgageValue)) {
+            throw ConfigException(3, "Format tipe data salah di property.txt pada baris: " + line);
+        }
 
         Tile* newTile = nullptr;
         if (tileType == "STREET")
@@ -232,6 +234,11 @@ std::vector<Tile*> Reader::readProperty()
             propertyTiles.push_back(newTile);
         }
     }
+
+    if (propertyTiles.empty()) {
+        throw ConfigException(2, "property.txt tidak memiliki baris data (hanya header).");
+    }
+
     return propertyTiles;
 }
 
@@ -293,12 +300,7 @@ std::vector<Tile*> Reader::readAction()
     }
 
     std::string line;
-    if (!std::getline(file, line))
-    {
-        throw ConfigException(2, "Isi aksi.txt tidak ditemukan.");
-    }
 
-    std::string line;
     while (std::getline(file, line))
     {
         if (line.empty()) continue;
@@ -308,7 +310,7 @@ std::vector<Tile*> Reader::readAction()
         std::string letterCode, tileName, tileType, colourBlock;
 
         if (!(iss >> tileId >> letterCode >> tileName >> tileType >> colourBlock)) {
-            throw ConfigException(3, "Format aksi.txt tidak valid pada ID: " + std::to_string(tileId));
+            throw ConfigException(3, "Format tipe data salah di aksi.txt pada baris: " + line);
         }
 
         Tile* newTile = nullptr;
@@ -333,11 +335,16 @@ std::vector<Tile*> Reader::readAction()
         }
     }
 
+    if (actionTiles.empty()) {
+        throw ConfigException(2, "aksi.txt tidak memiliki baris data (hanya header).");
+    }
+
     return actionTiles;
 }
 
-Board Reader::createBoard()
+Board Reader::loadBoard()
 {
+    readSpecial();
     std::vector<Tile*> propertyTiles = readProperty();
     std::vector<Tile*> actionTiles = readAction();
     std::vector<Tile*> allTiles;
@@ -356,10 +363,10 @@ Board Reader::createBoard()
         int actualId = allTiles[i]->getTileID();
 
         if (actualId != expectedId) {
-            throw ConfigException(3, "Terdapat ID duplikat atau hilang di sekitar ID " + std::to_string(actualId));
+            throw ConfigException(3, "Urutan ID tidak sesuai! Diharapkan ID: " + std::to_string(expectedId) + ", ditemukan ID: " + std::to_string(actualId));
         }
 
-        board.addTile(*(allTiles[i]));
+        board.addTile(std::unique_ptr<Tile>(allTiles[i]));
 
         std::string letterCode = allTiles[i]->getLetterCode();
         if (letterCode == "GO") {

@@ -11,7 +11,7 @@ class UtilityTile : public PropertyTile {
         UtilityTile(int tileID, std::string letterCode,
                 std::string tileName, std::string colourBlock, 
                 int purchasePrice, int mortgageValue);
-        virtual ~UtilityTile();
+        virtual ~UtilityTile() = default;
 
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 

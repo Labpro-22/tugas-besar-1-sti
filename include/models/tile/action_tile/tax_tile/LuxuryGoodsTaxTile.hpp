@@ -12,6 +12,7 @@ class LuxuryGoodsTaxTile : public TaxTile {
     public:
         LuxuryGoodsTaxTile(int tileID, std::string letterCode, std::string tileName)
             : TaxTile(tileID, letterCode, tileName) {}
+            ~LuxuryGoodsTaxTile() = default;
         static void setPBMFlatCost(int cost);
         int getPBMFlatCost() const;
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;

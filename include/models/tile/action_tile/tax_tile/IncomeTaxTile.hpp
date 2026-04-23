@@ -13,7 +13,7 @@ class IncomeTaxTile : public TaxTile {
     public:
         IncomeTaxTile(int tileID, std::string letterCode, std::string tileName)
             : TaxTile(tileID, letterCode, tileName) {}
-        
+        ~IncomeTaxTile() = default;
         static void setPPHFlatCost(int cost);
         static void setTaxPercentage(float percentage);
         int getPPHFlatCost() const;

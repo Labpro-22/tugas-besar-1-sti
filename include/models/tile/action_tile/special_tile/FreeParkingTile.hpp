@@ -6,6 +6,6 @@ class FreeParkingTile : public SpecialTile {
     public:
         FreeParkingTile(int tileID, std::string letterCode, std::string tileName)
             : SpecialTile(tileID, letterCode, tileName) {}
-        
+        ~FreeParkingTile() = default;
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 };
