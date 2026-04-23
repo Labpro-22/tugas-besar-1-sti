@@ -17,51 +17,63 @@ RailRoadTile::RailRoadTile(int tileID, std::string letterCode, std::string tileN
 
 RailRoadTile::~RailRoadTile() {}
 
-void RailRoadTile::onLand(Player& p) {
-    std::ostringstream tagBuilder;
-    tagBuilder << &p;
-    const std::string currentPlayerTag = tagBuilder.str();
+OnLandResult RailRoadTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
+    (void) command;
 
-    std::cout << "[Landed] Anda tiba di stasiun: " << tileName_ << std::endl;
+    view.showMessage("Kamu mendarat di " + getTileName() + " (" + getLetterCode() + ")!\n");
 
-    if (propertyStatus_ == BANK || ownerUsername_ == "BANK") {
-        ownerUsername_ = currentPlayerTag;
-        propertyStatus_ = OWNED;
-        ++g_ownerRailroadCount[ownerUsername_];
+    // belum dimiliki siapa-siapa -> otomatis dimiliki
+    if (getPropertyStatus() == BANK || getOwnerUsername() == "BANK") {
+        setOwnerUsername(p.getUsername());
+        setPropertyStatus(OWNED);
+        incrementOwnerCount(p.getUsername());
 
-        std::cout << "[RAILROAD] Otomatis dimiliki pemain pertama yang tiba." << std::endl;
-        std::cout << "[RAILROAD] Jumlah stasiun pemain ini: " << g_ownerRailroadCount[ownerUsername_] << std::endl;
-        return;
+        view.showMessage("Belum ada yang menginjaknya duluan, stasiun ini kini menjadi milikmu!\n");
+        view.showMessage("---\n");
+        return OnLandResult::Done;
     }
 
-    if (propertyStatus_ == MORTGAGED) {
-        std::cout << "[RAILROAD] Stasiun sedang digadaikan, tidak ada sewa." << std::endl;
-        return;
+    // jika sedang digadaikan
+    if (getPropertyStatus() == MORTGAGED) {
+        view.showMessage("Stasiun ini sedang digadaikan [M]. Tidak ada sewa yang dikenakan.\n");
+        view.showMessage("---\n");
+        return OnLandResult::Done;
     }
 
-    if (ownerUsername_ == currentPlayerTag) {
-        std::cout << "[RAILROAD] Ini milik Anda." << std::endl;
-        return;
+    // kalau mendarat di milik sendiri
+    if (getOwnerUsername() == p.getUsername()) {
+        view.showMessage("Stasiun ini adalah milikmu sendiri.\n");
+        view.showMessage("---\n");
+        return OnLandResult::Done;
     }
 
-    const int ownerRailroadCount = std::max(1, g_ownerRailroadCount[ownerUsername_]);
+    int ownerCount = getOwnerCount(getOwnerUsername());
+    if (ownerCount < 1) ownerCount = 1;
 
     int rent = 25;
-    if (!railRoadRentPrices_.empty()) {
-        auto it = railRoadRentPrices_.find(ownerRailroadCount);
-        if (it != railRoadRentPrices_.end())
-        {
-            rent = it->second;
-        }
-        else
-        {
-            rent = railRoadRentPrices_.rbegin()->second;
-        }
+    auto it = railRoadRentPrices_.find(ownerCount);
+    if (it != railRoadRentPrices_.end()) {
+        rent = it->second;
+    } else if (!railRoadRentPrices_.empty()) {
+        rent = railRoadRentPrices_.rbegin()->second;
     }
 
-    std::cout << "[RAILROAD] Pemilik memiliki " << ownerRailroadCount << " stasiun." << std::endl;
-    std::cout << "[RAILROAD] Sewa yang harus dibayar: " << rent << std::endl;
-    std::cout << "[TODO] Integrasi saldo" << std::endl;
+    view.showMessage("Kamu mendarat di " + getTileName() + " (" + getLetterCode() + "), milik " + getOwnerUsername() + "!\n");
+    view.showMessage("Sewa         : M" + std::to_string(rent) + "\n");
+
+    int oldBalance = p.getBalance();
+    if (oldBalance < rent) {
+        view.showMessage("Kamu tidak mampu membayar sewa penuh! (M" + std::to_string(rent) + ")\n");
+        view.showMessage("Uang kamu saat ini: M" + std::to_string(oldBalance) + "\n");
+        view.showMessage("---\n");
+        return OnLandResult::TriggerAuction;
+    }
+
+    p.deductMoney(rent);
+    view.showMessage("Uang kamu: M" + std::to_string(oldBalance) + " -> M" + std::to_string(p.getBalance()) + "\n");
+    view.showMessage("---\n");
+
+    return OnLandResult::Done;
 }
 
 // getter n setter
@@ -72,4 +84,25 @@ void RailRoadTile::setRailRoadRentPrices(const std::map<int, int>& prices) {
 const std::map<int, int>& RailRoadTile::getRailRoadRentPrices()
 {
     return railRoadRentPrices_;
+}
+
+void RailRoadTile::incrementOwnerCount(const std::string& username) {
+    if (username != "BANK") {
+        ownerRailroadCount_[username]++;
+    }
+}
+
+void RailRoadTile::decrementOwnerCount(const std::string& username) {
+    if (username != "BANK" && ownerRailroadCount_.count(username)) {
+        ownerRailroadCount_[username]--;
+        if (ownerRailroadCount_[username] <= 0) {
+            ownerRailroadCount_.erase(username);
+        }
+    }
+}
+
+int RailRoadTile::getOwnerCount(const std::string& username) {
+    auto it = ownerRailroadCount_.find(username);
+    if (it == ownerRailroadCount_.end()) return 0;
+    return it->second;
 }

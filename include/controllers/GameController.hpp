@@ -4,6 +4,7 @@
 #include "views/GameViewInterface.hpp"
 #include "models/dice/Dice.hpp"
 #include "models/tile/action_tile/special_tile/PrisonTile.hpp"
+#include "models/tile/property_tile/PropertyTile.hpp"
 #include <memory>
 #include <vector>
 
@@ -30,6 +31,9 @@ class GameController {
         void processPickAndDropSpecialCard(Player& p);
         void processRollDice(Player& p);
         void processAuction(Player& p, PropertyTile& propertyTile);
+        void processBankruptcyToBank(Player& p);
+        void transferProperty(Player& from, Player& to, PropertyTile& propertyTile);
+
         void processMortgage();
         void processBuyBuilding();
         void processRedeem();

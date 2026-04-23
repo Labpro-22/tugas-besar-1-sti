@@ -13,23 +13,39 @@ int LuxuryGoodsTaxTile::getPBMFlatCost() const {
     return flatCost_;
 }
 
-void LuxuryGoodsTaxTile::onLand(Player& p) {
-    std::cout << "Kamu mendarat di Pajak Barang Mewah (PBM)!\n";
-    
+OnLandResult LuxuryGoodsTaxTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
+    (void) command;
+
+    view.showMessage("Kamu mendarat di Pajak Barang Mewah (PBM)!\n");
+
     int taxToPay = getPBMFlatCost();
-    int oldBalance = p->getBalance();
-    
-    std::cout << "Pajak sebesar M" << taxToPay << " langsung dipotong.\n";
-    
+    int oldBalance = p.getBalance();
+
+    view.showMessage("Pajak sebesar M" + std::to_string(taxToPay) + " langsung dipotong.\n");
+
     if (oldBalance < taxToPay) {
-        std::cout << "Kamu tidak mampu membayar pajak!\n";
-        std::cout << "Uang kamu saat ini: M" << oldBalance << "\n";
-        
-        // TODO: recheck parameter
-        throw PBMPaymentFailed();
-    } else {
-        p->deductMoney(taxToPay);
-        std::cout << "Uang kamu: M" << oldBalance << " -> M" << p->getBalance() << "\n";
+        view.showMessage("Kamu tidak mampu membayar pajak!\n");
+        view.showMessage("Uang kamu saat ini: M" + std::to_string(oldBalance) + "\n");
+
+        int totalWealth = p.getBalance() + p.getTotalPropertyValue() + p.getTotalBuildingValue();
+
+        view.showMessage("Total kewajiban : M" + std::to_string(taxToPay) + "\n");
+        view.showMessage("Total aset + uang tunai : M" + std::to_string(totalWealth) + "\n");
+
+        if (totalWealth < taxToPay) {
+            view.showMessage("Tidak cukup untuk menutup kewajiban. Kamu bangkrut ke Bank.\n");
+        } else {
+            view.showMessage("Jumlah aset + uang masih cukup. Masuk ke alur likuidasi aset.\n");
+        }
+
+        view.showMessage("---\n");
+        return OnLandResult::TriggerBankruptcyAuction;
     }
-    std::cout << "---\n";
+
+    p.deductMoney(taxToPay);
+    view.showMessage("Uang kamu: M" + std::to_string(oldBalance) +
+                     " -> M" + std::to_string(p.getBalance()) + "\n");
+    view.showMessage("---\n");
+
+    return OnLandResult::Done;
 }

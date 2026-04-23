@@ -4,9 +4,13 @@ Player::Player(std::string username, int initialBalance) :
     id_(countPlayer++), username_(username),
     balance_(initialBalance), position_(0),
     status_(PlayerStatus::ACTIVE), doubleRollCount_(0),
-    countJail_(0), playerTurn_(0) {}
+    countJail_(0), playerTurn_(0), lastDiceTotal_(0) {}
 
 Player::~Player() = default;
+
+std::string Player::getUsername() const {
+    return username_;
+}
 
 // SET TURN
 void Player::setTurn(int turn) {
@@ -96,4 +100,42 @@ std::vector<SkillCard*> Player::getSkillCards(){
 std::vector<PropertyTile*> Player::getProperties(){
     return inventory_.getProperties();
 
+}
+
+void Player::addProperty(PropertyTile* propertyTile) {
+    if (propertyTile == nullptr) return;
+
+    inventory_.addProperty(propertyTile);
+    propertyTile->setOwnerUsername(username_);
+    propertyTile->setPropertyStatus(OWNED);
+}
+
+void Player::removeProperty(PropertyTile* propertyTile) {
+    if (propertyTile == nullptr) return;
+
+    inventory_.removeProperty(propertyTile);
+}
+
+bool Player::ownsProperty(PropertyTile* propertyTile) const {
+    if (propertyTile == nullptr) return false;
+
+    std::vector<PropertyTile*> properties = inventory_.getProperties();
+    for (size_t i = 0; i < properties.size(); i++) {
+        if (properties[i]->getTileID() == propertyTile->getTileID()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+Inventory& Player::getInventory() {
+    return inventory_;
+}
+
+int Player::getLastDiceTotal() const {
+    return lastDiceTotal_;
+}
+
+void Player::setLastDiceTotal(int diceTotal) {
+    lastDiceTotal_ = diceTotal;
 }
