@@ -1,4 +1,5 @@
 #include "models/card/skillcard/LassoCard.hpp"
+#include "models/player/Player.hpp"
 
 
 LassoCard::LassoCard()

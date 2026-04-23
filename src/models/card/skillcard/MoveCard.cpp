@@ -1,7 +1,5 @@
 #include "models/card/skillcard/MoveCard.hpp"
-
-#include <random>
-#include <string>
+#include "models/player/Player.hpp"
 
 MoveCard::MoveCard()
     : SkillCard("MoveCard", ""),

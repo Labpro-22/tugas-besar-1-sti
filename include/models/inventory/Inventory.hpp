@@ -1,6 +1,6 @@
 #pragma once
 #include "models/tile/property_tile/PropertyTile.hpp"
-#include "models/card/skillcard/ShieldCard.hpp"
+#include "models/card/skillcard/SkillCard.hpp"
 #include <functional>
 #include <iostream>
 #include <memory>

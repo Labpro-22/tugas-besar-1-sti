@@ -1,7 +1,5 @@
 #include "models/card/skillcard/DiscountCard.hpp"
-
-#include <iostream>
-#include <random>
+#include "models/player/Player.hpp"
 
 DiscountCard::DiscountCard()
     : SkillCard("Discount Card", "Memberikan diskon acak selama 1 giliran"),

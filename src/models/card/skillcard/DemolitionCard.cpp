@@ -1,4 +1,6 @@
 #include "models/card/skillcard/DemolitionCard.hpp"
+#include "models/player/Player.hpp"
+#include "models/tile/property_tile/PropertyTile.hpp"
 
 DemolitionCard::DemolitionCard()
     : SkillCard("Demolition Card", "Menghancurkan satu properti milik pemain lawan") {}
@@ -79,5 +81,5 @@ void DemolitionCard::activate(Player& owner) {
     target->setPropertyStatus(oldStatus);
 
     std::cout << "[DEMOLITION] " << target->getTileName()
-              << " berhasil dihancurkan\n';
+              << " berhasil dihancurkan\n";
 }
