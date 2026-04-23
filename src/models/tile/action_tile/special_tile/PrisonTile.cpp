@@ -3,6 +3,7 @@
 #include "core/Monopoly.hpp"
 #include <iostream>
 #include <limits>
+#include <stdexcept>
 
 OnLandResult PrisonTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
     view.showMessage("Yahahaha ga ngapain\" lanjut jalan sana gih\n");

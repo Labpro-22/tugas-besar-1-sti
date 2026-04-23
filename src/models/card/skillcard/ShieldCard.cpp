@@ -7,7 +7,7 @@ ShieldCard::ShieldCard()
       remainingTurns_(1) {}
 
 void ShieldCard::activate(Player& owner) {
-    (void)owner;
+    owner.activateShield(1);
     remainingTurns_ = 1;
     std::cout << "[SHIELD] Perlindungan aktif selama 1 giliran.\n";
 }

@@ -1,12 +1,19 @@
 #include "models/player/Player.hpp"
-
 Player::Player(std::string username, int initialBalance) :
     id_(countPlayer++), username_(username),
     balance_(initialBalance), position_(0),
     status_(PlayerStatus::ACTIVE), doubleRollCount_(0),
-    countJail_(0), playerTurn_(0) {}
+    countJail_(0), playerTurn_(0), shieldTurns_(0),
+    discountPercent_(0), discountTurns_(0) {
+    allPlayers_.push_back(this);
+}
 
-Player::~Player() = default;
+Player::~Player() {
+    auto it = std::find(allPlayers_.begin(), allPlayers_.end(), this);
+    if (it != allPlayers_.end()) {
+        allPlayers_.erase(it);
+    }
+}
 
 // SET TURN
 void Player::setTurn(int turn) {
@@ -22,6 +29,14 @@ void Player::addMoney(int amount) {
 }
 
 void Player::deductMoney(int amount) {
+    if (amount > 0 && isShielded()) {
+        return;
+    }
+
+    if (amount > 0 && isDiscounted()) {
+        amount -= (amount * discountPercent_) / 100;
+    }
+
     balance_ -= amount;
 }
 
@@ -31,6 +46,9 @@ Player::PlayerStatus Player::getStatus() const {
 }
 
 void Player::setStatus(Player::PlayerStatus status) {
+    if (status == PlayerStatus::JAILED && isShielded()) {
+        return;
+    }
     status_ = status;
 }
 
@@ -88,12 +106,76 @@ bool Player::isBankrupt() const {
     return status_ == PlayerStatus::BANKRUPT;
 }
 
+void Player::activateShield(int turns) {
+    if (turns <= 0) {
+        return;
+    }
+    shieldTurns_ = turns;
+}
+
+bool Player::isShielded() const {
+    return shieldTurns_ > 0;
+}
+
+void Player::consumeShield() {
+    if (shieldTurns_ > 0) {
+        --shieldTurns_;
+    }
+}
+
+void Player::activateDiscount(int percent, int turns) {
+    if (percent <= 0 || turns <= 0) {
+        return;
+    }
+
+    discountPercent_ = percent;
+    discountTurns_ = turns;
+}
+
+bool Player::isDiscounted() const {
+    return discountTurns_ > 0 && discountPercent_ > 0;
+}
+
+int Player::getDiscountPercent() const {
+    return discountPercent_;
+}
+
+void Player::consumeDiscount() {
+    if (discountTurns_ > 0) {
+        --discountTurns_;
+    }
+
+    if (discountTurns_ == 0) {
+        discountPercent_ = 0;
+    }
+}
+
 // Inventory related
 
-std::vector<SkillCard*> Player::getSkillCards(){
+const std::vector<std::unique_ptr<SkillCard>>& Player::getSkillCards() const {
     return inventory_.getSkillCards();
 }
-std::vector<PropertyTile*> Player::getProperties(){
+std::vector<std::reference_wrapper<PropertyTile>> Player::getProperties() {
     return inventory_.getProperties();
 
+}
+
+void Player::addSkillCard(std::unique_ptr<SkillCard> skillCard) {
+    inventory_.addSkillCards(std::move(skillCard));
+}
+
+std::size_t Player::getSkillCardCount() const {
+    return inventory_.getSkillCardCount();
+}
+
+const SkillCard* Player::getSkillCardAt(std::size_t idx) const {
+    return inventory_.getSkillCardAt(idx);
+}
+
+std::unique_ptr<SkillCard> Player::takeSkillCard(std::size_t idx) {
+    return inventory_.takeSkillCard(idx);
+}
+
+const std::vector<Player*>& Player::getAllPlayers() {
+    return allPlayers_;
 }

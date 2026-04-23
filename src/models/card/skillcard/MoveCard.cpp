@@ -14,15 +14,21 @@ MoveCard::MoveCard()
         steps_ = 67;
     }
     else {
-        std::uniform_int_distribution<int> normalDist(1, 6);
+        std::uniform_int_distribution<int> normalDist(1, 12);
         steps_ = normalDist(gen);
     }
 
     description = "Bergerak maju " + std::to_string(steps_) + " petak.";
 }
 
+MoveCard::MoveCard(int steps)
+    : SkillCard("MoveCard", "")
+    , steps_(steps) {
+    description = "Bergerak maju " + std::to_string(steps_) + " petak.";
+}
+
 void MoveCard::activate(Player& owner) {
-    owner.setPosition(owner.getPosition() + steps_);
+    owner.move(steps_);
 }
 
 int MoveCard::getSteps() const {

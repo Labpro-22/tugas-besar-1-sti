@@ -10,7 +10,8 @@ enum class OnLandResult {
     TakeChanceCard,
     TakeCommunityChest,
     TriggerBankruptcyAuction, //
-    Festival
+    Festival,
+    TriggerMoveToJail,
     // tambahin lagi
 };
 

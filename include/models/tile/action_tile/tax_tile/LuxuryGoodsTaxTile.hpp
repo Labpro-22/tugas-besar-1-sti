@@ -1,6 +1,10 @@
 #pragma once
 #include "TaxTile.hpp"
+#include "models/player/Player.hpp"
+#include "models/exception/Exception.hpp"
+#include <iostream>
 #include <string>
+#include <limits>
 
 class LuxuryGoodsTaxTile : public TaxTile {
     private:

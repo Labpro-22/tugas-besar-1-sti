@@ -2,16 +2,18 @@
 
 Board::Board(int size) : size_(size) {}
 
-void Board::addTile(Tile& tile) {
-    tiles_.push_back(tile);
+Board::~Board() = default;
+
+void Board::addTile(std::unique_ptr<Tile> tile) {
+    tiles_.push_back(std::move(tile));
 }
 
 Tile& Board::moveToNextTile(int distance) {
-    return tiles_.at(distance % size_);
+    return *tiles_.at(distance % size_);
 }
 
 Tile& Board::getCurrentTile(int id) {
-    return tiles_.at(id);
+    return *tiles_.at(id);
 }
 
 int Board::getJailPosition() const {

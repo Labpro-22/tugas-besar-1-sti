@@ -35,34 +35,57 @@ bool GameController::hasSoleWinner() const{
 // RESTRIKSI : di luar on land / effect kartu aja la baru bs bolak balik:
 void GameController::processTurn(Player& p) {
     view_.showMessage("Turn " + p.getUsername() + " dimulai!\n");
-
-    // Pick & Drop Card Kemampuan
-    processPickAndDropSpecialCard(p);
+    bool hasUsedSkillCardThisTurn = false;
 
     if (p.isInJail() && !p.thisTurnAutoFreeFromJail()) {
-        processJailTurn(p);
+        processJailTurn(p, hasUsedSkillCardThisTurn);
+        p.consumeShield();
         return;
     } else if (p.isInJail() && p.thisTurnAutoFreeFromJail()) {
         // bayar denda
         // ya cari lah itu biaya penjara sisanya kyk biasa aja
     }
-    processNormalTurn(p);
+    processNormalTurn(p, hasUsedSkillCardThisTurn);
+    p.consumeShield();
 }
 
 void GameController::processPickAndDropSpecialCard(Player& p) {
-    // sesuaikan di spek
-    // SkillCard& newcard = deck.drawDeck();
-    view_.showMessage("Kamu mendapatkan 1 kartu acak baru!\nKartu yang di dapat adalah.." );
-    // masukkan ke inventory player
-    // tampilin juga daftarnya...
-    // command_->getInt(0, total kartu)
-
-    view_.showMessage("Kartu x telah dibuang ....");
+    (void)p;
 }
 
-void GameController::processSpecialCardUse(Player& p) {
+void GameController::processSpecialCardUse(Player& p, bool& hasUsedSkillCardThisTurn) {
+    if (hasUsedSkillCardThisTurn) {
+        view_.showMessage("Kartu kemampuan hanya boleh dipakai maksimal 1 kali per giliran.\n");
+        return;
+    }
+
+    if (p.getSkillCardCount() == 0) {
+        view_.showMessage("Kamu tidak punya kartu kemampuan untuk digunakan.\n");
+        return;
+    }
+
     view_.showMessage("Silahkan pilih kartu yang mau kamu pakai!\n");
-    // cek apakah kartu yang dipakai bisa atau ga bs
+    for (std::size_t i = 0; i < p.getSkillCardCount(); ++i) {
+        const SkillCard* card = p.getSkillCardAt(i);
+        view_.showMessage(std::to_string(i + 1) + ". " + card->getName() + " - " + card->getDescription() + "\n");
+    }
+
+    int selected = command_.getInt(1, static_cast<int>(p.getSkillCardCount()));
+    std::size_t selectedIndex = static_cast<std::size_t>(selected - 1);
+    const SkillCard* selectedCard = p.getSkillCardAt(selectedIndex);
+
+    if (p.isInJail()) {
+        if (dynamic_cast<const MoveCard*>(selectedCard) != nullptr ||
+            dynamic_cast<const TeleportCard*>(selectedCard) != nullptr) {
+            view_.showMessage("Saat di penjara, kartu Move/Teleport tidak dapat digunakan.\n");
+            return;
+        }
+    }
+
+    std::unique_ptr<SkillCard> usedCard = p.takeSkillCard(selectedIndex);
+    usedCard->activate(p);
+    hasUsedSkillCardThisTurn = true;
+    view_.showMessage("Kartu " + usedCard->getName() + " telah dipakai.\n");
 
     // Sselama di Penjara,
     // pemain tidak dapat bergerak (termasuk pergerakan yang di-invoke 
@@ -76,7 +99,7 @@ void GameController::processRollDice(Player& p) {
 
 }
 
-void GameController::processNormalTurn(Player& p) {
+void GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn) {
     bool hasRolledFirsTime = false;
     bool canSave = true;
 
@@ -128,7 +151,7 @@ void GameController::processNormalTurn(Player& p) {
                 break;
             case CommandType::GUNAKAN_KEMAMPUAN:
                 if (!hasRolledFirsTime) {
-                    processSpecialCardUse(p);
+                    processSpecialCardUse(p, hasUsedSkillCardThisTurn);
                 } else {
                     view_.showMessage("Special card hanya dapat dipakai sebelum roll dice pertama kali");
                 }
@@ -144,7 +167,7 @@ void GameController::processNormalTurn(Player& p) {
     // make sure kalo dia violate double itu bakal lgsg masuk penjara
 }
 
-void GameController::processJailTurn(Player& p) {
+void GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn) {
     // udah pasti either bayar / atur" dadud
     view_.showMessage("Anda sedang berada di penjara!\n");
     Command cmd = command_.getCommand();
@@ -152,7 +175,7 @@ void GameController::processJailTurn(Player& p) {
     switch (cmd.getType()) {
         case CommandType::GUNAKAN_KEMAMPUAN:
             // ingat restriksi ketika dia di dalam penjara
-            processSpecialCardUse(p);
+            processSpecialCardUse(p, hasUsedSkillCardThisTurn);
             break;
         case CommandType::LEMPAR_DADU:
             // lempar dadu trs kalo double baru keluar
@@ -162,7 +185,7 @@ void GameController::processJailTurn(Player& p) {
             break;
         case CommandType::BAYAR_DENDA:
             // bayar terus lgsg keluar ke normal turn
-            processNormalTurn(p);
+            processNormalTurn(p, hasUsedSkillCardThisTurn);
             break;
         default:
             break;
@@ -179,6 +202,7 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
     Tile& nextTile = board_.moveToNextTile(p.move(firstDisplacement));
 
     // proses di dalam land
+    p.setPosition(nextTile.getTileID());
     OnLandResult result = nextTile.onLand(p, command_, view_);
 
     switch (result) {
@@ -212,6 +236,10 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
             processFestival(p);
             break;
         case OnLandResult::Done: // yang kelar
+            break;
+        case OnLandResult::TriggerMoveToJail: // move to jail
+            p.setPosition(board_.getJailPosition());
+            view_.showMessage("Kamu dipindahkan ke penjara");
             break;
             // go to jail perlu?
         default:
