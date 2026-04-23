@@ -20,9 +20,9 @@ class GameController {
             BANKRUT,
         };
 
-        GameController(std::vector<std::unique_ptr<Player>>& players, 
-            Board& board, Dice& dice, GameViewInterface& view, 
-            CommandInterface& command);
+        GameController(std::vector<std::unique_ptr<Player>>& players,
+            Board& board, Dice& dice, GameViewInterface& view, CommandInterface& command);
+            
         ~GameController();
 
         void playGame(int latesTurn, int maxTurn);

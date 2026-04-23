@@ -6,7 +6,7 @@ GameController::GameController(std::vector<std::unique_ptr<Player>>& players,
     Board& board, Dice& dice, GameViewInterface& view,
     CommandInterface& command)
     : players_(players), board_(board), dice_(dice),
-    view_(view), command_(command) {}
+    view_(view), command_(command), auction_(players_, view_){}
 
 GameController::~GameController() = default;
 
@@ -217,69 +217,11 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
             // processAuction(p, nextTile);
             break;
         case OnLandResult::TriggerBankruptcyAuction: {
-            view_.showMessage("Player tidak mampu membayar ke Bank!\n");
+            state_ = GameState::BANKRUT;
 
-            std::vector<PropertyTile*> properties = p.getProperties();
+            auction_.runBankruptcyAuction(p, command_);
 
-            auction_.processBankruptcyToBank(p);
-
-            // kalau tidak ada property 
-            if (properties.empty()) {
-                break;
-            }
-
-            for (PropertyTile* property : properties) {
-                if (property == nullptr) continue;
-
-                view_.showMessage("LELANG");
-
-                // mulai auction
-                auction_.start(p, *property, Auction::AuctionCause::BANKRUPTCY_TO_BANK);
-
-                while (!auction_.isFinished()) {
-                    Player* current = auction_.getCurrentPlayer();
-
-                    if (current == nullptr) {
-                        break;
-                    }
-
-                    view_.showMessage("\nGiliran: " + current->getUsername() + "\n");
-
-                    int minBid = auction_.getMinBid();
-
-                    // cek apakah boleh pass
-                    if (auction_.canCurrentPlayerPass()) {
-                        view_.showMessage("Aksi:\n");
-                        view_.showMessage("0 -> PASS\n");
-                        view_.showMessage(std::to_string(minBid) + "+ -> BID\n");
-                    } else {
-                        view_.showMessage("Wajib BID (tidak boleh PASS)\n");
-                        view_.showMessage("Masukkan bid >= " + std::to_string(minBid) + "\n");
-                    }
-
-                    view_.showMessage("Saldo: M" + std::to_string(current->getBalance()) + "\n");
-                    view_.showMessage("Input: ");
-
-                    int input = command_.getInt(0, current->getBalance());
-
-                    if (input == 0) {
-                        if (auction_.canCurrentPlayerPass()) {
-                            auction_.passCurrentPlayer();
-                        } else {
-                            view_.showMessage("Tidak boleh PASS di giliran ini!\n");
-                        }
-                    } else {
-                        if (auction_.canCurrentPlayerBid(input)) {
-                            auction_.bidCurrentPlayer(input);
-                        } else {
-                            view_.showMessage("Bid tidak valid!\n");
-                        }
-                    }
-                }
-
-                view_.showMessage("\nLelang selesai.\n");
-            }
-
+            state_ = GameState::WAITING_FOR_ROLL_DICE;
             break;
         }
             // Pemain bangkrut ke Bank (semua properti dilelang)
