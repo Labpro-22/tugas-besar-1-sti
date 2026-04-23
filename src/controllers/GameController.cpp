@@ -2,11 +2,11 @@
 #include "models/card/skillcard/MoveCard.hpp"
 #include "models/card/skillcard/TeleportCard.hpp"
 
-GameController::GameController(std::vector<std::unique_ptr<Player>>& players,
+GameController::GameController(std::vector<std::unique_ptr<Player>> players,
     Board& board, Dice& dice, GameViewInterface& view,
-    CommandInterface& command)
-    : players_(players), board_(board), dice_(dice),
-    view_(view), command_(command) {}
+    CommandInterface& command, Deck<SkillCard>& specialCardDeck)
+    : players_(std::move(players)), board_(board), dice_(dice),
+    view_(view), command_(command), specialCardDeck_(specialCardDeck) {}
 
 GameController::~GameController() = default;
 
@@ -90,16 +90,11 @@ void GameController::processSpecialCardUse(Player& p, bool& hasUsedSkillCardThis
     view_.showMessage("Kartu " + usedCard->getName() + " telah dipakai.\n");
 
     // Sselama di Penjara,
-    // pemain tidak dapat bergerak (termasuk pergerakan yang di-invoke 
+    // pemain tidak dapat bergerak (termasuk pergerakan yang di-invoke
     // dari kartu seperti move dan teleport). Untuk kartu lainnya, kasus
     // penggunaannya sama seperti biasa.
 }
 
-void GameController::processRollDice(Player& p) {
-    view_.showMessage("Silahkan roll dice kamu!\n");
-
-
-}
 
 void GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn) {
     bool hasRolledFirsTime = false;
@@ -194,6 +189,10 @@ void GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn) 
     }
 }
 
+void GameController::processRollDice(Player& p) {
+    view_.showMessage("Silahkan roll dice kamu!\n");
+}
+
 void GameController::transferProperty(Player& from, Player& to, PropertyTile& propertyTile) {
     PropertyStatus oldStatus = propertyTile.getPropertyStatus();
 
@@ -205,8 +204,6 @@ void GameController::transferProperty(Player& from, Player& to, PropertyTile& pr
 
 // Bisa di-consider perlu kelas sendiri "AuctionController" atau engga
 void GameController::processAuction(Player& triggerPlayer, PropertyTile& propertyTile) {
-    state_ = GameState::LELANG;
-
     view_.showMessage("Properti " + propertyTile.getTileName() + " (" + propertyTile.getLetterCode() + ") akan dilelang!\n");
 
     // cari index trigger player
@@ -220,7 +217,6 @@ void GameController::processAuction(Player& triggerPlayer, PropertyTile& propert
 
     if (triggerIdx == -1) {
         view_.showMessage("Trigger player tidak ditemukan. Lelang dibatalkan.\n");
-        state_ = GameState::WAITING_FOR_ROLL_DICE;
         return;
     }
 
@@ -247,7 +243,6 @@ void GameController::processAuction(Player& triggerPlayer, PropertyTile& propert
 
     if (participants.empty()) {
         view_.showMessage("Tidak ada peserta valid untuk lelang.\n");
-        state_ = GameState::WAITING_FOR_ROLL_DICE;
         return;
     }
 
@@ -274,7 +269,7 @@ void GameController::processAuction(Player& triggerPlayer, PropertyTile& propert
             consecutivePasses = 0;
 
             view_.showMessage("Penawaran tertinggi: M" + std::to_string(highestBid) +
-                              " (" + currentWinner->getUsername() + ")\n");
+                            " (" + currentWinner->getUsername() + ")\n");
         } else {
             int minBid;
             if (highestBid < 0) {
@@ -309,7 +304,7 @@ void GameController::processAuction(Player& triggerPlayer, PropertyTile& propert
                 consecutivePasses = 0;
 
                 view_.showMessage("Penawaran tertinggi: M" + std::to_string(highestBid) +
-                                  " (" + currentWinner->getUsername() + ")\n");
+                                " (" + currentWinner->getUsername() + ")\n");
             }
         }
 
@@ -325,17 +320,13 @@ void GameController::processAuction(Player& triggerPlayer, PropertyTile& propert
         view_.showMessage("Pemenang: " + currentWinner->getUsername() + "\n");
         view_.showMessage("Harga akhir: M" + std::to_string(highestBid) + "\n");
         view_.showMessage("Properti " + propertyTile.getTileName() + " (" + propertyTile.getLetterCode() +
-                          ") kini dimiliki " + currentWinner->getUsername() + ".\n");
+                        ") kini dimiliki " + currentWinner->getUsername() + ".\n");
     } else {
         view_.showMessage("Tidak ada pemenang lelang.\n");
     }
-
-    state_ = GameState::WAITING_FOR_ROLL_DICE;
 }
 
 void GameController::processBankruptcyToBank(Player& p) {
-    state_ = GameState::BANKRUT;
-
     view_.showMessage("\n" + p.getUsername() + " dinyatakan BANGKRUT kepada Bank!\n");
 
     int remainingMoney = p.getBalance();
@@ -364,7 +355,7 @@ void GameController::processBankruptcyToBank(Player& p) {
         property->resetAfterBankruptcyToBank();
 
         view_.showMessage("\n-> Lelang: " + property->getTileName() +
-                          " (" + property->getLetterCode() + ")\n");
+                        " (" + property->getLetterCode() + ")\n");
 
         processAuction(p, *property);
     }
@@ -372,7 +363,6 @@ void GameController::processBankruptcyToBank(Player& p) {
     p.setStatus(Player::PlayerStatus::BANKRUPT);
 
     view_.showMessage(p.getUsername() + " telah keluar dari permainan.\n");
-    state_ = GameState::WAITING_FOR_ROLL_DICE;
 }
 
 void GameController::processMovement(Player& p, int firstDisplacement) {

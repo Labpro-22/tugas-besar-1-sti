@@ -12,34 +12,41 @@ void Monopoly::setInitialBalance(int initialBalance) {
 }
 
 void Monopoly::startGame() {
-    view_->showMessage("Selamat datang!\nPutra-putri terbaik bangsa!");
-    // minta folder yang mau di-load
-    std::unique_ptr<Board> board = loadConfig();
+    while (true) {
+        view_->showMessage("Selamat datang!\nPutra-putri terbaik bangsa!");
+        // minta folder yang mau di-load
+        std::unique_ptr<Board> board = loadConfig();
 
-    // tanyain apakah mulai game baru atau yang udah ada
-        // if udah ada artinya minta game state-nya
+        // tanyain apakah mulai game baru atau yang udah ada
+            // if udah ada artinya minta game state-nya
 
-    int numOfPlayers;
-    int latestTurn = 0;
-    std::vector<std::unique_ptr<Player>> players;
-    if (command_->askWantToLoadState()) {
-        // Load state
-            // Bangun board
-            // Bangun player
-            // Cari latest turn-nya berapa
-    } else {
-        // new game
-        numOfPlayers = command_->askNumOfPlayer();
-        players = registerPlayers(numOfPlayers);
-        shufflePlayersTurn(players);
+        int numOfPlayers;
+        int latestTurn = 0;
+        std::vector<std::unique_ptr<Player>> players;
+        if (command_->askWantToLoadState()) {
+            // Load state
+                // Bangun board
+                // Bangun player
+                // Cari latest turn-nya berapa
+        } else {
+            // new game
+            numOfPlayers = command_->askNumOfPlayer();
+            players = registerPlayers(numOfPlayers);
+            shufflePlayersTurn(players);
+        }
+
+        // init dice
+        Dice dice = Dice();
+
+        // init deck
+        Deck<SkillCard> decks = Deck<SkillCard>();
+
+        // tar
+        GameController gameController(players, *board, dice, *view_, *command_, decks); // tar lg pusing command sm si view bedanya apa
+        gameController.playGame(latestTurn, maxTurn_);
+
+        // clean log
     }
-
-    // init dice
-    Dice dice = Dice();
-
-    // tar
-    GameController gameController(players, *board, dice, *view_, *command_); // tar lg pusing command sm si view bedanya apa
-    gameController.playGame(latestTurn, maxTurn_);
 }
 
 std::vector<std::unique_ptr<Player>> Monopoly::registerPlayers(int numOfPlayers) {
