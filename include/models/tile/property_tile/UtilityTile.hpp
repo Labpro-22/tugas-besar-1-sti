@@ -14,6 +14,8 @@ class UtilityTile : public PropertyTile {
 
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 
+        int calculateRentPrice(int countUtils, int diceResult);
+
         // getter n setter
         static void setUtilityFactor(const std::map<int, int>& factors);
         static const std::map<int, int>& getUtilityFactor();

@@ -102,6 +102,10 @@ void Player::resetJailTurn() {
     countJail_ = 0;
 }
 
+void Player::leaveJail() {
+    status_ = PlayerStatus::ACTIVE;
+}
+
 // TAX RELATED
 int Player::getTotalPropertyValue() const {
     return inventory_.countAllPropertyValueBasedOnPurchasePrice();
@@ -126,7 +130,7 @@ bool Player::isShielded() const {
     return shieldTurns_ > 0;
 }
 
-void Player::consumeShield() {
+void Player::decreaseShieldCardTurn() {
     if (shieldTurns_ > 0) {
         --shieldTurns_;
     }
@@ -237,8 +241,8 @@ const SkillCard* Player::getSkillCardAt(std::size_t idx) const {
     return inventory_.getSkillCardAt(idx);
 }
 
-std::unique_ptr<SkillCard> Player::takeSkillCard(std::size_t idx) {
-    return inventory_.takeSkillCard(idx);
+std::unique_ptr<SkillCard> Player::removeSkillCardAt(std::size_t idx) {
+    return inventory_.removeSkillCardAt(idx);
 }
 
 const std::vector<Player*>& Player::getAllPlayers() {
@@ -251,4 +255,17 @@ int Player::countRailroad() const {
 
 int Player::countUtilities() const {
     return inventory_.countUtilities();
+}
+
+std::vector<PropertyTile*> Player::getMortgagedProperties() const {
+    return inventory_.getMortgagedProperties();
+
+}
+
+std::map<std::string, std::vector<PropertyTile*>> Player::getCompleteColourGroups(std::map<std::string, int> countTilesForEachColourBlock) {
+    return inventory_.getCompleteColourGroups(countTilesForEachColourBlock);
+}
+
+std::map<std::string, std::vector<PropertyTile*>> Player::getOwnedPropertiesGroupByColourGroups() {
+    return inventory_.getOwnedPropertiesGroupByColourGroups();
 }

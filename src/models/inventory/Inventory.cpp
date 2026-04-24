@@ -8,11 +8,27 @@ std::vector<PropertyTile*> Inventory::getProperties() const {
     return properties_;
 }
 
+std::vector<PropertyTile*> Inventory::getMortgagedProperties() const {
+    std::vector<PropertyTile*> mortgagedProps;
+    for (size_t i = 0; i < getProperties().size(); i++) {
+        if (getProperties().at(i) != nullptr && getProperties().at(i)->isMortgaged()) {
+            mortgagedProps.push_back(getProperties().at(i));
+        }
+    }
+    return mortgagedProps;
+}
+
 void Inventory::addProperty(PropertyTile *propertyTile) {
     if (propertyTile == nullptr) return;
 
     if (!hasProperty(propertyTile)) {
         properties_.push_back(propertyTile);
+        if (dynamic_cast<RailRoadTile*>(propertyTile) != nullptr) {
+            countRailRoads_++;
+        }
+        if (dynamic_cast<PropertyTile*>(propertyTile) != nullptr) {
+            countUtilities_++;
+        }
     }
 }
 
@@ -22,6 +38,12 @@ void Inventory::removeProperty(PropertyTile *propertyTile) {
     for (size_t i = 0; i < properties_.size(); i++) {
         if (properties_[i] == propertyTile) {
             properties_.erase(properties_.begin() + i);
+            if (dynamic_cast<RailRoadTile*>(propertyTile) != nullptr) {
+                countRailRoads_--;
+            }
+            if (dynamic_cast<PropertyTile*>(propertyTile) != nullptr) {
+                countUtilities_--;
+            }
             return;
         }
     }
@@ -106,7 +128,7 @@ const SkillCard* Inventory::getSkillCardAt(std::size_t idx) const {
     return skillCards_.at(idx).get();
 }
 
-std::unique_ptr<SkillCard> Inventory::takeSkillCard(std::size_t idx) {
+std::unique_ptr<SkillCard> Inventory::removeSkillCardAt(std::size_t idx) {
     if (idx >= skillCards_.size()) {
         // TODO
         //throw OutOfRangeException;
@@ -128,21 +150,50 @@ bool Inventory::isExistsTileBasedOnCode(std::string code) const {
 }
 
 int Inventory::countRailRoads() const {
-    int count = 0;
-    for (PropertyTile* p : properties_) {
-        if (dynamic_cast<RailRoadTile*>(p) != nullptr) {
-            count++;
-        }
-    }
-    return count;
+    return countRailRoads_;
 }
 
 int Inventory::countUtilities() const {
-    int count = 0;
-    for (PropertyTile* p : properties_) {
-        if (dynamic_cast<UtilityTile*>(p) != nullptr) {
-            count++;
+    return countUtilities_;
+}
+
+std::map<std::string, std::vector<PropertyTile*>> Inventory::getCompleteColourGroups(std::map<std::string, int> countTilesForEachColourBlock) {
+    // 1 Pembangunan rumah harus dilakukan 
+        // secara merata di
+        // seluruh petak dalam satu color group.
+        // selisih antar properti level di satu color group selalu <= 1
+        // dynamic cast ke street tile
+        // * ga memenuhi syarat ga bakal ditampilin
+    std::map<std::string, std::vector<PropertyTile*>> colourBlockToPropertyTile;
+
+    // Masukin aja dulu semuanya (grouping)
+    for (size_t i = 0; i < properties_.size(); i++) {
+        colourBlockToPropertyTile[properties_.at(i)->getColourBlock()].push_back(properties_.at(i));
+    }
+
+    // cek colour group yang valid, valid artinya udh dimiliki
+    for (auto it = colourBlockToPropertyTile.begin(); it != colourBlockToPropertyTile.end(); ++it) {
+        const std::string& colour = it->first;
+        const std::vector<PropertyTile*>& tiles = it->second;
+
+        if (tiles.size() != countTilesForEachColourBlock[colour]) {
+            it = colourBlockToPropertyTile.erase(it);
+        } else {
+            ++it;
+        }
+
+    }
+    return colourBlockToPropertyTile;
+}
+
+std::map<std::string, std::vector<PropertyTile*>> Inventory::getOwnedPropertiesGroupByColourGroups() {
+    std::map<std::string, std::vector<PropertyTile*>> colourBlockToPropertyTile;
+
+    // Masukin aja dulu semuanya (grouping)
+    for (size_t i = 0; i < properties_.size(); i++) {
+        if (properties_.at(i)->isOwned()) {
+            colourBlockToPropertyTile[properties_.at(i)->getColourBlock()].push_back(properties_.at(i));
         }
     }
-    return count;
+    return colourBlockToPropertyTile;
 }

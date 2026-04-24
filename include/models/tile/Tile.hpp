@@ -13,7 +13,10 @@ enum class OnLandResult {
     Festival,
     TriggerMoveToJail,
     TriggerBankruptcyFlow,
+    TriggerCanPayRentUsingCash,
+    TriggerTryToPayRent
     // tambahin lagi
+    
 };
 
 class Tile {

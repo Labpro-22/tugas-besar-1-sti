@@ -51,6 +51,7 @@ class Player {
         void incrementJailTurn();
         int getCountJail() const;
         void resetJailTurn();
+        void Player::leaveJail();
 
         // Untuk PPH
         int getTotalPropertyValue() const;
@@ -74,10 +75,11 @@ class Player {
         void setLastDiceTotal(int diceTotal);
         bool hasProperty(std::string tileCode);
         PropertyTile& getProperty(std::string code);
+        std::vector<PropertyTile*> getMortgagedProperties() const;
         // shield
         void activateShield(int turns = 1);
         bool isShielded() const;
-        void consumeShield();
+        void decreaseShieldCardTurn();
 
         // discount
         void activateDiscount(int percent, int turns = 1);
@@ -89,13 +91,15 @@ class Player {
         void addSkillCard(std::unique_ptr<SkillCard> skillCard);
         std::size_t getSkillCardCount() const;
         const SkillCard* getSkillCardAt(std::size_t idx) const;
-        std::unique_ptr<SkillCard> takeSkillCard(std::size_t idx);
+        std::unique_ptr<SkillCard> removeSkillCardAt(std::size_t idx);
 
         static const std::vector<Player*>& getAllPlayers();
 
         int countRailroad() const;
         int countUtilities() const;
-        
+        std::map<std::string, std::vector<PropertyTile*>> getCompleteColourGroups(std::map<std::string, int> countTilesForEachColourBlock);
+        std::map<std::string, std::vector<PropertyTile*>> getOwnedPropertiesGroupByColourGroups();
+        bool noBuilding() const; // level bangunna
 
     private:
         int id_; // auto increment dari countplayer itu

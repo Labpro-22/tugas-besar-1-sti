@@ -1,3 +1,4 @@
+#pragma once
 #include "models/board/Board.hpp"
 #include "models/player/Player.hpp"
 #include "views/CommandInterface.hpp"
@@ -8,21 +9,15 @@
 #include "controllers/Auction.hpp"
 #include <memory>
 #include <vector>
-
+#include "models/card/Deck.hpp"
+#include "models/card/skillcard/SkillCard.hpp"
+#include "models/card/skillcard/LassoCard.hpp"
+#include "models/tile/property_tile/RailRoadTile.hpp"
 class GameController {
     public:
-        enum class GameState  {
-            WAITING_FOR_ROLL_DICE,
-            FREE_SUDAH_ROLL_DICE,
-            INJAIL,
-
-            LELANG,
-            BANKRUT,
-        };
-
-        GameController(std::vector<std::unique_ptr<Player>>& players,
-            Board& board, Dice& dice, GameViewInterface& view, CommandInterface& command);
-            
+        GameController(std::vector<std::unique_ptr<Player>> players, 
+            Board& board, Dice& dice, GameViewInterface& view, 
+            CommandInterface& command, Deck<SkillCard>& specialCardDeck_);
         ~GameController();
 
         void playGame(int latesTurn, int maxTurn);
@@ -31,26 +26,35 @@ class GameController {
         void processSpecialCardUse(Player& p, bool& hasUsedSkillCardThisTurn);
         void processPickAndDropSpecialCard(Player& p);
         void processRollDice(Player& p);
+        void processAuction(Player& p, PropertyTile& propertyTile);
+        void processBankruptcyToBank(Player& p);
+        void transferProperty(Player& from, Player& to, PropertyTile& propertyTile);
 
-        void processMortgage();
-        void processBuyBuilding();
-        void processRedeem();
+        void processPayRent(Player& p, Tile& currentTile);
+        void processBankruptcyFlow(Player& payer, Player& owner);
+
+        void processMortgage(Player& p);
+        void processBuyBuilding(Player& p);
+        void processRedeem(Player& p);
         void processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn);
         void processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn);
         void processFestival(Player& p);
         void processTakeChanceCard(Player& p);
         void processTakeCommunityChest(Player& p);
         bool hasSoleWinner() const;
+        void decideWinner() const;
 
     private:
         // Deck<SpecialCard>...
+        Deck<SkillCard>& specialCardDeck_;
         Board& board_;
         Dice& dice_;
         GameViewInterface& view_;
         CommandInterface& command_;
-        std::vector<std::unique_ptr<Player>>& players_; // gabs pake &
+        std::vector<std::unique_ptr<Player>> players_;
         Auction auction_;
 
-        GameState state_;
+        int goSalary_;
+        int jailFine_;
 };
 
