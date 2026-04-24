@@ -31,6 +31,15 @@ void GameController::decideWinner() const {
             candidates.push_back(playerPtr.get());
         }
     }
+    if(hasSoleWinner()){
+        for (const auto& playerPtr : players_) {
+            if (!playerPtr->isBankrupt()) {
+                view_.showMessage("Pemenang: " + playerPtr->getUsername() + "\n");
+                view_.showMessage("Uang: M" + std::to_string(playerPtr->getBalance()) + "\n");
+                return;
+            }
+        }
+    }
     if (candidates.empty()) {
         view_.showMessage("Tidak ada pemenang karena semua pemain bangkrut.\n");
         return;
