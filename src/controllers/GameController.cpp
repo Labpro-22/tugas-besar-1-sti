@@ -673,5 +673,98 @@ void GameController::processBuyBuilding(Player& p) {
 }
 
 void GameController::processBankruptcyFlow(Player& payer, Player& owner) {
+    // Properti berstatus MORTGAGED tidak dapat langsung dijual ke Bank
+    // dalam proses likuidasi.
+}
 
+
+// Syarat menggadaikan
+// adalah properti berstatus OWNED dan tidak memiliki bangunan
+// yang berdiri di atasnya.
+void GameController::processMortgage(Player& p) {
+    view_.showMessage("Selamat datang di proses pegadain!\n");
+
+    // cari owned property
+    std::map<std::string, std::vector<PropertyTile*>> ownedProperty = p.getOwnedPropertiesGroupByColourGroups();
+
+    if (ownedProperty.empty()) {
+        view_.showMessage("Ga ada property yang bisa digadai");
+        return;
+    }
+    
+    std::vector<PropertyTile*> linearOrdered;
+
+    // buat jadi bentuk vektor juga
+    view_.showMessage("Hayo milih dulu\n");
+    int count = 0;
+
+    for (auto& keyValue : ownedProperty) {
+        std::vector<PropertyTile*>& vec = keyValue.second;
+        for (auto& val : vec) {
+            linearOrdered.push_back(val);
+            count++;
+        }
+    }
+
+    // =========================================================================
+    int selected = command_.getInt(0, count);
+    if (selected == 0) {
+        view_.showMessage("ga jadi gadai\n");
+        return;
+    }
+
+    // Jika masih ada bangunan pada colour
+    // group yang sama, semua bangunan pada seluruh color group
+    // tersebut harus dijual ke Bank terlebih dahulu dengan harga
+    // setengah dari harga beli bangunan sebelum properti dapat digadaikan.
+    PropertyTile& selectedTile = *linearOrdered.at(selected - 1);
+
+    // maksudnya semua yg ada di colour group itu lah au ah bingung
+    std::vector<PropertyTile*> members = ownedProperty[selectedTile.getColourBlock()];
+
+    // cek pada ada bangunan atau engga
+    bool foundHasBuilding = false;
+    for (size_t i = 0; i < count; i++) {
+        if (members.at(i)->hasBuilding()) {
+            foundHasBuilding = true;
+            break;
+        }
+    }
+    
+
+    // kasus ga ada bangunan
+    if (!foundHasBuilding) {
+        // langsung sukses
+        selectedTile.setToMortgaged();
+        // duit player tambahin
+        p.addMoney(selectedTile.getSellingPrice());
+        view_.showMessage("hore kamu dapat duit bla bla bla\n");
+    } else {
+        // kasus ada bangunan
+        view_.showMessage("di tile ini masih ada bangunannya, tidak dapat digadaikan! jual dulu gih");
+        view_.showMessage("Ini dia ni yg masih ada\n");
+
+        bool wantToSellAllBuildings = command_.askWantToSellAllBuildings("mau jual semua gaa\n");
+        if (wantToSellAllBuildings) {
+            // proses jual semua
+            int earnedSum = 0;
+            for (size_t i = 0; i < members.size(); i++) {
+                earnedSum +=members.at(i)->sellAllBuildings();
+                view_.showMessage("Ceklik..\n");
+            }
+            view_.showMessage("total:///");
+            p.addMoney(earnedSum);
+        } else {
+            view_.showMessage("baiklah bye");
+            return;
+        }
+        // lanjut gadai ga ?
+        if (command_.getBool("Mau lanjut gadai ga\n")) {
+            selectedTile.setToMortgaged();
+            // duit player tambahin
+            p.addMoney(selectedTile.getSellingPrice());
+            view_.showMessage("hore kamu dapat duit bla bla bla\n");
+            return;
+        }
+    }
 }
