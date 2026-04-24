@@ -98,6 +98,8 @@ class Player {
         int countRailroad() const;
         int countUtilities() const;
 
+        void resetCountDouble();
+
     private:
         int id_; // auto increment dari countplayer itu
         std::string username_; //username pemain

@@ -261,3 +261,7 @@ std::vector<PropertyTile*> Player::getMortgagedProperties() const {
     return inventory_.getMortgagedProperties();
 
 }
+
+void Player::resetCountDouble() {
+    doubleRollCount_ = 0;
+}
