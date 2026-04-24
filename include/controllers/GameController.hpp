@@ -7,11 +7,18 @@
 #include "models/tile/action_tile/special_tile/PrisonTile.hpp"
 #include "models/tile/property_tile/PropertyTile.hpp"
 #include "controllers/Auction.hpp"
-#include <memory>
-#include <vector>
 #include "models/card/Deck.hpp"
 #include "models/card/skillcard/SkillCard.hpp"
 #include "models/card/skillcard/LassoCard.hpp"
+#include "models/card/ChanceCard.hpp"
+#include "models/card/CommunityChestCard.hpp"
+#include "models/card/skillcard/MoveCard.hpp"
+#include "models/card/skillcard/TeleportCard.hpp"
+#include "models/tile/property_tile/RailRoadTile.hpp"
+
+#include <memory>
+#include <vector>
+
 class GameController {
     public:
         enum class GameState  {

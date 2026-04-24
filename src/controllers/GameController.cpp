@@ -1,6 +1,4 @@
 #include "controllers/GameController.hpp"
-#include "models/card/skillcard/MoveCard.hpp"
-#include "models/card/skillcard/TeleportCard.hpp"
 
 GameController::GameController(std::vector<std::unique_ptr<Player>> players,
     Board& board, Dice& dice, GameViewInterface& view,
@@ -272,22 +270,128 @@ void GameController::processFestival(Player& p) {
 }
 
 void GameController::processTakeChanceCard(Player& p) {
-    // Ngambil kartu dari deck
-    // Kartu Kesempatan
-    // Berikut adalah aturan Kartu Kesempatan yang ada dalam Permainan Nimonspoli:
-    // "Pergi ke stasiun terdekat."
-    // "Mundur 3 petak."
-    // "Masuk Penjara."
+    ChanceCard card = ChanceCard::randomCard();
+    view_.showMessage("[CHANCE] " + card.getDescription() + "\n");
+
+    switch (card.getInstruction()) {
+        case ChanceCard::GoToNearestStation: {
+            std::vector<int> stationPositions;
+            int boardSize = 0;
+
+            for (int i = 0;; ++i) {
+                try {
+                    Tile& tile = board_.getCurrentTile(i);
+                    ++boardSize;
+
+                    if (dynamic_cast<RailRoadTile*>(&tile) != nullptr) {
+                        stationPositions.push_back(i);
+                    }
+                } catch (...) {
+                    // TODO: exception
+                    break;
+                }
+            }
+
+            if (stationPositions.empty() || boardSize == 0) {
+                view_.showMessage("[CHANCE] Stasiun tidak ditemukan di papan.\n");
+                return;
+            }
+
+            const int currentPos = p.getPosition();
+            int bestPos = stationPositions.front();
+            int bestForwardDistance = boardSize;
+
+            for (int stationPos : stationPositions) {
+                int distance = (stationPos - currentPos + boardSize) % boardSize;
+                if (distance == 0) {
+                    distance = boardSize;
+                }
+
+                if (distance < bestForwardDistance) {
+                    bestForwardDistance = distance;
+                    bestPos = stationPos;
+                }
+            }
+
+            p.setPosition(bestPos);
+            view_.showMessage("[CHANCE] Kamu dipindahkan ke stasiun terdekat.\n");
+            break;
+        }
+
+        case ChanceCard::MoveBackThreeTiles: {
+            int boardSize = 0;
+            for (int i = 0;; ++i) {
+                try {
+                    (void)board_.getCurrentTile(i);
+                    ++boardSize;
+                } catch (...) {
+                    // TODO: exception
+                    break;
+                }
+            }
+
+            if (boardSize == 0) {
+                view_.showMessage("[CHANCE] Papan tidak valid.\n");
+                return;
+            }
+
+            const int newPos = (p.getPosition() - 3 + boardSize) % boardSize;
+            p.setPosition(newPos);
+            view_.showMessage("[CHANCE] Kamu mundur 3 petak.\n");
+            break;
+        }
+
+        case ChanceCard::GoToJail:
+            p.setPosition(board_.getJailPosition());
+            p.setStatus(Player::JAILED);
+            p.resetJailTurn();
+            view_.showMessage("[CHANCE] Kamu masuk penjara.\n");
+            break;
+
+        default:
+            break;
+    }
 }
 
 void GameController::processTakeCommunityChest(Player& p) {
-    // Ngambill kartu dari deck
-    // pake effect dari kartunya
-    // "Ini adalah hari ulang tahun Anda. Dapatkan M100 dari setiap pemain."
-    // "Biaya dokter. Bayar M700."
-    // "Anda mau nyaleg. Bayar M200 kepada setiap pemain."
+    CommunityChestCard card = CommunityChestCard::randomCard();
+    view_.showMessage("[COMMUNITY CHEST] " + card.getDescription() + "\n");
 
-    // CommunityChest parameternya hanya boleh pemain (yang punya) dan juga semua player
+    switch (card.getInstruction()) {
+        case CommunityChestCard::BirthdayCollect100FromEachPlayer:
+            for (auto& otherPtr : players_) {
+                Player* other = otherPtr.get();
+                if (other == nullptr || other == &p || other->isBankrupt()) {
+                    continue;
+                }
+
+                other->deductMoney(100);
+                p.addMoney(100);
+            }
+            view_.showMessage("[COMMUNITY CHEST] Uang ulang tahun berhasil ditarik dari semua lawan.\n");
+            break;
+
+        case CommunityChestCard::DoctorFeePay700:
+            p.deductMoney(700);
+            view_.showMessage("[COMMUNITY CHEST] Kamu membayar biaya dokter M700.\n");
+            break;
+
+        case CommunityChestCard::ElectionPay200ToEachPlayer:
+            for (auto& otherPtr : players_) {
+                Player* other = otherPtr.get();
+                if (other == nullptr || other == &p || other->isBankrupt()) {
+                    continue;
+                }
+
+                p.deductMoney(200);
+                other->addMoney(200);
+            }
+            view_.showMessage("[COMMUNITY CHEST] Kamu membayar M200 ke setiap pemain lain.\n");
+            break;
+
+        default:
+            break;
+    }
 }
 
 void GameController::processMortgage(Player& p) {
