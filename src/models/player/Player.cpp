@@ -259,5 +259,12 @@ int Player::countUtilities() const {
 
 std::vector<PropertyTile*> Player::getMortgagedProperties() const {
     return inventory_.getMortgagedProperties();
+}
 
+int Player::getPropertyCount() const {
+    return inventory_.countProperty();
+}
+
+int Player::getCardCount() const {
+    return inventory_.countCard();
 }

@@ -98,6 +98,9 @@ class Player {
         int countRailroad() const;
         int countUtilities() const;
 
+        int getPropertyCount() const;
+        int getCardCount() const;
+
     private:
         int id_; // auto increment dari countplayer itu
         std::string username_; //username pemain
