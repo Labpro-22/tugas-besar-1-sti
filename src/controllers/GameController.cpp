@@ -466,11 +466,13 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
         case OnLandResult::Festival:
             processFestival(p);
             break;
-        case OnLandResult::Done: // yang kelar
-            break;
         case OnLandResult::TriggerMoveToJail: // move to jail
             p.setPosition(board_.getJailPosition());
             view_.showMessage("Kamu dipindahkan ke penjara");
+            break;
+        case OnLandResult::TriggerTryToPayRent:
+            processPayRent(p, nextTile);
+        case OnLandResult::Done: // yang kelar
             break;
         default:
             break;
@@ -577,5 +579,49 @@ void GameController::processRedeem(Player& p) {
 }
 
 void GameController::processBuyBuilding(Player& p) {
+
+}
+
+// sudah pasti ga mortgage dan sudah pasti bisa bayar, sisa pindahin uang
+void GameController::processPayRent(Player& p, Tile& currentTile) {
+    // get owner
+    PropertyTile* propertyTile = dynamic_cast<PropertyTile*>(&currentTile);
+    if (!propertyTile) {
+        return;
+    }
+
+    for (size_t i = 0; i < players_.size(); i++) {
+        Player* owner = players_[i].get();
+        if (owner && owner->getUsername() == propertyTile->getOwnerUsername()) {
+            int rent = 0;
+            if (StreetTile* streetTile = dynamic_cast<StreetTile*>(propertyTile)) {
+                bool cg = board_.isCompletedColourGroup(owner->getUsername(), propertyTile->getColourBlock());
+                rent = streetTile->calculateRentPrice(cg);
+            }
+            else if (RailRoadTile* railRoadTile = dynamic_cast<RailRoadTile*>(propertyTile)) {
+                int count = board_.countOwnedRailRoadTile(owner->getUsername());
+                rent = railRoadTile->calculateRentPrice(count);
+            }
+            else if (UtilityTile* utilityTile = dynamic_cast<UtilityTile*>(propertyTile)) {
+                int count = board_.countOwnedUtilityTile(owner->getUsername());
+                int dice = dice_.getRollResult(); // tetap sm kyk terakhir selagi ga pernah di-roll lg
+                rent = utilityTile->calculateRentPrice(count, dice);
+            }
+            if (p.getBalance() < rent) {
+                processBankruptcyFlow(p, *owner);
+                return;
+            }
+            // bayar beneran
+            owner->addMoney(rent);
+            p.deductMoney(rent);
+
+            view_.showMessage("Atur-atur mo tampilannya gimana :VVVVVVVVVVVVVVVVVV");
+            return;
+        }
+    }
+    
+}
+
+void GameController::processBankruptcyFlow(Player& payer, Player& owner) {
 
 }

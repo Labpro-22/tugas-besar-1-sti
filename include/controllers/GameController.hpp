@@ -11,6 +11,7 @@
 #include "models/card/Deck.hpp"
 #include "models/card/skillcard/SkillCard.hpp"
 #include "models/card/skillcard/LassoCard.hpp"
+#include "models/tile/property_tile/RailRoadTile.hpp"
 class GameController {
     public:
         GameController(std::vector<std::unique_ptr<Player>> players, 
@@ -27,6 +28,9 @@ class GameController {
         void processAuction(Player& p, PropertyTile& propertyTile);
         void processBankruptcyToBank(Player& p);
         void transferProperty(Player& from, Player& to, PropertyTile& propertyTile);
+
+        void processPayRent(Player& p, Tile& currentTile);
+        void processBankruptcyFlow(Player& payer, Player& owner);
 
         void processMortgage(Player& p);
         void processBuyBuilding(Player& p);

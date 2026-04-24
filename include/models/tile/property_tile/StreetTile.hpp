@@ -19,5 +19,5 @@ class StreetTile : public PropertyTile {
 
         std::map<int, int> getBuildPrice() const;
 
-        int calculateRentPrice() const;
+        int calculateRentPrice(bool completedColourGroup) const;
 };

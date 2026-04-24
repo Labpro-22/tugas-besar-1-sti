@@ -21,6 +21,11 @@ class Board
         Tile& moveToNextTile(int distance);
         Tile& getCurrentTile(int id);
         bool has(std::string code);
+
+
+        bool isCompletedColourGroup(std::string ownerName, std::string colourBlock);
+        int countOwnedUtilityTile(std::string username);
+        int countOwnedRailRoadTile(std::string username);
         
 
         int getJailPosition() const;
