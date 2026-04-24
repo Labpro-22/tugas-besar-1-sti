@@ -34,6 +34,10 @@ class Command {
             return args_.at(idx);
         }
 
+        int getArgCount() const {
+            return static_cast<int>(args_.size());
+        }
+
         std::string getStringArg() const {
             return stringArg_;
         }

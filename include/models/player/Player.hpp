@@ -101,6 +101,8 @@ class Player {
         std::map<std::string, std::vector<PropertyTile*>> getOwnedPropertiesGroupByColourGroups();
         bool noBuilding() const; // level bangunna
 
+        void resetCountDouble();
+
     private:
         int id_; // auto increment dari countplayer itu
         std::string username_; //username pemain

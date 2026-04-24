@@ -269,3 +269,7 @@ std::map<std::string, std::vector<PropertyTile*>> Player::getCompleteColourGroup
 std::map<std::string, std::vector<PropertyTile*>> Player::getOwnedPropertiesGroupByColourGroups() {
     return inventory_.getOwnedPropertiesGroupByColourGroups();
 }
+
+void Player::resetCountDouble() {
+    doubleRollCount_ = 0;
+}
