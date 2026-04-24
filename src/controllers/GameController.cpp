@@ -566,13 +566,13 @@ void GameController::processRedeem(Player& p) {
         return;
     }
 
-    if (p.getBalance() < mortgagedProperties.at(toBeRedeemed - 1)->getMortgageValue()) {
+    if (p.getBalance() < mortgagedProperties.at(toBeRedeemed - 1)->getPurchasePrice()) {
         // gagals
         view_.showMessage("Gagals");
         return;
     }
 
-    p.deductMoney(mortgagedProperties.at(toBeRedeemed - 1)->getMortgageValue());
+    p.deductMoney(mortgagedProperties.at(toBeRedeemed - 1)->getPurchasePrice());
     mortgagedProperties.at(toBeRedeemed - 1)->setPropertyStatus(PropertyStatus::OWNED);
 
     view_.showMessage("Yip yip show message sisa uangnya sama prop yg bs ditebus juga!\n");
@@ -620,8 +620,4 @@ void GameController::processPayRent(Player& p, Tile& currentTile) {
         }
     }
     
-}
-
-void GameController::processBankruptcyFlow(Player& payer, Player& owner) {
-
 }
