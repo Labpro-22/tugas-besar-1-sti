@@ -103,6 +103,9 @@ class Player {
 
         void resetCountDouble();
 
+        int getPropertyCount() const;
+        int getCardCount() const;
+
     private:
         int id_; // auto increment dari countplayer itu
         std::string username_; //username pemain

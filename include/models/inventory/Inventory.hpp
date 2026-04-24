@@ -48,6 +48,9 @@ class Inventory {
 
         int countRailRoads() const;
         int countUtilities() const;
+
+        int countProperty() const;
+        int countCard() const;
 };
 
 
