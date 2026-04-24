@@ -97,6 +97,11 @@ class Player {
 
         int countRailroad() const;
         int countUtilities() const;
+        std::map<std::string, std::vector<PropertyTile*>> getCompleteColourGroups(std::map<std::string, int> countTilesForEachColourBlock);
+        std::map<std::string, std::vector<PropertyTile*>> getOwnedPropertiesGroupByColourGroups();
+        bool noBuilding() const; // level bangunna
+
+        void resetCountDouble();
 
         int getPropertyCount() const;
         int getCardCount() const;

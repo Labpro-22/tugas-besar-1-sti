@@ -268,3 +268,15 @@ int Player::getPropertyCount() const {
 int Player::getCardCount() const {
     return inventory_.countCard();
 }
+
+std::map<std::string, std::vector<PropertyTile*>> Player::getCompleteColourGroups(std::map<std::string, int> countTilesForEachColourBlock) {
+    return inventory_.getCompleteColourGroups(countTilesForEachColourBlock);
+}
+
+std::map<std::string, std::vector<PropertyTile*>> Player::getOwnedPropertiesGroupByColourGroups() {
+    return inventory_.getOwnedPropertiesGroupByColourGroups();
+}
+
+void Player::resetCountDouble() {
+    doubleRollCount_ = 0;
+}
