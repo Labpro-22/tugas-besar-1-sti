@@ -6,6 +6,7 @@
 #include "models/dice/Dice.hpp"
 #include "models/tile/action_tile/special_tile/PrisonTile.hpp"
 #include "models/tile/property_tile/PropertyTile.hpp"
+#include "controllers/Auction.hpp"
 #include <memory>
 #include <vector>
 #include "models/card/Deck.hpp"
@@ -51,6 +52,7 @@ class GameController {
         GameViewInterface& view_;
         CommandInterface& command_;
         std::vector<std::unique_ptr<Player>> players_;
+        Auction auction_;
 
         int goSalary_;
         int jailFine_;

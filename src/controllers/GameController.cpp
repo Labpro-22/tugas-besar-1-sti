@@ -443,14 +443,14 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
 
             // processAuction(p, nextTile);
             break;
-        case OnLandResult::TriggerBankruptcyAuction: 
-            PropertyTile* propertyTile = dynamic_cast<PropertyTile*>(&nextTile);
+        case OnLandResult::TriggerBankruptcyAuction: {
+            state_ = GameState::BANKRUT;
 
-            if (propertyTile != nullptr) {
-                processAuction(p, *propertyTile);
-            } else {
-                processBankruptcyToBank(p);
-            }
+            auction_.runBankruptcyAuction(p, command_);
+
+            state_ = GameState::WAITING_FOR_ROLL_DICE;
+            break;
+        }
             // Pemain bangkrut ke Bank (semua properti dilelang)
                 // Penyebab bankrut :
                 // tidak mampu memenuhi kewajiban pembayaran
