@@ -42,7 +42,7 @@ OnLandResult UtilityTile::onLand(Player& p, CommandInterface& command, GameViewI
     }
 
     Player* owner = nullptr;
-    for (Player* pl : Player::getAllPlayers()) {
+    for (Player* pl : p.getAllPlayers()) {
         if (pl != nullptr && pl->getUsername() == getOwnerUsername()) {
             owner = pl;
             break;

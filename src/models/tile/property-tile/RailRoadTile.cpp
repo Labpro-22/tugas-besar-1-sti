@@ -47,7 +47,7 @@ OnLandResult RailRoadTile::onLand(Player& p, CommandInterface& command, GameView
 
     // === AMBIL OWNER ===
     Player* owner = nullptr;
-    for (Player* pl : Player::getAllPlayers()) {
+    for (Player* pl : p.getAllPlayers()) {
         if (pl != nullptr && pl->getUsername() == getOwnerUsername()) {
             owner = pl;
             break;

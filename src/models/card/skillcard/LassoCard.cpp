@@ -11,7 +11,7 @@ void LassoCard::activate(Player& owner) {
     int targetTilePos = std::numeric_limits<int>::max();
     bool foundAhead = false;
 
-    for (Player* candidate : Player::getAllPlayers()) {
+    for (Player* candidate : owner.getAllPlayers()) {
         if (candidate == nullptr || candidate == &owner) {
             continue;
         }
@@ -39,7 +39,7 @@ void LassoCard::activate(Player& owner) {
     }
 
     int pulledCount = 0;
-    for (Player* candidate : Player::getAllPlayers()) {
+    for (Player* candidate : owner.getAllPlayers()) {
         if (candidate == nullptr || candidate == &owner) {
             continue;
         }

@@ -9,7 +9,7 @@ void DemolitionCard::activate(Player& owner) {
     std::vector<PropertyTile*> candidates;
     candidates.reserve(16);
 
-    for (Player* player : Player::getAllPlayers()) {
+    for (Player* player : owner.getAllPlayers()) {
         if (player == nullptr || player == &owner) {
             continue;
         }
