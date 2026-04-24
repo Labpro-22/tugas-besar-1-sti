@@ -43,6 +43,8 @@ class Inventory {
         int countAllBuildingsBasedOnPurchasePrice() const;
 
         bool isExistsTileBasedOnCode(std::string code) const;
+        std::map<std::string, std::vector<PropertyTile*>> getCompleteColourGroups(std::map<std::string, int> countTilesForEachColourBlock);
+
 
         int countRailRoads() const;
         int countUtilities() const;

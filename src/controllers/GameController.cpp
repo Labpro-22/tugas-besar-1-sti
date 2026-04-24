@@ -547,10 +547,6 @@ void GameController::processTakeCommunityChest(Player& p) {
     // CommunityChest parameternya hanya boleh pemain (yang punya) dan juga semua player
 }
 
-void GameController::processMortgage(Player& p) {
-
-}
-
 void GameController::processRedeem(Player& p) {
     std::vector<PropertyTile *> mortgagedProperties = p.getMortgagedProperties();
     if (mortgagedProperties.empty()) {
@@ -620,4 +616,62 @@ void GameController::processPayRent(Player& p, Tile& currentTile) {
         }
     }
     
+}
+
+// nantilah aaaaaaaaaaaaaaaaaaaaaaaaaaa mslh cari data buat view-nya
+void GameController::processBuyBuilding(Player& p) {
+    view_.showMessage("ini ni yg memenuhi syarat");
+
+    // Cek user punya petak yang memenuhi atau engga
+    std::map<std::string, std::vector<PropertyTile*>> completeColourGroup = p.getCompleteColourGroups(board_.getCountTilesForEachColourBlock());
+    if (completeColourGroup.empty()) {
+        view_.showMessage("Tidak ada color group yang memenuhi syarat untuk dibangun\n");
+        return;
+    }
+    view_.showMessage("Nah ini dia bla bla bla bla bla");
+
+    // tampilin uang saat ini, pilih mana colour group mana yang mau
+    int selected = command_.getInt(0, completeColourGroup.size());
+
+    if (selected == 0) {
+        return;
+    }
+
+    // tampilin dari colour group yang mau dipilih
+    auto it = std::next(completeColourGroup.begin(), selected - 1);
+
+    std::vector<PropertyTile*> validProp = it->second; // valuenya
+
+    selected =command_.getInt(0, completeColourGroup.size());
+    if (selected == 0) {
+        return;
+    }
+
+    StreetTile* chosenPropTile = dynamic_cast<StreetTile*>(validProp.at(selected - 1));
+
+    if (chosenPropTile != nullptr) {
+        int price = chosenPropTile->getBuildNextBuildingPrice();
+        if (price < p.getBalance()) {
+            // anda ga cukup duit
+            view_.showMessage("Anda tidak berhasil bangun, silahkan tidur lagi!\n");
+            return;
+        }
+
+        try {
+            chosenPropTile->upgradeBuilding(); // pembandingnya sm properti yg se-colour group aja
+        }
+        catch(const std::exception& e) {
+            std::cerr << e.what() << '\n';
+            view_.showMessage("Duit lu ga cukup!\n");
+            return;
+        }
+
+        // kurangin duitnya
+        p.deductMoney(price);
+        view_.showMessage("Lalalalallal aku berhasil upgrade!\n");
+    }
+}
+
+void GameController::processBankruptcyFlow(Player& payer, Player& owner) {
+
 }

@@ -97,6 +97,7 @@ class Player {
 
         int countRailroad() const;
         int countUtilities() const;
+        std::map<std::string, std::vector<PropertyTile*>> getCompleteColourGroups(std::map<std::string, int> countTilesForEachColourBlock);
 
     private:
         int id_; // auto increment dari countplayer itu

@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <utility>
+#include <map>
 
 class Board
 {
@@ -12,6 +13,7 @@ class Board
         int jailPosition_;
         int startPosition_;
         std::vector<std::unique_ptr<Tile>> tiles_;
+        std::map<std::string, int> countTilesForEachColourBlock_;
     public:
         Board(int size);
         ~Board();
@@ -32,6 +34,8 @@ class Board
         void setJailPosition(int pos);
         int getStartPosition() const;
         void setStartPosition(int pos);
+        std::map<std::string, int> getCountTilesForEachColourBlock() const;
+        void addCountTilesForEachColourBlock();
 
 };
 

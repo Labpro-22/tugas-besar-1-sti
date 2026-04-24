@@ -18,6 +18,7 @@ class StreetTile : public PropertyTile {
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 
         std::map<int, int> getBuildPrice() const;
-
+        int getBuildNextBuildingPrice() const;
         int calculateRentPrice(bool completedColourGroup) const;
+        void upgradeBuilding();
 };

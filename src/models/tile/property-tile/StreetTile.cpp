@@ -74,3 +74,10 @@ int StreetTile::calculateRentPrice(bool completedColourGroup) const {
 std::map<int, int> StreetTile::getBuildPrice() const {
     return buildPrice_;
 }
+
+void StreetTile::upgradeBuilding() {
+    if (level_ + 1 > 4) {
+        // throw
+    }
+    level_++;
+}

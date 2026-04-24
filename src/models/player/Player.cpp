@@ -261,3 +261,7 @@ std::vector<PropertyTile*> Player::getMortgagedProperties() const {
     return inventory_.getMortgagedProperties();
 
 }
+
+std::map<std::string, std::vector<PropertyTile*>> Player::getCompleteColourGroups(std::map<std::string, int> countTilesForEachColourBlock) {
+    return inventory_.getCompleteColourGroups(countTilesForEachColourBlock);
+}
