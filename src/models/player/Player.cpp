@@ -1,9 +1,10 @@
 #include "models/player/Player.hpp"
+#include <stdexcept>
 Player::Player(std::string username, int initialBalance) :
     id_(countPlayer++), username_(username),
     balance_(initialBalance), position_(0),
     status_(PlayerStatus::ACTIVE), doubleRollCount_(0),
-    countJail_(0), playerTurn_(0), shieldTurns_(0),
+    countJail_(0), playerTurn_(0), lastDiceTotal_(0), shieldTurns_(0),
     discountPercent_(0), discountTurns_(0) {
     allPlayers_.push_back(this);
 }
@@ -76,6 +77,10 @@ bool Player::safeToGetMoreDouble() const {
     return doubleRollCount_ + 1 < 3;
 }
 
+int Player::notViolatingDoubleRollCount() const {
+    return doubleRollCount_ < 3;
+}
+
 // Jail related
 bool Player::isInJail() const {
     return status_ == PlayerStatus::JAILED;
@@ -95,6 +100,10 @@ int Player::getCountJail() const {
 
 void Player::resetJailTurn() {
     countJail_ = 0;
+}
+
+void Player::leaveJail() {
+    status_ = PlayerStatus::ACTIVE;
 }
 
 // TAX RELATED
@@ -121,7 +130,7 @@ bool Player::isShielded() const {
     return shieldTurns_ > 0;
 }
 
-void Player::consumeShield() {
+void Player::decreaseShieldCardTurn() {
     if (shieldTurns_ > 0) {
         --shieldTurns_;
     }
@@ -156,14 +165,70 @@ void Player::consumeDiscount() {
 
 // Inventory related
 
-const std::vector<std::unique_ptr<SkillCard>>& Player::getSkillCards() const {
+std::vector<SkillCard*> Player::getSkillCards() {
     return inventory_.getSkillCards();
 }
-std::vector<std::reference_wrapper<PropertyTile>> Player::getProperties() {
+std::vector<PropertyTile*> Player::getProperties() {
     return inventory_.getProperties();
-
 }
 
+void Player::addProperty(PropertyTile* propertyTile) {
+    if (propertyTile == nullptr) return;
+
+    inventory_.addProperty(propertyTile);
+    propertyTile->setOwnerUsername(username_);
+    propertyTile->setPropertyStatus(OWNED);
+}
+
+void Player::removeProperty(PropertyTile* propertyTile) {
+    if (propertyTile == nullptr) return;
+
+    inventory_.removeProperty(propertyTile);
+}
+
+bool Player::ownsProperty(PropertyTile* propertyTile) const {
+    if (propertyTile == nullptr) return false;
+
+    std::vector<PropertyTile*> properties = inventory_.getProperties();
+    for (size_t i = 0; i < properties.size(); i++) {
+        if (properties[i]->getTileID() == propertyTile->getTileID()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Player::hasProperty(std::string tileCode) {
+    std::vector<PropertyTile*> properties = inventory_.getProperties();
+    for (PropertyTile* p : properties) {
+        if (p != nullptr && p->getLetterCode() == tileCode) {
+            return true;
+        }
+    }
+    return false;
+}
+
+PropertyTile& Player::getProperty(std::string code) {
+    std::vector<PropertyTile*> properties = inventory_.getProperties();
+    for (PropertyTile* p : properties) {
+        if (p != nullptr && p->getLetterCode() == code) {
+            return *p;
+        }
+    }
+    throw std::runtime_error(std::string("Property not found: ") + code);
+}
+
+Inventory& Player::getInventory() {
+    return inventory_;
+}
+
+int Player::getLastDiceTotal() const {
+    return lastDiceTotal_;
+}
+
+void Player::setLastDiceTotal(int diceTotal) {
+    lastDiceTotal_ = diceTotal;
+}
 void Player::addSkillCard(std::unique_ptr<SkillCard> skillCard) {
     inventory_.addSkillCards(std::move(skillCard));
 }
@@ -176,10 +241,27 @@ const SkillCard* Player::getSkillCardAt(std::size_t idx) const {
     return inventory_.getSkillCardAt(idx);
 }
 
-std::unique_ptr<SkillCard> Player::takeSkillCard(std::size_t idx) {
-    return inventory_.takeSkillCard(idx);
+std::unique_ptr<SkillCard> Player::removeSkillCardAt(std::size_t idx) {
+    return inventory_.removeSkillCardAt(idx);
 }
 
 const std::vector<Player*>& Player::getAllPlayers() {
     return allPlayers_;
+}
+
+int Player::countRailroad() const {
+    return inventory_.countRailRoads();
+}
+
+int Player::countUtilities() const {
+    return inventory_.countUtilities();
+}
+
+std::vector<PropertyTile*> Player::getMortgagedProperties() const {
+    return inventory_.getMortgagedProperties();
+
+}
+
+std::map<std::string, std::vector<PropertyTile*>> Player::getCompleteColourGroups(std::map<std::string, int> countTilesForEachColourBlock) {
+    return inventory_.getCompleteColourGroups(countTilesForEachColourBlock);
 }

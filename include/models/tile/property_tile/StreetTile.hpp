@@ -13,9 +13,12 @@ class StreetTile : public PropertyTile {
                 int purchasePrice, int mortgageValue,
                 // khusus street
                 std::map<int, int> rentPricePerLevel, // Key : Level, Value : Rent Price
-                std::map<int, int> buildPrice_);
-        ~StreetTile() = default;
+                std::map<int, int> buildPrice);
+        ~StreetTile();
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 
         std::map<int, int> getBuildPrice() const;
+        int getBuildNextBuildingPrice() const;
+        int calculateRentPrice(bool completedColourGroup) const;
+        void upgradeBuilding();
 };

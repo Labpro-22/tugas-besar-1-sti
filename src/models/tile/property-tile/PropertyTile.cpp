@@ -80,3 +80,7 @@ void PropertyTile::resetAfterBankruptcyToBank() {
     festivalDuration_ = 0;
     level_ = 0;
 }
+
+bool PropertyTile::isMortgaged() const {
+    return getPropertyStatus() == PropertyStatus::MORTGAGED;
+}

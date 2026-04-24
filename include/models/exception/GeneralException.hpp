@@ -4,20 +4,28 @@
 #include <exception>
 #include <string>
 
-class GeneralException : public std::exception
-{
+class GeneralException : public std::exception {
 protected:
     std::string errorMsg_;
     int errorCode_;
 
 public:
-    GeneralException(const std::string& message, int code);
-    virtual ~GeneralException() noexcept;
+    GeneralException(const std::string& message, int code)
+        : errorMsg_(message), errorCode_(code) {}
 
-    virtual const char* what() const noexcept override;
+    virtual ~GeneralException() noexcept = default;
 
-    std::string getErrorMessage() const;
-    int getErrorCode() const;
+    virtual const char* what() const noexcept override {
+        return errorMsg_.c_str();
+    }
+
+    std::string getErrorMessage() const {
+        return errorMsg_;
+    }
+
+    int getErrorCode() const {
+        return errorCode_;
+    }
 };
 
 #endif

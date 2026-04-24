@@ -39,10 +39,10 @@ class Reader
         std::string othersConfigFileName;
 
         // untuk readProperty
-        int goSalary_;
-        int jailFine_;
-        int maxTurn_;
-        int startingBalance_;
+        static int goSalary_;
+        static int jailFine_;
+        static int maxTurn_;
+        static int startingBalance_;
 
         // build folderName + fileName
         std::string buildPath(const std::string& fileName) const;
@@ -74,9 +74,9 @@ class Reader
 
         void readMisc();
 
-        int getGoSalary() const;
-        int getJailFine() const;
-        int getMaxTurn() const;
-        int getStartingBalance() const;
+        static int getGoSalary();
+        static int getJailFine();
+        static int getMaxTurn();
+        static int getStartingBalance();
 };
 
