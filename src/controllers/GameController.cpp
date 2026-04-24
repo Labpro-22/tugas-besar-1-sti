@@ -490,14 +490,14 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
 
             // processAuction(p, nextTile);
             break;
-        case OnLandResult::TriggerBankruptcyAuction: 
-            PropertyTile* propertyTile = dynamic_cast<PropertyTile*>(&nextTile);
+        case OnLandResult::TriggerBankruptcyAuction: {
+            state_ = GameState::BANKRUT;
 
-            if (propertyTile != nullptr) {
-                processAuction(p, *propertyTile);
-            } else {
-                processBankruptcyToBank(p);
-            }
+            auction_.runBankruptcyAuction(p, command_);
+
+            state_ = GameState::WAITING_FOR_ROLL_DICE;
+            break;
+        }
             // Pemain bangkrut ke Bank (semua properti dilelang)
                 // Penyebab bankrut :
                 // tidak mampu memenuhi kewajiban pembayaran
@@ -513,11 +513,13 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
         case OnLandResult::Festival:
             processFestival(p);
             break;
-        case OnLandResult::Done: // yang kelar
-            break;
         case OnLandResult::TriggerMoveToJail: // move to jail
             p.setPosition(board_.getJailPosition());
             view_.showMessage("Kamu dipindahkan ke penjara");
+            break;
+        case OnLandResult::TriggerTryToPayRent:
+            processPayRent(p, nextTile);
+        case OnLandResult::Done: // yang kelar
             break;
         default:
             break;
@@ -592,10 +594,6 @@ void GameController::processTakeCommunityChest(Player& p) {
     // CommunityChest parameternya hanya boleh pemain (yang punya) dan juga semua player
 }
 
-void GameController::processMortgage(Player& p) {
-
-}
-
 void GameController::processRedeem(Player& p) {
     std::vector<PropertyTile *> mortgagedProperties = p.getMortgagedProperties();
     if (mortgagedProperties.empty()) {
@@ -611,13 +609,13 @@ void GameController::processRedeem(Player& p) {
         return;
     }
 
-    if (p.getBalance() < mortgagedProperties.at(toBeRedeemed - 1)->getMortgageValue()) {
+    if (p.getBalance() < mortgagedProperties.at(toBeRedeemed - 1)->getPurchasePrice()) {
         // gagals
         view_.showMessage("Gagals");
         return;
     }
 
-    p.deductMoney(mortgagedProperties.at(toBeRedeemed - 1)->getMortgageValue());
+    p.deductMoney(mortgagedProperties.at(toBeRedeemed - 1)->getPurchasePrice());
     mortgagedProperties.at(toBeRedeemed - 1)->setPropertyStatus(PropertyStatus::OWNED);
 
     view_.showMessage("Yip yip show message sisa uangnya sama prop yg bs ditebus juga!\n");
@@ -625,4 +623,195 @@ void GameController::processRedeem(Player& p) {
 
 void GameController::processBuyBuilding(Player& p) {
 
+}
+
+// sudah pasti ga mortgage dan sudah pasti bisa bayar, sisa pindahin uang
+void GameController::processPayRent(Player& p, Tile& currentTile) {
+    // get owner
+    PropertyTile* propertyTile = dynamic_cast<PropertyTile*>(&currentTile);
+    if (!propertyTile) {
+        return;
+    }
+
+    for (size_t i = 0; i < players_.size(); i++) {
+        Player* owner = players_[i].get();
+        if (owner && owner->getUsername() == propertyTile->getOwnerUsername()) {
+            int rent = 0;
+            if (StreetTile* streetTile = dynamic_cast<StreetTile*>(propertyTile)) {
+                bool cg = board_.isCompletedColourGroup(owner->getUsername(), propertyTile->getColourBlock());
+                rent = streetTile->calculateRentPrice(cg);
+            }
+            else if (RailRoadTile* railRoadTile = dynamic_cast<RailRoadTile*>(propertyTile)) {
+                int count = board_.countOwnedRailRoadTile(owner->getUsername());
+                rent = railRoadTile->calculateRentPrice(count);
+            }
+            else if (UtilityTile* utilityTile = dynamic_cast<UtilityTile*>(propertyTile)) {
+                int count = board_.countOwnedUtilityTile(owner->getUsername());
+                int dice = dice_.getRollResult(); // tetap sm kyk terakhir selagi ga pernah di-roll lg
+                rent = utilityTile->calculateRentPrice(count, dice);
+            }
+            if (p.getBalance() < rent) {
+                processBankruptcyFlow(p, *owner);
+                return;
+            }
+            // bayar beneran
+            owner->addMoney(rent);
+            p.deductMoney(rent);
+
+            view_.showMessage("Atur-atur mo tampilannya gimana :VVVVVVVVVVVVVVVVVV");
+            return;
+        }
+    }
+    
+}
+
+// nantilah aaaaaaaaaaaaaaaaaaaaaaaaaaa mslh cari data buat view-nya
+void GameController::processBuyBuilding(Player& p) {
+    view_.showMessage("ini ni yg memenuhi syarat");
+
+    // Cek user punya petak yang memenuhi atau engga
+    std::map<std::string, std::vector<PropertyTile*>> completeColourGroup = p.getCompleteColourGroups(board_.getCountTilesForEachColourBlock());
+    if (completeColourGroup.empty()) {
+        view_.showMessage("Tidak ada color group yang memenuhi syarat untuk dibangun\n");
+        return;
+    }
+    view_.showMessage("Nah ini dia bla bla bla bla bla");
+
+    // tampilin uang saat ini, pilih mana colour group mana yang mau
+    int selected = command_.getInt(0, completeColourGroup.size());
+
+    if (selected == 0) {
+        return;
+    }
+
+    // tampilin dari colour group yang mau dipilih
+    auto it = std::next(completeColourGroup.begin(), selected - 1);
+
+    std::vector<PropertyTile*> validProp = it->second; // valuenya
+
+    selected =command_.getInt(0, completeColourGroup.size());
+    if (selected == 0) {
+        return;
+    }
+
+    StreetTile* chosenPropTile = dynamic_cast<StreetTile*>(validProp.at(selected - 1));
+
+    if (chosenPropTile != nullptr) {
+        int price = chosenPropTile->getBuildNextBuildingPrice();
+        if (price < p.getBalance()) {
+            // anda ga cukup duit
+            view_.showMessage("Anda tidak berhasil bangun, silahkan tidur lagi!\n");
+            return;
+        }
+
+        try {
+            chosenPropTile->upgradeBuilding(); // pembandingnya sm properti yg se-colour group aja
+        }
+        catch(const std::exception& e) {
+            std::cerr << e.what() << '\n';
+            view_.showMessage("Duit lu ga cukup!\n");
+            return;
+        }
+
+        // kurangin duitnya
+        p.deductMoney(price);
+        view_.showMessage("Lalalalallal aku berhasil upgrade!\n");
+    }
+}
+
+void GameController::processBankruptcyFlow(Player& payer, Player& owner) {
+    // Properti berstatus MORTGAGED tidak dapat langsung dijual ke Bank
+    // dalam proses likuidasi.
+}
+
+
+// Syarat menggadaikan
+// adalah properti berstatus OWNED dan tidak memiliki bangunan
+// yang berdiri di atasnya.
+void GameController::processMortgage(Player& p) {
+    view_.showMessage("Selamat datang di proses pegadain!\n");
+
+    // cari owned property
+    std::map<std::string, std::vector<PropertyTile*>> ownedProperty = p.getOwnedPropertiesGroupByColourGroups();
+
+    if (ownedProperty.empty()) {
+        view_.showMessage("Ga ada property yang bisa digadai");
+        return;
+    }
+    
+    std::vector<PropertyTile*> linearOrdered;
+
+    // buat jadi bentuk vektor juga
+    view_.showMessage("Hayo milih dulu\n");
+    int count = 0;
+
+    for (auto& keyValue : ownedProperty) {
+        std::vector<PropertyTile*>& vec = keyValue.second;
+        for (auto& val : vec) {
+            linearOrdered.push_back(val);
+            count++;
+        }
+    }
+
+    // =========================================================================
+    int selected = command_.getInt(0, count);
+    if (selected == 0) {
+        view_.showMessage("ga jadi gadai\n");
+        return;
+    }
+
+    // Jika masih ada bangunan pada colour
+    // group yang sama, semua bangunan pada seluruh color group
+    // tersebut harus dijual ke Bank terlebih dahulu dengan harga
+    // setengah dari harga beli bangunan sebelum properti dapat digadaikan.
+    PropertyTile& selectedTile = *linearOrdered.at(selected - 1);
+
+    // maksudnya semua yg ada di colour group itu lah au ah bingung
+    std::vector<PropertyTile*> members = ownedProperty[selectedTile.getColourBlock()];
+
+    // cek pada ada bangunan atau engga
+    bool foundHasBuilding = false;
+    for (size_t i = 0; i < count; i++) {
+        if (members.at(i)->hasBuilding()) {
+            foundHasBuilding = true;
+            break;
+        }
+    }
+    
+
+    // kasus ga ada bangunan
+    if (!foundHasBuilding) {
+        // langsung sukses
+        selectedTile.setToMortgaged();
+        // duit player tambahin
+        p.addMoney(selectedTile.getSellingPrice());
+        view_.showMessage("hore kamu dapat duit bla bla bla\n");
+    } else {
+        // kasus ada bangunan
+        view_.showMessage("di tile ini masih ada bangunannya, tidak dapat digadaikan! jual dulu gih");
+        view_.showMessage("Ini dia ni yg masih ada\n");
+
+        bool wantToSellAllBuildings = command_.askWantToSellAllBuildings("mau jual semua gaa\n");
+        if (wantToSellAllBuildings) {
+            // proses jual semua
+            int earnedSum = 0;
+            for (size_t i = 0; i < members.size(); i++) {
+                earnedSum +=members.at(i)->sellAllBuildings();
+                view_.showMessage("Ceklik..\n");
+            }
+            view_.showMessage("total:///");
+            p.addMoney(earnedSum);
+        } else {
+            view_.showMessage("baiklah bye");
+            return;
+        }
+        // lanjut gadai ga ?
+        if (command_.getBool("Mau lanjut gadai ga\n")) {
+            selectedTile.setToMortgaged();
+            // duit player tambahin
+            p.addMoney(selectedTile.getSellingPrice());
+            view_.showMessage("hore kamu dapat duit bla bla bla\n");
+            return;
+        }
+    }
 }
