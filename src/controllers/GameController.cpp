@@ -66,16 +66,49 @@ void GameController::processTurn(Player& p) {
     p.decreaseShieldCardTurn();
 }
 
-void GameController::processRollDice(Player& p) {
-    view_.showMessage("Silahkan roll dice kamu!\n");
+bool GameController::processRandomDice(Player& p){
+    view_.showMessage("Mengocok dadu...\n");
+    dice_.roll();
+    return resolveDiceResult(p, dice_.getDie1(), dice_.getDie2());
+}
+bool GameController::processCustomDice(Player& p, int x, int y){
+    if (x < 1 || x > 6 || y < 1 || y > 6) {
+        view_.showMessage("Nilai dadu harus antara 1 sampai 6.\n");
+        return false;
+    }
+    view_.showMessage("Dadu diatur secara manual.\n");
+    dice_.rollSettingan(x, y);
+    return resolveDiceResult(p, dice_.getDie1(), dice_.getDie2());
+}
+bool GameController::resolveDiceResult(Player& p, int d1, int d2){
+    int total = d1 + d2;
+    view_.showMessage("Hasil: " + std::to_string(d1) + " + " + std::to_string(d2) + " = " + std::to_string(total) + "\n");
+    if (d1 == d2) {
+        p.incrementDoubleCount();
+        if (!p.notViolatingDoubleRollCount()) {
+            view_.showMessage("Triple double! Masuk penjara.\n");
+            p.setStatus(Player::PlayerStatus::JAILED);
+            p.resetJailTurn();
+            p.setPosition(board_.getJailPosition());
+            return false;
+        }
+        processMovement(p, total);
+        return true; 
+    } 
+    else {
+        p.resetCountDouble();
+        processMovement(p, total);
+        return false;
+    }
 }
 
 void GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn) {
-    bool hasRolledFirsTime = false;
+    bool hasRolledFirstTime = false;
     bool canSave = true;
+    bool continueTurn = false; // untuk ngecek apakah dia dapat roll lagi karena double atau engga
 
     // Command
-    while (p.notViolatingDoubleRollCount() && !p.isBankrupt() && !p.isInJail()) {
+    while (continueTurn && !p.isBankrupt() && !p.isInJail()) {
         // dia bisa tiba-tiba jadi di penjara artinya berhenti udh (baru masuk)
         if (p.isInJail()) {
             break;
@@ -87,12 +120,26 @@ void GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
                 view_.cetakPapan();
                 break;
             case CommandType::LEMPAR_DADU:
-                hasRolledFirsTime = true;
+                hasRolledFirstTime = true;
+                continueTurn = processRandomDice(p);
+                if (continueTurn && !p.isInJail() && !p.isBankrupt()) {
+                    view_.showMessage("Kamu mendapatkan double! Kamu bisa roll lagi!\n");
+                }
 
                 break;
-            case CommandType::ATUR_DADU:
-                hasRolledFirsTime = true;
-                //
+            case CommandType::ATUR_DADU: 
+                if (cmd.getArgCount() < 2) {
+                    view_.showMessage("Format ATUR_DADU salah. Gunakan: ATUR_DADU X Y\n");
+                    break;
+                }
+                hasRolledFirstTime = true;
+                int x = cmd.getArg(0);
+                int y = cmd.getArg(1);
+                continueTurn = processCustomDice(p, x, y);
+                if (continueTurn && !p.isInJail() && !p.isBankrupt()) {
+                    view_.showMessage("Kamu mendapatkan double! Kamu bisa roll lagi!\n");
+                }
+
                 break;
             case CommandType::CETAK_AKTA:
                 view_.cetakAkta();
@@ -121,7 +168,7 @@ void GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
                 // cetak semua lognya
                 break;
             case CommandType::GUNAKAN_KEMAMPUAN:
-                if (!hasRolledFirsTime) {
+                if (!hasRolledFirstTime) {
                     processSpecialCardUse(p, hasUsedSkillCardThisTurn);
                 } else {
                     view_.showMessage("Special card hanya dapat dipakai sebelum roll dice pertama kali");
