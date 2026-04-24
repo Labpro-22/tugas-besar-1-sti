@@ -1,6 +1,9 @@
 #include "models/tile/action_tile/FestivalTile.hpp"
 #include "models/player/Player.hpp"
-#include "models/exception/Exception.hpp"
+#include "models/exception/GeneralException.hpp"
+#include "views/GameViewInterface.hpp"
+#include "views/CommandInterface.hpp"
+#include "models/player/Player.hpp"
 #include <iostream>
 #include <string>
 #include <limits>

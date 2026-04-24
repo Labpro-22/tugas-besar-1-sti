@@ -1,4 +1,5 @@
 #include "models/player/Player.hpp"
+#include "models/card/skillcard/SkillCard.hpp"
 #include <stdexcept>
 Player::Player(std::string username, int initialBalance) :
     id_(countPlayer++), username_(username),

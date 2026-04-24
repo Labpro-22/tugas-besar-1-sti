@@ -3,6 +3,10 @@
 #include <map>
 #include <sstream>
 #include "models/tile/property_tile/PropertyTile.hpp"
+#include "models/player/Player.hpp"
+#include "views/GameViewInterface.hpp"
+#include "views/CommandInterface.hpp"
+
 class RailRoadTile : public PropertyTile {
     private:
         static inline std::map<int, int> railRoadRentPrices_;

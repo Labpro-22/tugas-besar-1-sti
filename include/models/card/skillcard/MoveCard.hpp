@@ -2,6 +2,8 @@
 
 #include "models/card/skillcard/SkillCard.hpp"
 
+class Player;
+
 class MoveCard : public SkillCard {
 	private:
 		int steps_;

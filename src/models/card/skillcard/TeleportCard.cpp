@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <limits>
+#include "models/player/Player.hpp"
 
 TeleportCard::TeleportCard()
     : SkillCard("TeleportCard", "Berpindah ke petak manapun di papan permainan") {}

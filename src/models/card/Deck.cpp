@@ -63,3 +63,6 @@ template <typename T>
 int Deck<T>::getDiscardCount() const {
 	return static_cast<int>(discardPile_.size());
 }
+
+#include "models/card/skillcard/SkillCard.hpp"
+template class Deck<SkillCard>;

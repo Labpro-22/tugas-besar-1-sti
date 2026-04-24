@@ -1,6 +1,7 @@
 #include "controllers/GameController.hpp"
 #include "models/card/skillcard/MoveCard.hpp"
 #include "models/card/skillcard/TeleportCard.hpp"
+#include "models/tile/property_tile/StreetTile.hpp"
 
 GameController::GameController(std::vector<std::unique_ptr<Player>> players,
     Board& board, Dice& dice, GameViewInterface& view,
@@ -428,6 +429,7 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
     p.setPosition(nextTile.getTileID());
     p.setLastDiceTotal(firstDisplacement);
     OnLandResult result = nextTile.onLand(p, command_, view_);
+    PropertyTile* propertyTile = dynamic_cast<PropertyTile*>(&nextTile);
 
     switch (result) {
         // PROBLEM : KALO orang lain bankrut karena Lasso card gimana dong
@@ -444,8 +446,6 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
             // processAuction(p, nextTile);
             break;
         case OnLandResult::TriggerBankruptcyAuction: 
-            PropertyTile* propertyTile = dynamic_cast<PropertyTile*>(&nextTile);
-
             if (propertyTile != nullptr) {
                 processAuction(p, *propertyTile);
             } else {
@@ -457,6 +457,7 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
                 // baik berupa sewa, pajak, 
                 // maupun efek dari kartu tertentu
             // posisinya lagi di player sekarang ga si hrsnya tapi si lasso card ni gmnn weeee
+            break;
         case OnLandResult::TakeChanceCard:
             processTakeChanceCard(p);
             break;
@@ -574,10 +575,6 @@ void GameController::processRedeem(Player& p) {
     view_.showMessage("Yip yip show message sisa uangnya sama prop yg bs ditebus juga!\n");
 }
 
-void GameController::processBuyBuilding(Player& p) {
-
-}
-
 // sudah pasti ga mortgage dan sudah pasti bisa bayar, sisa pindahin uang
 void GameController::processPayRent(Player& p, Tile& currentTile) {
     // get owner
@@ -675,3 +672,5 @@ void GameController::processBuyBuilding(Player& p) {
 void GameController::processBankruptcyFlow(Player& payer, Player& owner) {
 
 }
+
+void GameController::processMortgage(Player& p) {}

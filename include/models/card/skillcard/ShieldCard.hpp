@@ -2,6 +2,8 @@
 
 #include "models/card/skillcard/SkillCard.hpp"
 
+class Player;
+
 class ShieldCard : public SkillCard {
 	private:
 		int remainingTurns_;

@@ -1,5 +1,8 @@
 #pragma once
 #include "SpecialTile.hpp"
+#include "models/player/Player.hpp"
+#include "views/GameViewInterface.hpp"
+#include "views/CommandInterface.hpp"
 #include <string>
 
 class GoTile : public SpecialTile {

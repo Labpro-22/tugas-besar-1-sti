@@ -1,6 +1,10 @@
 #pragma once
 #include <map>
 #include "PropertyTile.hpp"
+#include "models/player/Player.hpp"
+#include "views/GameViewInterface.hpp"
+#include "views/CommandInterface.hpp"
+
 class StreetTile : public PropertyTile {
     private:
         // color group (khusus Street) perlu?? atau cukup colorCode

@@ -1,4 +1,7 @@
 #include "models/tile/action_tile/tax_tile/LuxuryGoodsTaxTile.hpp"
+#include "views/GameViewInterface.hpp"
+#include "views/CommandInterface.hpp"
+#include "models/player/Player.hpp"
 
 void LuxuryGoodsTaxTile::setPBMFlatCost(int cost) {
     flatCost_ = cost;

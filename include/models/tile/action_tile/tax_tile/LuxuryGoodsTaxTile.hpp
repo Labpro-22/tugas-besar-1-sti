@@ -1,7 +1,7 @@
 #pragma once
 #include "TaxTile.hpp"
 #include "models/player/Player.hpp"
-#include "models/exception/Exception.hpp"
+#include "models/exception/GeneralException.hpp"
 #include <iostream>
 #include <string>
 #include <limits>

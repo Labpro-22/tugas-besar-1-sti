@@ -1,28 +1,27 @@
 #pragma once
 #include <iostream>
-#include "../board/Board.hpp"
+#include "models/board/Board.hpp"
+#include "models/tile/property_tile/RailRoadTile.hpp"
+#include "models/tile/property_tile/UtilityTile.hpp"
+#include "models/tile/property_tile/StreetTile.hpp"
+#include "models/tile/property_tile/PLNTile.hpp"
+#include "models/tile/property_tile/PAMTile.hpp"
+#include "models/tile/action_tile/ActionTile.hpp"
+#include "models/tile/action_tile/FestivalTile.hpp"
+#include "models/tile/action_tile/card_tile/CardTile.hpp"
+#include "models/tile/action_tile/card_tile/ChanceTile.hpp"
+#include "models/tile/action_tile/card_tile/CommunityChestTile.hpp"
+#include "models/tile/action_tile/special_tile/FreeParkingTile.hpp"
+#include "models/tile/action_tile/special_tile/GoTile.hpp"
+#include "models/tile/action_tile/special_tile/GoToJailTile.hpp"
+#include "models/tile/action_tile/special_tile/PrisonTile.hpp"
+#include "models/tile/action_tile/special_tile/SpecialTile.hpp"
+#include "models/tile/action_tile/tax_tile/IncomeTaxTile.hpp"
+#include "models/tile/action_tile/tax_tile/LuxuryGoodsTaxTile.hpp"
+#include "models/tile/action_tile/tax_tile/TaxTile.hpp"
 
-#include "../models/tile/property_tile/RailRoadTile.hpp"
-#include "../models/tile/property_tile/UtilityTile.hpp"
-#include "../models/tile/property_tile/StreetTile.hpp"
-#include "../models/tile/property_tile/PLNTile.hpp"
-#include "../models/tile/property_tile/PAMTile.hpp"
-#include "../models/tile/action_tile/ActionTile.hpp"
-#include "../models/tile/action_tile/FestivalTile.hpp"
-#include "../models/tile/action_tile/card_tile/CardTile.hpp"
-#include "../models/tile/action_tile/card_tile/ChanceTile.hpp"
-#include "../models/tile/action_tile/card_tile/CommunityChestTile.hpp"
-#include "../models/tile/action_tile/special_tile/FreeParkingTile.hpp"
-#include "../models/tile/action_tile/special_tile/GoTile.hpp"
-#include "../models/tile/action_tile/special_tile/GoToJailTile.hpp"
-#include "../models/tile/action_tile/special_tile/PrisonTile.hpp"
-#include "../models/tile/action_tile/special_tile/SpecialTile.hpp"
-#include "../models/tile/action_tile/tax_tile/IncomeTaxTile.hpp"
-#include "../models/tile/action_tile/tax_tile/LuxuryGoodsTaxTile.hpp"
-#include "../models/tile/action_tile/tax_tile/TaxTile.hpp"
-
-#include "models/exception/ConfigException.hpp"
-#include "models/exception/LoadConfigFailed.hpp"
+#include "models/exception/ConfigException/ConfigException.hpp"
+#include "models/exception/ConfigException/LoadConfigFailed.hpp"
 
 // develop guidance :
 
@@ -39,10 +38,10 @@ class Reader
         std::string othersConfigFileName;
 
         // untuk readProperty
-        static int goSalary_;
-        static int jailFine_;
-        static int maxTurn_;
-        static int startingBalance_;
+        int goSalary_;
+        int jailFine_;
+        int maxTurn_;
+        int startingBalance_;
 
         // build folderName + fileName
         std::string buildPath(const std::string& fileName) const;
@@ -68,15 +67,15 @@ class Reader
 
         std::vector<Tile*> readAction();
 
-        Board createBoard();
+        Board loadBoard();
 
         void readSpecial();
 
         void readMisc();
 
-        static int getGoSalary();
-        static int getJailFine();
-        static int getMaxTurn();
-        static int getStartingBalance();
+        int getGoSalary() const;
+        int getJailFine() const;
+        int getMaxTurn() const;
+        int getStartingBalance() const;
 };
 

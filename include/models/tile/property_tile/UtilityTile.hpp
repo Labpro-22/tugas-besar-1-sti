@@ -3,6 +3,10 @@
 #include <map>
 #include <sstream>
 #include "RailRoadTile.hpp"
+#include "models/player/Player.hpp"
+#include "views/GameViewInterface.hpp"
+#include "views/CommandInterface.hpp"
+
 class UtilityTile : public PropertyTile {
     private:
         static inline std::map<int, int> utilityFactor_;

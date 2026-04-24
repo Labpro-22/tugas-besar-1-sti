@@ -14,8 +14,6 @@ UtilityTile::UtilityTile(int tileID, std::string letterCode, std::string tileNam
     }
 }
 
-UtilityTile::~UtilityTile() {}
-
 OnLandResult UtilityTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
     (void) command;
 

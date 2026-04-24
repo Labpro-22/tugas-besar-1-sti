@@ -1,3 +1,4 @@
+#pragma once
 #include "../injector/injector.hpp"
 #include <random>
 class Dice {

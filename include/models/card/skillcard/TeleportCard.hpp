@@ -2,6 +2,8 @@
 
 #include "models/card/skillcard/SkillCard.hpp"
 
+class Player;
+
 class TeleportCard : public SkillCard {
 	public:
 		static const int kCardCount = 2;

@@ -3,13 +3,15 @@
 #include "../injector/injector.hpp"
 #include "models/board/Board.hpp"
 #include "models/inventory/Inventory.hpp"
-#include "models/card/skillcard/SkillCard.hpp"
 #include "models/tile/property_tile/PropertyTile.hpp"
 #include <functional>
 #include <memory>
 #include <cstddef>
 #include <algorithm>
 #include <vector>
+
+class SkillCard;
+
 // belom ada : urutan turn
 class Player {
     public:
@@ -51,7 +53,7 @@ class Player {
         void incrementJailTurn();
         int getCountJail() const;
         void resetJailTurn();
-        void Player::leaveJail();
+        void leaveJail();
 
         // Untuk PPH
         int getTotalPropertyValue() const;

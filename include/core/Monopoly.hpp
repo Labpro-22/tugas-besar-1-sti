@@ -20,11 +20,11 @@ class Monopoly {
         std::vector<std::unique_ptr<Player>> registerPlayers(int numOfPlayers);
         void shufflePlayersTurn(std::vector<std::unique_ptr<Player>>& players_);
         std::unique_ptr<Board> loadConfig();
-        // LoadState();
         
-    public:
+        public:
+        bool loadState(std::unique_ptr<Board>& board, std::vector<std::unique_ptr<Player>>& players, int& latestTurn);
         Monopoly(std::unique_ptr<GameViewInterface> view, std::unique_ptr<CommandInterface> command);
-        ~Monopoly();
+        ~Monopoly() = default;
 
         static void setMaxTurn(int maxTurn);
         static void setInitialBalance(int initialBalance);

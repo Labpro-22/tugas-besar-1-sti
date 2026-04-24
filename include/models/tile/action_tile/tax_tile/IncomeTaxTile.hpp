@@ -2,7 +2,7 @@
 #include "TaxTile.hpp"
 #include <string>
 #include "models/player/Player.hpp"
-#include "models/exception/Exception.hpp"
+#include "models/exception/GeneralException.hpp"
 #include <iostream>
 #include <limits>
 

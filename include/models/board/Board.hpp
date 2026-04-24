@@ -24,6 +24,8 @@ class Board
         // geser ke tile setelah ditambahin distance (hasil roll dadu)
         Tile& moveToNextTile(int distance);
         Tile& getCurrentTile(int id);
+        Tile& getTileByCode(const std::string& code);
+        int getTileIndexByCode(const std::string& code) const;
         bool has(std::string code);
 
 

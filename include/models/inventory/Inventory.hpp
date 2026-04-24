@@ -1,6 +1,4 @@
 #pragma once
-#include "models/tile/property_tile/PropertyTile.hpp"
-#include "models/card/skillcard/ShieldCard.hpp"
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -8,9 +6,10 @@
 #include <cstddef>
 #include <stdexcept>
 #include <utility>
-#include "models/tile/property_tile/StreetTile.hpp"
-#include "models/tile/property_tile/RailRoadTile.hpp"
-#include "models/tile/property_tile/UtilityTile.hpp"
+#include <map>
+
+class SkillCard;
+class PropertyTile;
 
 class Inventory {
     private:

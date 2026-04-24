@@ -1,8 +1,10 @@
 #pragma once
 #include <iostream>
 #include "../injector/injector.hpp"
-#include "views/CommandInterface.hpp"
-#include "views/GameViewInterface.hpp"
+
+class Player;
+class CommandInterface;
+class GameViewInterface;
 
 enum class OnLandResult {
     Done,
