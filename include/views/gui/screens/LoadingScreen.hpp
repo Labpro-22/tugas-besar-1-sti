@@ -15,32 +15,6 @@ private:
     bool hasLoadingBuffer = false;
     bool hasLoadingText = false;
 
-    static bool loadTexture(Texture2D& target, const std::string& path) {
-        if (!FileExists(path.c_str())) {
-            return false;
-        }
-
-        target = LoadTexture(path.c_str());
-        if (target.id == 0) {
-            return false;
-        }
-        
-        // TEXTURE_FILTER_POINT ada di header raylib untuk pixel-scaling 
-        SetTextureFilter(target, TEXTURE_FILTER_POINT);
-        return true;
-    }
-
-    static void drawTextureFit(Texture2D texture, Rectangle destination, Color tint = WHITE) {
-        DrawTexturePro(
-            texture,
-            {0, 0, static_cast<float>(texture.width), static_cast<float>(texture.height)},
-            destination,
-            {0, 0},
-            0.0f,
-            tint
-        );
-    }
-
 public:
     LoadingScreen(int width = 1000, int height = 800) : Screen(width, height) {
         hasBackground = loadTexture(background, "assets/ui/ScreenBackground.png");
@@ -108,3 +82,32 @@ public:
         }
     }
 };
+
+
+/**
+ * Jika ingin melakukan testing khusus GUI ini, gunakan kode berikut.
+ */
+// #include "views/gui/screens/LoadingScreen.hpp"
+
+// #include "raylib.h"
+
+// int main() {
+//     const int width = 1000;
+//     const int height = 800;
+
+//     InitWindow(width, height, "LoadingScreen Preview");
+//     SetTargetFPS(60);
+
+//     LoadingScreen screen(width, height);
+
+//     while (!WindowShouldClose()) {
+//         screen.update();
+
+//         BeginDrawing();
+//         screen.render();
+//         EndDrawing();
+//     }
+
+//     CloseWindow();
+//     return 0;
+// }
