@@ -12,6 +12,7 @@ enum class CommandType {
     CETAK_LOG, //
     GUNAKAN_KEMAMPUAN, //
     BAYAR_DENDA, // tambahan buat lgsg bayar waktu mau keluar penjara
+    END_COMMAND, // untuk menyelesaikan turn pemain saat ini
 
 
 };
