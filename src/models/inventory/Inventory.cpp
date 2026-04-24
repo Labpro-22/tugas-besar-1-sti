@@ -156,3 +156,11 @@ int Inventory::countRailRoads() const {
 int Inventory::countUtilities() const {
     return countUtilities_;
 }
+
+int Inventory::countProperty() const {
+    return static_cast<int>(properties_.size());
+}
+
+int Inventory::countCard() const {
+    return static_cast<int>(skillCards_.size());
+}
