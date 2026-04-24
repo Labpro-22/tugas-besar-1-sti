@@ -29,16 +29,13 @@ class GameController {
         void processAuction(Player& p, PropertyTile& propertyTile);
         void processBankruptcyToBank(Player& p);
         void transferProperty(Player& from, Player& to, PropertyTile& propertyTile);
-<<<<<<< HEAD
         bool processRandomDice(Player& p);
         bool processCustomDice(Player& p, int x, int y);
         bool resolveDiceResult(Player& p, int d1, int d2);
-=======
 
         void processPayRent(Player& p, Tile& currentTile);
         void processBankruptcyFlow(Player& payer, Player& owner);
 
->>>>>>> develop
         void processMortgage(Player& p);
         void processBuyBuilding(Player& p);
         void processRedeem(Player& p);

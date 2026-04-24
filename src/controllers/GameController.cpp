@@ -585,17 +585,13 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
             // processAuction(p, nextTile);
             break;
         case OnLandResult::TriggerBankruptcyAuction: {
-            state_ = GameState::BANKRUT;
-
             auction_.runBankruptcyAuction(p, command_);
-
-            state_ = GameState::WAITING_FOR_ROLL_DICE;
             break;
         }
             // Pemain bangkrut ke Bank (semua properti dilelang)
                 // Penyebab bankrut :
                 // tidak mampu memenuhi kewajiban pembayaran
-                // baik berupa sewa, pajak, 
+                // baik berupa sewa, pajak,
                 // maupun efek dari kartu tertentu
             // posisinya lagi di player sekarang ga si hrsnya tapi si lasso card ni gmnn weeee
         case OnLandResult::TakeChanceCard:
