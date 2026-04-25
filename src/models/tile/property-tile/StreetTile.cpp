@@ -84,8 +84,6 @@ void StreetTile::upgradeBuilding() {
     }
     level_++;
 }
-
-StreetTile::~StreetTile() {}
 int StreetTile::getBuildNextBuildingPrice() const { return 0; }
 
 int StreetTile::getLevel() const {

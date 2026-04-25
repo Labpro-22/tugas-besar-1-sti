@@ -2,12 +2,12 @@
 
 #include <string>
 
-#include "models/tile/Tile.hpp"
-#include "models/tile/property_tile/PropertyTile.hpp"
-#include "models/tile/property_tile/RailRoadTile.hpp"
-#include "models/tile/property_tile/UtilityTile.hpp"
-#include "models/player/Player.hpp"
-#include "models/tile/action_tile/tax_tile/TaxTile.hpp"
+class Tile;
+class PropertyTile;
+class RailRoadTile;
+class UtilityTile;
+class Player;
+class TaxTile;
 
 // Ini tu jadi ViewManager (yang aku assume)
 class GameViewInterface {

@@ -47,16 +47,16 @@ private:
     int totalValue_;
 
 public:
-    LiquidationPlan::LiquidationPlan() : totalValue_(0) {}
+    LiquidationPlan() : totalValue_(0) {}
 
-    void LiquidationPlan::addAction(const LiquidationAction& action) {
+    void addAction(const LiquidationAction& action) {
         actions_.push_back(action);
         totalValue_ += action.getValue();
     }
 
-    const std::vector<LiquidationAction>& LiquidationPlan::getActions() const {return actions_;}
+    const std::vector<LiquidationAction>& getActions() const {return actions_;}
 
-    int LiquidationPlan::getTotalValue() const {return totalValue_;}
+    int getTotalValue() const {return totalValue_;}
 };
 
 // action likuidasinya

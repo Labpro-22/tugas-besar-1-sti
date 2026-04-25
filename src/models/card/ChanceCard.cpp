@@ -10,8 +10,25 @@ ChanceCard::ChanceCard(Instruction instruction)
       description_(instructionToDescription(instruction)) {}
 
 void ChanceCard::useChance(Player& owner) const {
-    // TODO: Integrasi Player/Board/Monopoly.
-    (void)owner;
+    switch (instruction_) {
+        case GoToNearestStation:
+            // TODO: Integrasi board untuk cari stasiun terdekat lalu pindahkan posisi owner.
+            break;
+
+        case MoveBackThreeTiles:
+            // TODO: Integrasi board untuk pergerakan mundur dengan wrapping posisi.
+            owner.setPosition(owner.getPosition() - 3);
+            break;
+
+        case GoToJail:
+            owner.setStatus(Player::JAILED);
+            owner.resetJailTurn();
+            // TODO: Integrasi board untuk set posisi owner ke tile penjara.
+            break;
+
+        default:
+            break;
+    }
 }
 
 ChanceCard::Instruction ChanceCard::getInstruction() const {

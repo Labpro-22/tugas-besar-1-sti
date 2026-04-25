@@ -1,10 +1,7 @@
 #include "models/card/skillcard/MoveCard.hpp"
-<<<<<<< HEAD
 
 #include <random>
 #include <string>
-=======
->>>>>>> 28621024bb2f17c3879581c05c76c2b6c7a2e6ec
 #include "models/player/Player.hpp"
 
 MoveCard::MoveCard()

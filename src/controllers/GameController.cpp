@@ -86,6 +86,44 @@ void GameController::processTakeChanceCard(Player& p) {
 	propertyCoordinator_->processTakeChanceCard(p);
 }
 
+void GameController::processTakeCommunityChest(Player& p) {
+    CommunityChestCard card = CommunityChestCard::randomCard();
+    view_.showMessage("[COMMUNITY CHEST] " + card.getDescription() + "\n");
+
+    switch (card.getInstruction()) {
+        case CommunityChestCard::BirthdayCollect100FromEachPlayer:
+            for (auto& otherPtr : players_) {
+                Player* other = otherPtr.get();
+                if (other == nullptr || other == &p || other->isBankrupt()) {
+                    continue;
+                }
+
+                other->deductMoney(100);
+                p.addMoney(100);
+            }
+            break;
+
+        case CommunityChestCard::DoctorFeePay700:
+            p.deductMoney(700);
+            break;
+
+        case CommunityChestCard::ElectionPay200ToEachPlayer:
+            for (auto& otherPtr : players_) {
+                Player* other = otherPtr.get();
+                if (other == nullptr || other == &p || other->isBankrupt()) {
+                    continue;
+                }
+
+                p.deductMoney(200);
+                other->addMoney(200);
+            }
+            break;
+
+        default:
+            break;
+    }
+}
+
 void GameController::processRedeem(Player& p) {
 	propertyCoordinator_->processRedeem(p);
 }
@@ -98,8 +136,8 @@ void GameController::processBuyBuilding(Player& p) {
 	propertyCoordinator_->processBuyBuilding(p);
 }
 
-void GameController::processBankruptcyFlow(Player& payer, Player& owner) {
-	propertyCoordinator_->processBankruptcyFlow(payer, owner);
+void GameController::processBankruptcyFlow(Player& payer, Player& owner, int rent) {
+    propertyCoordinator_->processBankruptcyFlow(payer, owner, rent);
 }
 
 void GameController::processMortgage(Player& p) {

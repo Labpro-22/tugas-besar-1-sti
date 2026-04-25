@@ -58,7 +58,7 @@ class CommandInterface {
         virtual int getInt(int lowerBound, int upperBound) = 0;
 
         virtual int getAuctionBidOrPass(int currentBid, int playerBalance) = 0;
-        virtual bool askWantToSellAllBuildings(std::string question);
+        virtual bool askWantToSellAllBuildings(std::string question) { (void)question; return false; }
 
         // Game setup
         virtual std::string askFolderForConfig() = 0;

@@ -1,5 +1,10 @@
 #include "controllers/GameConfig.hpp"
 
+int GameConfig::MAX_TURN = 0;
+int GameConfig::STARTING_BALANCE = 0;
+int GameConfig::GO_SALARY = 0;
+int GameConfig::JAIL_FINE = 0;
+
 int GameConfig::getMaxTurn(){
     return MAX_TURN;
 }

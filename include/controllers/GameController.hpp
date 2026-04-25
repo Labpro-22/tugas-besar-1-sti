@@ -44,7 +44,7 @@ class GameController {
         bool resolveDiceResult(Player& p, int d1, int d2);
 
         void processPayRent(Player& p, Tile& currentTile);
-        void processBankruptcyFlow(Player& payer, Player& owner);
+        void processBankruptcyFlow(Player& payer, Player& owner, int rent);
 
         void processMortgage(Player& p);
         void processBuyBuilding(Player& p);
