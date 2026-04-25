@@ -1,4 +1,5 @@
 #include "models/tile/property_tile/PropertyTile.hpp"
+#include "models/tile/property_tile/StreetTile.hpp"
 PropertyTile::PropertyTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock, int purchasePrice, int mortgageValue)
     : Tile(tileID, letterCode, tileName, colourBlock),
       ownerUsername_("BANK"),
@@ -15,6 +16,10 @@ int PropertyTile::getPurchasePrice() const {
 
 int PropertyTile::getMortgageValue() const {
     return mortgageValue_;
+}
+
+std::string PropertyTile::getColourBlock() const {
+    return colourBlock_;
 }
 
 int PropertyTile::getLevel() const {

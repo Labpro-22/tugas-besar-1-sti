@@ -1,6 +1,6 @@
 #pragma once
 #include "models/tile/Tile.hpp"
-#include "models/tile/property_tile/StreetTile.hpp"
+#include <string>
 #include <map>
 enum PropertyStatus {
     BANK,

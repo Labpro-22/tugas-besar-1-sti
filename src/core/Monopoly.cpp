@@ -28,6 +28,8 @@ void Monopoly::startGame() {
             return;
         }
 
+        view_->setBoardContext(board.get());
+
         // tanyain apakah mulai game baru atau yang udah ada
             // if udah ada artinya minta game state-nya
 
@@ -67,8 +69,25 @@ std::vector<std::unique_ptr<Player>> Monopoly::registerPlayers(int numOfPlayers)
     }
     std::vector<std::unique_ptr<Player>> players_;
     for (size_t i = 0; i < numOfPlayers; i++) {
-        std::string usn = command_->askPlayerUsername();
-        players_.push_back(std::make_unique<Player>(usn, initialBalance_));
+        while (true) {
+            std::string usn = command_->askPlayerUsername();
+            bool exists = false;
+
+            for (const auto& player : players_) {
+                if (player->getUsername() == usn) {
+                    exists = true;
+                    break;
+                }
+            }
+
+            if (exists) {
+                view_->showMessage("Username sudah dipakai. Masukkan username lain.\n");
+                continue;
+            }
+
+            players_.push_back(std::make_unique<Player>(usn, initialBalance_));
+            break;
+        }
     }
     return players_;
 }

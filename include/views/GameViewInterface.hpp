@@ -8,6 +8,7 @@ class RailRoadTile;
 class UtilityTile;
 class Player;
 class TaxTile;
+class Board;
 
 // Ini tu jadi ViewManager (yang aku assume)
 class GameViewInterface {
@@ -16,6 +17,8 @@ class GameViewInterface {
     public:
         // Joker of all trades oakwoawkaw
         virtual void showMessage(std::string) = 0;
+
+        virtual void setBoardContext(Board*) {}
 
         // Kasih tunjuk boardnya
         virtual void cetakPapan() {}
