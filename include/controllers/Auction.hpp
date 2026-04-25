@@ -10,92 +10,92 @@
 #include "views/GameViewInterface.hpp"
 
 class Auction {
-public:
-    // penyebab lelang
-    enum class AuctionCause {
-        PROPERTY_DECLINED,
-        PROPERTY_CANNOT_AFFORD,
-        BANKRUPTCY_TO_BANK
-    };
+    public:
+        // penyebab lelang
+        enum class AuctionCause {
+            PROPERTY_DECLINED,
+            PROPERTY_CANNOT_AFFORD,
+            BANKRUPTCY_TO_BANK
+        };
 
-    enum class AuctionState {
-        NOT_STARTED,
-        WAITING_FOR_ACTION,
-        FINISHED
-    };
+        enum class AuctionState {
+            NOT_STARTED,
+            WAITING_FOR_ACTION,
+            FINISHED
+        };
 
-private:
-    std::vector<std::unique_ptr<Player>>& players_; // daftar player yang main
-    GameViewInterface& view_; // output 
+    private:
+        std::vector<std::unique_ptr<Player>>& players_; // daftar player yang main
+        GameViewInterface& view_; // output 
 
-    PropertyTile* property_; // property yang di lelang
-    Player* triggerPlayer_; // pemain yang memicu lelang
-    AuctionCause cause_; // penyebab lelang
-    AuctionState state_; // state lelang
+        PropertyTile* property_; // property yang di lelang
+        Player* triggerPlayer_; // pemain yang memicu lelang
+        AuctionCause cause_; // penyebab lelang
+        AuctionState state_; // state lelang
 
-    std::vector<Player*> participants_; // urutan pemain yang ikut lelang
-    int currentParticipantIndex_; // index di participants_ untuk giliran sekarang
+        std::vector<Player*> participants_; // urutan pemain yang ikut lelang
+        int currentParticipantIndex_; // index di participants_ untuk giliran sekarang
 
-    int highestBid_; // penawaran tertinggi 
-    Player* highestBidder_; // pemain dengan penawaran tertinggi
-    int passesCount_; // jumlah pass beruntun untuk mendeteksi forced bid
-    bool hasAnyBid_; // apakah sudah ada penawaran
-    bool finished_; // apakah lelang sudah selesai
+        int highestBid_; // penawaran tertinggi 
+        Player* highestBidder_; // pemain dengan penawaran tertinggi
+        int passesCount_; // jumlah pass beruntun untuk mendeteksi forced bid
+        bool hasAnyBid_; // apakah sudah ada penawaran
+        bool finished_; // apakah lelang sudah selesai
 
-    void buildParticipants(); // bikin daftar peserta yang valid untuk lelang
-    bool isValidParticipant(const Player* player) const; // cek pemain no BANKRUPT
-    int findTriggerPlayerIndex() const; // cari index triggerPlayer di players_
+        void buildParticipants(); // bikin daftar peserta yang valid untuk lelang
+        bool isValidParticipant(const Player* player) const; // cek pemain no BANKRUPT
+        int findTriggerPlayerIndex() const; // cari index triggerPlayer di players_
 
-    bool isForcedBidTurn() const; // cek pemain boleh pass ga? karena sebelumnya sudah pass semua
-    void advanceTurn(); // lanjut ke peserta berikutnya
-    void finalizeAuction(); // proses akhir lelang, transfer properti ke pemenang, update state, dan tampilkan hasil
-    void givePropertyToWinner(); // transfer properti ke pemenang dan update uangnya
+        bool isForcedBidTurn() const; // cek pemain boleh pass ga? karena sebelumnya sudah pass semua
+        void advanceTurn(); // lanjut ke peserta berikutnya
+        void finalizeAuction(); // proses akhir lelang, transfer properti ke pemenang, update state, dan tampilkan hasil
+        void givePropertyToWinner(); // transfer properti ke pemenang dan update uangnya
 
-public:
-    Auction(std::vector<std::unique_ptr<Player>>& players,
-            GameViewInterface& view);
+    public:
+        Auction(std::vector<std::unique_ptr<Player>>& players,
+                GameViewInterface& view);
 
-    ~Auction();
+        ~Auction();
 
-    // Session setup
-    void start(Player& triggerPlayer, PropertyTile& propertyTile, AuctionCause cause); // mulai lelang 
+        // Session setup
+        void start(Player& triggerPlayer, PropertyTile& propertyTile, AuctionCause cause); // mulai lelang 
 
-    bool canCurrentPlayerPass() const; // cek apakah pemain saat ini boleh pass 
-    bool canCurrentPlayerBid(int amount) const; // cek apakah pemain saat ini boleh bid 
+        bool canCurrentPlayerPass() const; // cek apakah pemain saat ini boleh pass 
+        bool canCurrentPlayerBid(int amount) const; // cek apakah pemain saat ini boleh bid 
 
-    void passCurrentPlayer(); // pemain saat ini memilih pass 
-    void bidCurrentPlayer(int amount); // pemain saat ini melakukan bid dengan jumlah tertentu
+        void passCurrentPlayer(); // pemain saat ini memilih pass 
+        void bidCurrentPlayer(int amount); // pemain saat ini melakukan bid dengan jumlah tertentu
 
-    // proses lelang ketika pemain bangkrut ke bank
-    void processBankruptcyToBank(Player& bankruptPlayer);
+        // proses lelang ketika pemain bangkrut ke bank
+        void processBankruptcyToBank(Player& bankruptPlayer);
 
-    bool isStarted() const; // bantu GUI cek apakah lelang sedang berlangsung
-    bool isFinished() const; // bantu GUI cek apakah lelang sudah selesai
+        bool isStarted() const; // bantu GUI cek apakah lelang sedang berlangsung
+        bool isFinished() const; // bantu GUI cek apakah lelang sudah selesai
 
-    AuctionState getState() const; 
-    AuctionCause getCause() const;
+        AuctionState getState() const; 
+        AuctionCause getCause() const;
 
-    PropertyTile* getProperty() const; // properti yang sedang dilelang
-    Player* getTriggerPlayer() const; // pemain yang memicu lelang
-    Player* getCurrentPlayer() const; // pemain yang sedang giliran lelang
-    Player* getHighestBidder() const; // pemain dengan penawaran tertinggi
+        PropertyTile* getProperty() const; // properti yang sedang dilelang
+        Player* getTriggerPlayer() const; // pemain yang memicu lelang
+        Player* getCurrentPlayer() const; // pemain yang sedang giliran lelang
+        Player* getHighestBidder() const; // pemain dengan penawaran tertinggi
 
-    int getHighestBid() const; // jumlah penawaran tertinggi saat ini
-    int getCurrentParticipantIndex() const; // index peserta yang sedang giliran lelang
-    int getpassesCount() const; // jumlah pass beruntun saat ini, untuk mendeteksi apakah pemain berikutnya wajib bid
-    int getParticipantSize() const; // jumlah peserta lelang saat ini
+        int getHighestBid() const; // jumlah penawaran tertinggi saat ini
+        int getCurrentParticipantIndex() const; // index peserta yang sedang giliran lelang
+        int getpassesCount() const; // jumlah pass beruntun saat ini, untuk mendeteksi apakah pemain berikutnya wajib bid
+        int getParticipantSize() const; // jumlah peserta lelang saat ini
 
-    int getMinBid() const; // dapatkan jumlah minimum untuk bid berikutnya (1 lebih tinggi dari highestBid, atau 0 jika belum ada bid)
+        int getMinBid() const; // dapatkan jumlah minimum untuk bid berikutnya (1 lebih tinggi dari highestBid, atau 0 jika belum ada bid)
 
-    const std::vector<Player*>& getParticipants() const; // daftar peserta lelang saat ini, untuk GUI tampilkan daftar pemain yang ikut
+        const std::vector<Player*>& getParticipants() const; // daftar peserta lelang saat ini, untuk GUI tampilkan daftar pemain yang ikut
 
-    std::string getStatusText() const; // untuk GUI tampilkan status lelang, termasuk properti yang dilelang, penyebab lelang, pemain dengan penawaran tertinggi, dan giliran pemain saat ini
+        std::string getStatusText() const; // untuk GUI tampilkan status lelang, termasuk properti yang dilelang, penyebab lelang, pemain dengan penawaran tertinggi, dan giliran pemain saat ini
 
-    void reset(); // reset state internal lelang, untuk dipakai sebelum start() agar bisa dipakai berulang kali untuk properti berikutnya
+        void reset(); // reset state internal lelang, untuk dipakai sebelum start() agar bisa dipakai berulang kali untuk properti berikutnya
 
-    void runAuction(Player& triggerPlayer, PropertyTile& propertyTile, AuctionCause cause, CommandInterface& command);
+        void runAuction(Player& triggerPlayer, PropertyTile& propertyTile, AuctionCause cause, CommandInterface& command);
 
-    void runBankruptcyAuction(Player& bankruptPlayer, CommandInterface& command);
+        void runBankruptcyAuction(Player& bankruptPlayer, CommandInterface& command);
 };
 
 /*
