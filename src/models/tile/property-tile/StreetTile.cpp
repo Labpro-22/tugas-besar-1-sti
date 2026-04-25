@@ -87,3 +87,11 @@ void StreetTile::upgradeBuilding() {
 
 StreetTile::~StreetTile() {}
 int StreetTile::getBuildNextBuildingPrice() const { return 0; }
+
+int StreetTile::getLevel() const {
+    return PropertyTile::getLevel();
+}
+
+void StreetTile::setLevel(int level) {
+    PropertyTile::setLevel(level);
+}

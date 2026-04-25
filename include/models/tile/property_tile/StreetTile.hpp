@@ -25,4 +25,7 @@ class StreetTile : public PropertyTile {
         int getBuildNextBuildingPrice() const;
         int calculateRentPrice(bool completedColourGroup) const;
         void upgradeBuilding();
+
+        int getLevel() const;
+        void setLevel(int level);
 };
