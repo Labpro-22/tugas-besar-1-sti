@@ -1,7 +1,10 @@
 #include "models/card/skillcard/MoveCard.hpp"
+<<<<<<< HEAD
 
 #include <random>
 #include <string>
+=======
+>>>>>>> 28621024bb2f17c3879581c05c76c2b6c7a2e6ec
 #include "models/player/Player.hpp"
 
 MoveCard::MoveCard()
@@ -29,7 +32,7 @@ MoveCard::MoveCard(int steps)
 }
 
 void MoveCard::activate(Player& owner) {
-    owner.move(steps_);
+    owner.setPosition(owner.move(steps_));
 }
 
 int MoveCard::getSteps() const {

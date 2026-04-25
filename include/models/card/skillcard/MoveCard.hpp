@@ -1,6 +1,8 @@
 #pragma once
 
 #include "models/card/skillcard/SkillCard.hpp"
+#include <random>
+#include <string>
 
 class Player;
 

@@ -1,13 +1,11 @@
 #include "controllers/GameController.hpp"
-#include "models/card/skillcard/MoveCard.hpp"
-#include "models/card/skillcard/TeleportCard.hpp"
 #include "models/tile/property_tile/StreetTile.hpp"
 
 GameController::GameController(std::vector<std::unique_ptr<Player>> players,
     Board& board, Dice& dice, GameViewInterface& view,
-    CommandInterface& command, Deck<SkillCard>& specialCardDeck)
-    : players_(std::move(players)), board_(board), dice_(dice),
-    view_(view), command_(command), specialCardDeck_(specialCardDeck) {}
+    CommandInterface& command)
+    : players_(players), board_(board), dice_(dice),
+    view_(view), command_(command), auction_(players_, view_){}
 
 GameController::~GameController() = default;
 
@@ -669,12 +667,87 @@ void GameController::processFestival(Player& p) {
 }
 
 void GameController::processTakeChanceCard(Player& p) {
-    // Ngambil kartu dari deck
-    // Kartu Kesempatan
-    // Berikut adalah aturan Kartu Kesempatan yang ada dalam Permainan Nimonspoli:
-    // "Pergi ke stasiun terdekat."
-    // "Mundur 3 petak."
-    // "Masuk Penjara."
+    ChanceCard card = ChanceCard::randomCard();
+    view_.showMessage("[CHANCE] " + card.getDescription() + "\n");
+
+    switch (card.getInstruction()) {
+        case ChanceCard::GoToNearestStation: {
+            std::vector<int> stationPositions;
+            int boardSize = 0;
+
+            for (int i = 0;; ++i) {
+                try {
+                    Tile& tile = board_.getCurrentTile(i);
+                    ++boardSize;
+
+                    if (dynamic_cast<RailRoadTile*>(&tile) != nullptr) {
+                        stationPositions.push_back(i);
+                    }
+                } catch (...) {
+                    // TODO: exception
+                    break;
+                }
+            }
+
+            if (stationPositions.empty() || boardSize == 0) {
+                view_.showMessage("[CHANCE] Stasiun tidak ditemukan di papan.\n");
+                return;
+            }
+
+            const int currentPos = p.getPosition();
+            int bestPos = stationPositions.front();
+            int bestForwardDistance = boardSize;
+
+            for (int stationPos : stationPositions) {
+                int distance = (stationPos - currentPos + boardSize) % boardSize;
+                if (distance == 0) {
+                    distance = boardSize;
+                }
+
+                if (distance < bestForwardDistance) {
+                    bestForwardDistance = distance;
+                    bestPos = stationPos;
+                }
+            }
+
+            p.setPosition(bestPos);
+            view_.showMessage("[CHANCE] Kamu dipindahkan ke stasiun terdekat.\n");
+            break;
+        }
+
+        case ChanceCard::MoveBackThreeTiles: {
+            int boardSize = 0;
+            for (int i = 0;; ++i) {
+                try {
+                    (void)board_.getCurrentTile(i);
+                    ++boardSize;
+                } catch (...) {
+                    // TODO: exception
+                    break;
+                }
+            }
+
+            if (boardSize == 0) {
+                view_.showMessage("[CHANCE] Papan tidak valid.\n");
+                return;
+            }
+
+            const int newPos = (p.getPosition() - 3 + boardSize) % boardSize;
+            p.setPosition(newPos);
+            view_.showMessage("[CHANCE] Kamu mundur 3 petak.\n");
+            break;
+        }
+
+        case ChanceCard::GoToJail:
+            p.setPosition(board_.getJailPosition());
+            p.setStatus(Player::JAILED);
+            p.resetJailTurn();
+            view_.showMessage("[CHANCE] Kamu masuk penjara.\n");
+            break;
+
+        default:
+            break;
+    }
 }
 
 void GameController::processTakeCommunityChest(Player& p) {

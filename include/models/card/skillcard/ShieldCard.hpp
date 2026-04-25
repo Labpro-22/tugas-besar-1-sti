@@ -1,6 +1,7 @@
 #pragma once
 
 #include "models/card/skillcard/SkillCard.hpp"
+#include <iostream>
 
 class Player;
 

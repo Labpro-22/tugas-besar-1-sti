@@ -1,4 +1,5 @@
 #include "models/tile/property_tile/StreetTile.hpp"
+#include "models/player/Player.hpp"
 
 StreetTile::StreetTile(int tileID, std::string letterCode,
     std::string tileName, std::string colourBlock,
@@ -9,6 +10,8 @@ StreetTile::StreetTile(int tileID, std::string letterCode,
             colourBlock, purchasePrice, mortgageValue),
             rentPricePerLevel_(rentPricePerLevel),
             buildPrice_(buildPrice) {}
+
+StreetTile::~StreetTile() = default;
 
 OnLandResult StreetTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
     view.showMessage("Halo kamu ada di street tile");
