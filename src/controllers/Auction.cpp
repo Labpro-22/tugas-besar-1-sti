@@ -2,8 +2,11 @@
 #include <sstream>
 
 Auction::Auction(std::vector<std::unique_ptr<Player>>& players,
-                 GameViewInterface& view)
-    : players_(players), view_(view), property_(nullptr), triggerPlayer_(nullptr), cause_(AuctionCause::PROPERTY_DECLINED), state_(AuctionState::NOT_STARTED), currentParticipantIndex_(0), highestBid_(0), highestBidder_(nullptr), passesCount_(0), hasAnyBid_(false), finished_(false) {}
+                GameViewInterface& view)
+    : players_(players), view_(view), property_(nullptr), triggerPlayer_(nullptr), 
+    cause_(AuctionCause::PROPERTY_DECLINED), state_(AuctionState::NOT_STARTED), 
+    currentParticipantIndex_(0), highestBid_(0), highestBidder_(nullptr), 
+    passesCount_(0), hasAnyBid_(false), finished_(false) {}
 
 Auction::~Auction() = default;
 
@@ -31,11 +34,11 @@ void Auction::start(Player& triggerPlayer, PropertyTile& propertyTile, AuctionCa
     buildParticipants();
 
     view_.showMessage("Properti " + property_->getTileName() +
-                      " (" + property_->getLetterCode() + ") akan dilelang!\n");
+                    " (" + property_->getLetterCode() + ") akan dilelang!\n");
 
     if (triggerPlayer_ != nullptr) {
         view_.showMessage("Urutan lelang dimulai dari pemain setelah " +
-                          triggerPlayer_->getUsername() + ".\n");
+                        triggerPlayer_->getUsername() + ".\n");
     }
 
     if (participants_.empty()) {
@@ -156,8 +159,8 @@ void Auction::finalizeAuction() {
         view_.showMessage("Pemenang: " + highestBidder_->getUsername() + "\n");
         view_.showMessage("Harga akhir: M" + std::to_string(highestBid_) + "\n");
         view_.showMessage("Properti " + property_->getTileName() +
-                          " (" + property_->getLetterCode() + ") kini dimiliki " +
-                          highestBidder_->getUsername() + ".\n");
+                        " (" + property_->getLetterCode() + ") kini dimiliki " +
+                        highestBidder_->getUsername() + ".\n");
     } else {
         view_.showMessage("Lelang selesai tanpa pemenang. Properti tetap menjadi milik BANK.\n");
     }
@@ -441,7 +444,7 @@ void Auction::runBankruptcyAuction(Player& bankruptPlayer, CommandInterface& com
     int remainingMoney = bankruptPlayer.getBalance();
     if (remainingMoney > 0) {
         view_.showMessage("Uang sisa M" + std::to_string(remainingMoney) +
-                          " diserahkan ke Bank.\n");
+                        " diserahkan ke Bank.\n");
         bankruptPlayer.deductMoney(remainingMoney);
     }
 
@@ -473,7 +476,7 @@ void Auction::runBankruptcyAuction(Player& bankruptPlayer, CommandInterface& com
         }
 
         view_.showMessage("Lelang properti: " + property->getTileName() +
-                          " (" + property->getLetterCode() + ")\n");
+                        " (" + property->getLetterCode() + ")\n");
 
         runAuction(bankruptPlayer, *property, AuctionCause::BANKRUPTCY_TO_BANK,command);
     }

@@ -109,6 +109,10 @@ class Player {
         int getPropertyCount() const;
         int getCardCount() const;
 
+        bool operator>(const Player& other) const;
+
+        bool operator==(const Player& other) const;
+
     private:
         int id_; // auto increment dari countplayer itu
         std::string username_; //username pemain

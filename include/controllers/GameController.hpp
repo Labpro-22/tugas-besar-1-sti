@@ -19,7 +19,10 @@
 #include <memory>
 #include <vector>
 
-#include "models/tile/property_tile/RailRoadTile.hpp"
+class AuctionCoordinator;
+class SkillCardCoordinator;
+class PropertyCoordinator;
+
 class GameController {
     public:
         GameController(std::vector<std::unique_ptr<Player>> players, 
@@ -63,6 +66,9 @@ class GameController {
         CommandInterface& command_;
         std::vector<std::unique_ptr<Player>> players_;
         Auction auction_;
+        std::unique_ptr<AuctionCoordinator> auctionCoordinator_;
+        std::unique_ptr<SkillCardCoordinator> skillCardCoordinator_;
+        std::unique_ptr<PropertyCoordinator> propertyCoordinator_;
 
         int goSalary_;
         int jailFine_;

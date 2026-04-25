@@ -1,4 +1,4 @@
-#include "GameConfig.hpp"
+#include "controllers/GameConfig.hpp"
 
 int GameConfig::getMaxTurn(){
     return MAX_TURN;
