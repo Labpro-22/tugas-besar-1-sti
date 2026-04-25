@@ -1,5 +1,5 @@
 #include "models/tile/property_tile/PropertyTile.hpp"
-
+#include "models/tile/property_tile/StreetTile.hpp"
 PropertyTile::PropertyTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock, int purchasePrice, int mortgageValue)
     : Tile(tileID, letterCode, tileName, colourBlock),
       ownerUsername_("BANK"),
@@ -16,6 +16,10 @@ int PropertyTile::getPurchasePrice() const {
 
 int PropertyTile::getMortgageValue() const {
     return mortgageValue_;
+}
+
+std::string PropertyTile::getColourBlock() const {
+    return colourBlock_;
 }
 
 int PropertyTile::getLevel() const {
@@ -83,8 +87,62 @@ bool PropertyTile::isMortgaged() const {
     return getPropertyStatus() == PropertyStatus::MORTGAGED;
 }
 
-int PropertyTile::canDoubleFestival() const { return 0; }
-bool PropertyTile::festivalActive() { return false; }
-bool PropertyTile::alreadyMaxMultiplier() const { return false; }
-int PropertyTile::doubleTheMultiplier() { return 0; }
-int PropertyTile::resetTurnTo3() { return 0; }
+bool PropertyTile::isOwned() const {
+    return propertyStatus_ == OWNED;
+}
+
+bool PropertyTile::hasBuilding() const {
+    return level_ > 0;
+}
+
+void PropertyTile::setToMortgaged() {
+    propertyStatus_ = MORTGAGED;
+}
+
+int PropertyTile::getSellingPrice() const {
+    return mortgageValue_;
+}
+
+int PropertyTile::canDoubleFestival() const {
+    return !alreadyMaxMultiplier() && festivalDuration_ > 0;
+}
+
+bool PropertyTile::festivalActive() {
+    return festivalMultiplier_ > 1 && festivalDuration_ > 0;
+}
+
+bool PropertyTile::alreadyMaxMultiplier() const {
+    return festivalMultiplier_ >= 8;
+}
+
+int PropertyTile::doubleTheMultiplier() {
+    if (!alreadyMaxMultiplier()) {
+        festivalMultiplier_ *= 2;
+        if (festivalMultiplier_ > 8) {
+            festivalMultiplier_ = 8;
+        }
+    }
+    return festivalMultiplier_;
+}
+
+int PropertyTile::resetTurnTo3() {
+    festivalDuration_ = 3;
+    return festivalDuration_;
+}
+
+int PropertyTile::sellAllBuildings() const {
+    const StreetTile* street = dynamic_cast<const StreetTile*>(this);
+    if (street == nullptr || level_ <= 0) {
+        return 0;
+    }
+
+    const std::map<int, int> buildPrice = street->getBuildPrice();
+    int total = 0;
+    for (int level = 1; level <= level_; ++level) {
+        auto it = buildPrice.find(level);
+        if (it != buildPrice.end()) {
+            total += it->second / 2;
+        }
+    }
+    return total;
+}

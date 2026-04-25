@@ -10,9 +10,38 @@ CommunityChestCard::CommunityChestCard(Instruction instruction)
       description_(instructionToDescription(instruction)) {}
 
 void CommunityChestCard::useCommunityChest(Player& owner, const std::vector<std::unique_ptr<Player>>& allPlayers) const {
-    // TODO: Integrasi Player + Monopoly
-    (void)owner;
-    (void)allPlayers;
+    switch (instruction_) {
+        case BirthdayCollect100FromEachPlayer:
+            for (const auto& playerPtr : allPlayers) {
+                Player* other = playerPtr.get();
+                if (other == nullptr || other == &owner || other->isBankrupt()) {
+                    continue;
+                }
+
+                other->deductMoney(100);
+                owner.addMoney(100);
+            }
+            break;
+
+        case DoctorFeePay700:
+            owner.deductMoney(700);
+            break;
+
+        case ElectionPay200ToEachPlayer:
+            for (const auto& playerPtr : allPlayers) {
+                Player* other = playerPtr.get();
+                if (other == nullptr || other == &owner || other->isBankrupt()) {
+                    continue;
+                }
+
+                owner.deductMoney(200);
+                other->addMoney(200);
+            }
+            break;
+
+        default:
+            break;
+    }
 }
 
 CommunityChestCard::Instruction CommunityChestCard::getInstruction() const {

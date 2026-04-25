@@ -4,6 +4,7 @@
 #include "models/tile/property_tile/StreetTile.hpp"
 #include "models/tile/property_tile/RailRoadTile.hpp"
 #include "models/card/skillcard/SkillCard.hpp"
+#include "models/exception/InvariantViolationException/CardSlotFull.hpp"
 
 Inventory::Inventory() {}
 
@@ -80,8 +81,12 @@ std::vector<SkillCard*> Inventory::getSkillCards() const {
 
 // perlu exception??
 void Inventory::addSkillCards(std::unique_ptr<SkillCard> skillCard) {
+    if (!skillCard) {
+        return;
+    }
+
     if (skillCards_.size() >= 3) {
-        // throw exception??
+        throw CardSlotFull();
     }
 
     skillCards_.push_back(std::move(skillCard));
@@ -162,7 +167,6 @@ int Inventory::countUtilities() const {
     return countUtilities_;
 }
 
-<<<<<<< HEAD
 int Inventory::countProperty() const {
     return static_cast<int>(properties_.size());
 }
@@ -170,7 +174,7 @@ int Inventory::countProperty() const {
 int Inventory::countCard() const {
     return static_cast<int>(skillCards_.size());
 }
-=======
+
 std::map<std::string, std::vector<PropertyTile*>> Inventory::getCompleteColourGroups(std::map<std::string, int> countTilesForEachColourBlock) {
     // 1 Pembangunan rumah harus dilakukan 
         // secara merata di
@@ -211,4 +215,14 @@ std::map<std::string, std::vector<PropertyTile*>> Inventory::getOwnedPropertiesG
     }
     return colourBlockToPropertyTile;
 }
->>>>>>> develop
+
+std::map<std::string, std::vector<PropertyTile*>> Inventory::groupPropertiesByColorGroup() const {
+    std::map<std::string, std::vector<PropertyTile*>> groupedProperties;
+    for (PropertyTile* property : properties_) {
+        if (property == nullptr) {
+            continue;
+        }
+        groupedProperties[property->getColourBlock()].push_back(property);
+    }
+    return groupedProperties;
+}

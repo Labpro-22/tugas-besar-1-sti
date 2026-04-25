@@ -10,6 +10,7 @@
 #include "models/tile/property_tile/UtilityTile.hpp"
 #include "views/CommandInterface.hpp"
 #include "views/GameViewInterface.hpp"
+#include "controllers/Liquidation.hpp"
 
 #include <memory>
 #include <vector>
@@ -27,7 +28,8 @@ class PropertyCoordinator {
         void processRedeem(Player& player);
         void processPayRent(Player& player, Tile& currentTile);
         void processBuyBuilding(Player& player);
-        void processBankruptcyFlow(Player& payer, Player& owner);
+        void processBankruptcyFlow(Player& payer, Player& owner, int rent);
+        void processBankruptcyToPlayer(Player& payer, Player& owner);
         void processMortgage(Player& player);
 
     private:

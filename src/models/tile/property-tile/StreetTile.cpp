@@ -35,8 +35,7 @@ OnLandResult StreetTile::onLand(Player& p, CommandInterface& command, GameViewIn
     }
 
     bool wantToBuy = command.askWantToBuyProperty();
-    
-    if (!command.askWantToBuyProperty()) {
+    if (!wantToBuy) {
         return OnLandResult::TriggerAuction;
     }
 
@@ -84,6 +83,12 @@ void StreetTile::upgradeBuilding() {
     }
     level_++;
 }
-
-StreetTile::~StreetTile() {}
 int StreetTile::getBuildNextBuildingPrice() const { return 0; }
+
+int StreetTile::getLevel() const {
+    return PropertyTile::getLevel();
+}
+
+void StreetTile::setLevel(int level) {
+    PropertyTile::setLevel(level);
+}
