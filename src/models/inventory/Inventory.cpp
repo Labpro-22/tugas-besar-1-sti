@@ -212,3 +212,14 @@ std::map<std::string, std::vector<PropertyTile*>> Inventory::getOwnedPropertiesG
     return colourBlockToPropertyTile;
 }
 >>>>>>> develop
+
+std::map<std::string, std::vector<PropertyTile*>> Inventory::groupPropertiesByColorGroup() const {
+    std::map<std::string, std::vector<PropertyTile*>> groupedProperties;
+    for (PropertyTile* property : properties_) {
+        if (property == nullptr) {
+            continue;
+        }
+        groupedProperties[property->getColourBlock()].push_back(property);
+    }
+    return groupedProperties;
+}

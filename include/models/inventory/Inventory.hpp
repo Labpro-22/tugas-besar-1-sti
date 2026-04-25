@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <utility>
 #include <map>
+#include <string>
 
 class SkillCard;
 class PropertyTile;
@@ -52,6 +53,8 @@ class Inventory {
 
         int countProperty() const;
         int countCard() const;
+
+        std::map<std::string, std::vector<PropertyTile*>> groupPropertiesByColorGroup() const;  
 };
 
 
