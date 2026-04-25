@@ -12,6 +12,7 @@ enum class CommandType {
     CETAK_LOG, //
     GUNAKAN_KEMAMPUAN, //
     BAYAR_DENDA, // tambahan buat lgsg bayar waktu mau keluar penjara
+    END_COMMAND, // untuk menyelesaikan turn pemain saat ini
 
 
 };
@@ -34,6 +35,10 @@ class Command {
             return args_.at(idx);
         }
 
+        int getArgCount() const {
+            return static_cast<int>(args_.size());
+        }
+
         std::string getStringArg() const {
             return stringArg_;
         }
@@ -49,6 +54,7 @@ class CommandInterface {
         virtual int getInt(int lowerBound, int upperBound) = 0;
 
         virtual int getAuctionBidOrPass(int currentBid, int playerBalance) = 0;
+        virtual bool askWantToSellAllBuildings(std::string question);
 
         // Game setup
         virtual std::string askFolderForConfig() = 0;
@@ -59,4 +65,6 @@ class CommandInterface {
 
         // buy
         virtual bool askWantToBuyProperty() = 0;
+
+        virtual bool getBool(std::string message) =0;
 };

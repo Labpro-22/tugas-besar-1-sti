@@ -19,20 +19,12 @@
 #include <memory>
 #include <vector>
 
+#include "models/tile/property_tile/RailRoadTile.hpp"
 class GameController {
     public:
-        enum class GameState  {
-            WAITING_FOR_ROLL_DICE,
-            FREE_SUDAH_ROLL_DICE,
-            INJAIL,
-
-            LELANG,
-            BANKRUT,
-        };
-
-        GameController(std::vector<std::unique_ptr<Player>>& players,
-            Board& board, Dice& dice, GameViewInterface& view, CommandInterface& command);
-            
+        GameController(std::vector<std::unique_ptr<Player>> players, 
+            Board& board, Dice& dice, GameViewInterface& view, 
+            CommandInterface& command, Deck<SkillCard>& specialCardDeck_);
         ~GameController();
 
         void playGame(int latesTurn, int maxTurn);
@@ -41,6 +33,15 @@ class GameController {
         void processSpecialCardUse(Player& p, bool& hasUsedSkillCardThisTurn);
         void processPickAndDropSpecialCard(Player& p);
         void processRollDice(Player& p);
+        void processAuction(Player& p, PropertyTile& propertyTile);
+        void processBankruptcyToBank(Player& p);
+        void transferProperty(Player& from, Player& to, PropertyTile& propertyTile);
+        bool processRandomDice(Player& p);
+        bool processCustomDice(Player& p, int x, int y);
+        bool resolveDiceResult(Player& p, int d1, int d2);
+
+        void processPayRent(Player& p, Tile& currentTile);
+        void processBankruptcyFlow(Player& payer, Player& owner);
 
         void processMortgage(Player& p);
         void processBuyBuilding(Player& p);
@@ -60,7 +61,7 @@ class GameController {
         Dice& dice_;
         GameViewInterface& view_;
         CommandInterface& command_;
-        std::vector<std::unique_ptr<Player>>& players_; // gabs pake &
+        std::vector<std::unique_ptr<Player>> players_;
         Auction auction_;
 
         int goSalary_;

@@ -41,39 +41,14 @@ OnLandResult UtilityTile::onLand(Player& p, CommandInterface& command, GameViewI
         return OnLandResult::Done;
     }
 
-    Player* owner = nullptr;
-    for (Player* pl : p.getAllPlayers()) {
-        if (pl != nullptr && pl->getUsername() == getOwnerUsername()) {
-            owner = pl;
-            break;
-        }
-    }
+    return OnLandResult::TriggerTryToPayRent;
+}
 
-    int count = 1;
-    if (owner != nullptr) {
-        count = owner->countUtilities();
-        if (count < 1) count = 1;
-    }
-
-    int factor = utilityFactor_.count(count)
-        ? utilityFactor_[count]
+int UtilityTile::calculateRentPrice(int countUtils, int diceResult) {
+    int factor = utilityFactor_.count(countUtils)
+        ? utilityFactor_[countUtils]
         : utilityFactor_.rbegin()->second;
-
-    int dice = p.getLastDiceTotal();
-    int rent = dice * factor;
-
-    view.showMessage("Total dadu: " + std::to_string(dice) + "\n");
-    view.showMessage("Faktor: " + std::to_string(factor) + "\n");
-    view.showMessage("Sewa: M" + std::to_string(rent) + "\n");
-
-    if (p.getBalance() < rent) {
-        return OnLandResult::TriggerBankruptcyAuction;
-    }
-
-    p.deductMoney(rent);
-    if (owner) owner->addMoney(rent);
-
-    return OnLandResult::Done;
+    return diceResult * factor * festivalMultiplier_;
 }
 
 // getter n setter

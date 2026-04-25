@@ -19,8 +19,6 @@ RailRoadTile::RailRoadTile(int tileID, std::string letterCode, std::string tileN
 RailRoadTile::~RailRoadTile() {}
 
 OnLandResult RailRoadTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
-    (void) command;
-
     view.showMessage("Kamu mendarat di " + getTileName() + " (" + getLetterCode() + ")!\n");
 
     // === BELUM DIMILIKI ===
@@ -44,40 +42,14 @@ OnLandResult RailRoadTile::onLand(Player& p, CommandInterface& command, GameView
         view.showMessage("Ini milikmu sendiri.\n");
         return OnLandResult::Done;
     }
-
-    // === AMBIL OWNER ===
-    Player* owner = nullptr;
-    for (Player* pl : p.getAllPlayers()) {
-        if (pl != nullptr && pl->getUsername() == getOwnerUsername()) {
-            owner = pl;
-            break;
-        }
-    }
-
-    int count = 1;
-    if (owner != nullptr) {
-        count = owner->countRailroad();
-        if (count < 1) count = 1;
-    }
-
-    int rent = railRoadRentPrices_.count(count)
-        ? railRoadRentPrices_[count]
-        : railRoadRentPrices_.rbegin()->second;
-
-    view.showMessage("Owner: " + getOwnerUsername() + "\n");
-    view.showMessage("Jumlah railroad: " + std::to_string(count) + "\n");
-    view.showMessage("Sewa: M" + std::to_string(rent) + "\n");
-
-    if (p.getBalance() < rent) {
-        return OnLandResult::TriggerAuction;
-    }
-
-    p.deductMoney(rent);
-    if (owner) owner->addMoney(rent);
-
-    return OnLandResult::Done;
+    return OnLandResult::TriggerTryToPayRent;
 }
 
+int RailRoadTile::calculateRentPrice(int countRailRoad) const {
+    return railRoadRentPrices_.count(countRailRoad)
+        ? railRoadRentPrices_[countRailRoad]
+        : railRoadRentPrices_.rbegin()->second * festivalMultiplier_;
+}
 // getter n setter
 void RailRoadTile::setRailRoadRentPrices(const std::map<int, int>& prices) {
     railRoadRentPrices_ = prices;

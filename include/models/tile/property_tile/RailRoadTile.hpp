@@ -14,6 +14,8 @@ class RailRoadTile : public PropertyTile {
         ~RailRoadTile();
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 
+        int calculateRentPrice(int countRailRoad) const;
+
         // getter n setter
         static void setRailRoadRentPrices(const std::map<int, int>& prices);
         static const std::map<int, int>& getRailRoadRentPrices();
