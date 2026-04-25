@@ -303,3 +303,24 @@ std::map<std::string, std::vector<PropertyTile*>> Player::getOwnedPropertiesGrou
 void Player::resetCountDouble() {
     doubleRollCount_ = 0;
 }
+
+bool Player::operator>(const Player& other) const {
+    if (getBalance() > other.getBalance()) {
+        return true;
+    }
+
+    if (getPropertyCount() > other.getPropertyCount()) {
+        return true;
+    }
+
+    if (getCardCount() > other.getCardCount()) {
+        return true;
+    }
+    return false;
+}
+
+bool Player::operator==(const Player& other) const {
+    return getBalance() == other.getBalance() &&
+        getPropertyCount() == other.getPropertyCount() &&
+        getCardCount() == other.getCardCount();
+}
