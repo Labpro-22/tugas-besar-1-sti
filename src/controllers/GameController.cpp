@@ -39,9 +39,16 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
 	p.setLastDiceTotal(firstDisplacement);
 	OnLandResult result = nextTile.onLand(p, command_, view_);
 
-	switch (result) {
-		case OnLandResult::TriggerAuction:
-			break;
+        switch (result) {
+            case OnLandResult::TriggerAuction: {
+                PropertyTile* property = dynamic_cast<PropertyTile*>(&nextTile);
+                if (property != nullptr) {
+                    processAuction(p, *property);
+                } else {
+                    view_.showMessage("Auction trigger on non-property tile.\n");
+                }
+                break;
+            }
 		case OnLandResult::TriggerBankruptcyAuction: {
 			auction_.runBankruptcyAuction(p, command_);
 			break;
