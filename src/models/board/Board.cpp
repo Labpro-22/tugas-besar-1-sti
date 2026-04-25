@@ -1,4 +1,5 @@
 #include "models/board/Board.hpp"
+#include "models/exception/InvariantViolationException/InvariantViolationException.hpp"
 
 Board::Board(int size) : size_(size) {}
 
@@ -38,7 +39,7 @@ Tile& Board::getTileByCode(const std::string& code) {
             return *tile;
         }
     }
-    throw std::runtime_error("Error: Petak dengan kode " + code + " tidak ditemukan di Board!");
+    throw InvariantViolationException(203, "Error: Petak dengan kode " + code + " tidak ditemukan di Board!");
 }
 
 int Board::getTileIndexByCode(const std::string& code) const {

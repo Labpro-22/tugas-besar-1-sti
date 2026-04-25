@@ -1,6 +1,6 @@
 #include "models/player/Player.hpp"
 #include "models/card/skillcard/SkillCard.hpp"
-#include <stdexcept>
+#include "models/exception/InvariantViolationException/InvariantViolationException.hpp"
 
 namespace {
 std::vector<Player*> g_allPlayers;
@@ -233,7 +233,7 @@ PropertyTile& Player::getProperty(std::string code) {
             return *p;
         }
     }
-    throw std::runtime_error(std::string("Property not found: ") + code);
+    throw InvariantViolationException(202, "Property not found: " + code);
 }
 
 Inventory& Player::getInventory() {

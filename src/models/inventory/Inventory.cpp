@@ -4,6 +4,7 @@
 #include "models/tile/property_tile/StreetTile.hpp"
 #include "models/tile/property_tile/RailRoadTile.hpp"
 #include "models/card/skillcard/SkillCard.hpp"
+#include "models/exception/InvariantViolationException/CardSlotFull.hpp"
 
 Inventory::Inventory() {}
 
@@ -80,8 +81,12 @@ std::vector<SkillCard*> Inventory::getSkillCards() const {
 
 // perlu exception??
 void Inventory::addSkillCards(std::unique_ptr<SkillCard> skillCard) {
+    if (!skillCard) {
+        return;
+    }
+
     if (skillCards_.size() >= 3) {
-        // throw exception??
+        throw CardSlotFull();
     }
 
     skillCards_.push_back(std::move(skillCard));

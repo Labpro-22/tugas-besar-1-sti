@@ -35,8 +35,7 @@ OnLandResult StreetTile::onLand(Player& p, CommandInterface& command, GameViewIn
     }
 
     bool wantToBuy = command.askWantToBuyProperty();
-    
-    if (!command.askWantToBuyProperty()) {
+    if (!wantToBuy) {
         return OnLandResult::TriggerAuction;
     }
 

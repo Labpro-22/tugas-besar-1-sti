@@ -1,9 +1,17 @@
 #include "core/Monopoly.hpp"
 #include "models/io/ConfigReader.hpp"
+#include "models/card/skillcard/MoveCard.hpp"
+#include "models/card/skillcard/DiscountCard.hpp"
+#include "models/card/skillcard/LassoCard.hpp"
+#include "models/card/skillcard/ShieldCard.hpp"
+#include "models/card/skillcard/TeleportCard.hpp"
+#include "models/card/skillcard/DemolitionCard.hpp"
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 Monopoly::Monopoly(std::unique_ptr<GameViewInterface> view,
     std::unique_ptr<CommandInterface> command)
@@ -35,12 +43,14 @@ void Monopoly::startGame() {
 
         int numOfPlayers;
         int latestTurn = 0;
+        bool loadedFromState = false;
         std::vector<std::unique_ptr<Player>> players;
         if (command_->askWantToLoadState()) {
-            // Load state
-                // Bangun board
-                // Bangun player
-                // Cari latest turn-nya berapa
+            if (!loadState(board, players, latestTurn)) {
+                view_->showMessage("Load savegame gagal. Kembali ke menu awal.\n");
+                continue;
+            }
+            loadedFromState = true;
         } else {
             // new game
             numOfPlayers = command_->askNumOfPlayer();
@@ -53,6 +63,42 @@ void Monopoly::startGame() {
 
         // init deck
         Deck<SkillCard> decks = Deck<SkillCard>();
+        std::vector<std::unique_ptr<SkillCard>> initialSkillCards;
+
+        for (int i = 0; i < MoveCard::kCardCount; ++i) {
+            initialSkillCards.push_back(std::make_unique<MoveCard>());
+        }
+        for (int i = 0; i < DiscountCard::kCardCount; ++i) {
+            initialSkillCards.push_back(std::make_unique<DiscountCard>());
+        }
+        for (int i = 0; i < LassoCard::kCardCount; ++i) {
+            initialSkillCards.push_back(std::make_unique<LassoCard>());
+        }
+        for (int i = 0; i < ShieldCard::kCardCount; ++i) {
+            initialSkillCards.push_back(std::make_unique<ShieldCard>());
+        }
+        for (int i = 0; i < TeleportCard::kCardCount; ++i) {
+            initialSkillCards.push_back(std::make_unique<TeleportCard>());
+        }
+        for (int i = 0; i < DemolitionCard::kCardCount; ++i) {
+            initialSkillCards.push_back(std::make_unique<DemolitionCard>());
+        }
+
+        decks.initDeck(std::move(initialSkillCards));
+
+        if (!loadedFromState) {
+            for (auto& player : players) {
+                std::unique_ptr<SkillCard> card = decks.drawDeck();
+                if (!card) {
+                    break;
+                }
+
+                const std::string playerName = player->getUsername();
+                const std::string cardName = card->getName();
+                player->addSkillCard(std::move(card));
+                view_->showMessage("[SETUP] " + playerName + " mendapatkan kartu " + cardName + "\n");
+            }
+        }
 
         // tar
         GameController gameController(std::move(players), *board, dice, *view_, *command_, decks); // tar lg pusing command sm si view bedanya apa

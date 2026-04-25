@@ -10,7 +10,12 @@ SkillCardCoordinator::SkillCardCoordinator(Deck<SkillCard>& skillCardDeck,
 
 void SkillCardCoordinator::processPickAndDropSkillCard(Player& player) {
     std::unique_ptr<SkillCard> newObtainedCard = skillCardDeck_.drawDeck();
-    view_.showMessage("KARTU YANG DIDAPATKAN ..........");
+    if (!newObtainedCard) {
+        view_.showMessage("Deck kartu kemampuan kosong.\n");
+        return;
+    }
+
+    view_.showMessage("Kartu yang didapatkan: " + newObtainedCard->getName() + "\n");
     bool throwNewObtained = false;
 
     try {
@@ -35,8 +40,7 @@ void SkillCardCoordinator::processPickAndDropSkillCard(Player& player) {
         return;
     }
 
-    player.getInventory().addSkillCards(std::move(newObtainedCard));
-    view_.showMessage("Kartu X berhasil dibuang, Kartu Y kembali diterima!\n");
+    view_.showMessage("Kartu berhasil ditambahkan ke inventory.\n");
 }
 
 void SkillCardCoordinator::processSkillCardUse(Player& player, bool& hasUsedSkillCardThisTurn) {
@@ -50,11 +54,26 @@ void SkillCardCoordinator::processSkillCardUse(Player& player, bool& hasUsedSkil
         return;
     }
 
+    view_.showMessage("Daftar kartu kemampuan milikmu:\n");
+    for (std::size_t i = 0; i < player.getSkillCardCount(); ++i) {
+        const SkillCard* card = player.getSkillCardAt(i);
+        if (card == nullptr) {
+            view_.showMessage(std::to_string(i + 1) + ". [Kartu tidak valid]\n");
+            continue;
+        }
+
+        view_.showMessage(std::to_string(i + 1) + ". " + card->getName() + " - " + card->getDescription() + "\n");
+    }
     view_.showMessage("Silahkan pilih kartu yang mau kamu pakai!\n");
 
     int selected = command_.getInt(1, player.getSkillCardCount());
     std::size_t selectedIndex = static_cast<std::size_t>(selected - 1);
     const SkillCard* selectedCard = player.getSkillCardAt(selectedIndex);
+
+    if (selectedCard == nullptr) {
+        view_.showMessage("Kartu yang dipilih tidak valid.\n");
+        return;
+    }
 
     if (player.isInJail()) {
         if (dynamic_cast<const MoveCard*>(selectedCard) != nullptr ||
@@ -65,9 +84,19 @@ void SkillCardCoordinator::processSkillCardUse(Player& player, bool& hasUsedSkil
         }
     }
 
+    int balanceBefore = player.getBalance();
+    int positionBefore = player.getPosition();
+
     std::unique_ptr<SkillCard> usedCard = player.removeSkillCardAt(selectedIndex);
+    if (!usedCard) {
+        view_.showMessage("Gagal mengambil kartu dari inventory.\n");
+        return;
+    }
+
     usedCard->activate(player);
     view_.showMessage("Kartu " + usedCard->getName() + " telah dipakai.\n");
+    view_.showMessage("Efek diterapkan | Posisi: " + std::to_string(positionBefore) + " -> " + std::to_string(player.getPosition()) +
+                    " | Balance: " + std::to_string(balanceBefore) + " -> " + std::to_string(player.getBalance()) + "\n");
 
     skillCardDeck_.pushToDiscard(std::move(usedCard));
     hasUsedSkillCardThisTurn = true;
