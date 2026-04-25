@@ -4,6 +4,7 @@
 
 class CardTile : public ActionTile {
     public:
-        CardTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock)
-            : ActionTile(tileID, letterCode, tileName, colourBlock) {}
+        CardTile(int tileID, std::string letterCode, std::string tileName)
+            : ActionTile(tileID, letterCode, tileName) {}
+        ~CardTile() = default;
 };

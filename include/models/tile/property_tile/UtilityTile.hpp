@@ -3,6 +3,10 @@
 #include <map>
 #include <sstream>
 #include "RailRoadTile.hpp"
+#include "models/player/Player.hpp"
+#include "views/GameViewInterface.hpp"
+#include "views/CommandInterface.hpp"
+
 class UtilityTile : public PropertyTile {
     private:
         static inline std::map<int, int> utilityFactor_;
@@ -10,7 +14,7 @@ class UtilityTile : public PropertyTile {
         UtilityTile(int tileID, std::string letterCode,
                 std::string tileName, std::string colourBlock, 
                 int purchasePrice, int mortgageValue);
-        virtual ~UtilityTile();
+        virtual ~UtilityTile() = default;
 
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 

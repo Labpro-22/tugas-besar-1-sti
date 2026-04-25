@@ -1,4 +1,5 @@
 #include "models/player/Player.hpp"
+#include "models/card/skillcard/SkillCard.hpp"
 #include <stdexcept>
 
 namespace {

@@ -1,3 +1,7 @@
+#pragma once
+#include <vector>
+#include <string>
+
 enum class CommandType {
     CETAK_PAPAN,
     LEMPAR_DADU, //
@@ -61,6 +65,7 @@ class CommandInterface {
         virtual int askNumOfPlayer() = 0;
         virtual std::string askPlayerUsername() = 0;
         virtual bool askWantToLoadState() = 0;
+        virtual std::string askStateFilename() = 0;
         virtual std::string getTileToGetFestival() = 0;
 
         // buy

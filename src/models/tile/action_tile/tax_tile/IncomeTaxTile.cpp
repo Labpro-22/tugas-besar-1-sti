@@ -1,4 +1,7 @@
 #include "models/tile/action_tile/tax_tile/IncomeTaxTile.hpp"
+#include "views/GameViewInterface.hpp"
+#include "views/CommandInterface.hpp"
+#include "models/player/Player.hpp"
 
 void IncomeTaxTile::setPPHFlatCost(int cost) {
     flatCost_ = cost;

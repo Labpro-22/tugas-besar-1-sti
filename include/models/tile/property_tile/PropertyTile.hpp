@@ -23,7 +23,7 @@ class PropertyTile : public Tile {
                     std::string tileName, std::string colourBlock,
                     // tambahan di PropertyTile
                     int purchasePrice, int mortgageValue);
-        virtual ~PropertyTile();
+        virtual ~PropertyTile() = default;
         int getPurchasePrice() const;
         int getLevel() const;
         void setLevel(int level);
@@ -47,7 +47,6 @@ class PropertyTile : public Tile {
 
         void resetFestivalEffect();
         void resetAfterBankruptcyToBank();
-        std::string getOwnerUsername() const;
         std::string setOwnerUsernameToBank();
 
         int canDoubleFestival() const; // ga bs double kalo itunya msh = 3 atau ga multipliernya = 8

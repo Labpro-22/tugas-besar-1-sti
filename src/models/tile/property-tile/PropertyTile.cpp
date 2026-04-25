@@ -10,8 +10,6 @@ PropertyTile::PropertyTile(int tileID, std::string letterCode, std::string tileN
       mortgageValue_(mortgageValue),
       purchasePrice_(purchasePrice) {}
 
-PropertyTile::~PropertyTile() {}
-
 int PropertyTile::getPurchasePrice() const {
     return purchasePrice_;
 }
@@ -84,3 +82,9 @@ void PropertyTile::resetAfterBankruptcyToBank() {
 bool PropertyTile::isMortgaged() const {
     return getPropertyStatus() == PropertyStatus::MORTGAGED;
 }
+
+int PropertyTile::canDoubleFestival() const { return 0; }
+bool PropertyTile::festivalActive() { return false; }
+bool PropertyTile::alreadyMaxMultiplier() const { return false; }
+int PropertyTile::doubleTheMultiplier() { return 0; }
+int PropertyTile::resetTurnTo3() { return 0; }

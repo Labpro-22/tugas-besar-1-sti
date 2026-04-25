@@ -1,0 +1,63 @@
+15 30
+4
+Uname1 1500 JKT ACTIVE
+2
+MoveCard 5
+ShieldCard
+Uname2 800 BDG ACTIVE
+0
+Uname3 2200 BKS ACTIVE
+1
+DiscountCard 30 1
+Uname4 0 PEN BANKRUPT
+0
+Uname2 Uname4 Uname1 Uname3
+Uname2
+28
+GRT street Uname1 OWNED 1 0 2
+TSK street Uname1 OWNED 1 0 1
+GBR railroad Uname1 OWNED 1 0 0
+BGR street Uname2 OWNED 1 0 4
+DPK street BANK BANK 1 0 0
+BKS street BANK BANK 1 0 0
+MGL street Uname3 OWNED 2 1 H
+PLN utility Uname3 OWNED 1 0 0
+SOL street Uname3 OWNED 1 0 3
+YOG street BANK BANK 1 0 0
+STB railroad Uname3 OWNED 1 0 0
+MAL street BANK BANK 1 0 0
+SMG street BANK BANK 1 0 0
+SBY street BANK BANK 1 0 0
+MKS street BANK BANK 1 0 0
+BLP street BANK BANK 1 0 0
+MND street BANK BANK 1 0 0
+TUG railroad BANK BANK 1 0 0
+PLB street BANK BANK 1 0 0
+PKB street BANK BANK 1 0 0
+PAM utility BANK BANK 1 0 0
+MED street BANK BANK 1 0 0
+BDG street Uname2 MORTGAGED 1 0 0
+DEN street BANK BANK 1 0 0
+MTR street BANK BANK 1 0 0
+GUB railroad BANK BANK 1 0 0
+JKT street Uname1 OWNED 2 2 1
+IKN street Uname1 OWNED 1 0 H
+12
+MoveCard
+DiscountCard
+TeleportCard
+ShieldCard
+MoveCard
+DiscountCard
+ShieldCard
+TeleportCard
+MoveCard
+ShieldCard
+TeleportCard
+DiscountCard
+5
+14 Uname1 BELI Beli Jakarta (JKT) seharga 400
+14 Uname2 DADU Lempar dadu 4+5=9 mendarat di Bandung (BDG)
+14 Uname3 KARTU Menggunakan DiscountCard sebesar 30 persen
+15 Uname4 BANGKRUT Uname4 dinyatakan bangkrut karena tidak bisa membayar sewa
+15 Uname1 BANGUN Membangun 1 rumah di Jakarta (JKT)

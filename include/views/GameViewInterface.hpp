@@ -1,5 +1,9 @@
+<<<<<<< HEAD
+#pragma once
+=======
 #include "raylib.h"
 
+>>>>>>> 28621024bb2f17c3879581c05c76c2b6c7a2e6ec
 #include "models/tile/Tile.hpp"
 #include "models/tile/property_tile/PropertyTile.hpp"
 #include "models/tile/property_tile/RailRoadTile.hpp"
@@ -16,35 +20,35 @@ class GameViewInterface {
         virtual void showMessage(std::string) = 0;
 
         // Kasih tunjuk boardnya
-        virtual void cetakPapan();
+        virtual void cetakPapan() {}
 
         // Kasih pesan ketika roll dice
         // Kasih pesan mendaratnya
-        virtual void lemparDadu();
+        virtual void lemparDadu() {}
 
         // roll settingan
-        virtual void aturDadu();
+        virtual void aturDadu() {}
 
-        virtual void cetakAkta();
+        virtual void cetakAkta() {}
 
         // cetak properti
-        virtual void cetakProperti();
+        virtual void cetakProperti() {}
 
         // kasih lihat mo beli
-        virtual bool beliProperti();
-        virtual void beliRailroad(); //otomatis
-        virtual void beliUtility(); //otomatis
+        virtual bool beliProperti() { return false; }
+        virtual void beliRailroad() {}; //otomatis
+        virtual void beliUtility() {}; //otomatis
 
         // bayar sewa
-        virtual void bayarSewa();
+        virtual void bayarSewa() {};
 
-        virtual void bayarPajak();
+        virtual void bayarPajak() {};
 
-        virtual void gadai();
+        virtual void gadai() {};
 
-        virtual void tebus();
+        virtual void tebus() {};
 
-        virtual void bangun();
+        virtual void bangun() {};
 
         // TO DO:
         // lelang???

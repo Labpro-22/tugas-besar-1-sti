@@ -5,6 +5,7 @@
 // ==========================================
 class SpecialTile : public ActionTile {
     public:
-        SpecialTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock)
-            : ActionTile(tileID, letterCode, tileName, colourBlock) {}
+        SpecialTile(int tileID, std::string letterCode, std::string tileName)
+            : ActionTile(tileID, letterCode, tileName) {}
+        ~SpecialTile() = default;
 };

@@ -4,6 +4,7 @@
 
 class ActionTile : public Tile {
     public:
-        ActionTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock)
-            : Tile(tileID, letterCode, tileName, colourBlock) {}
+        ActionTile(int tileID, std::string letterCode, std::string tileName)
+            : Tile(tileID, letterCode, tileName, "DEFAULT") {}
+        ~ActionTile() = default;
 };

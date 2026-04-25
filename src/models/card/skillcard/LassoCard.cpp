@@ -1,6 +1,9 @@
 #include "models/card/skillcard/LassoCard.hpp"
 #include "models/player/Player.hpp"
+<<<<<<< HEAD
+=======
 
+>>>>>>> 28621024bb2f17c3879581c05c76c2b6c7a2e6ec
 
 LassoCard::LassoCard()
     : SkillCard("Lasso Card", "Menarik satu lawan di depan ke petak pemain saat ini") {}

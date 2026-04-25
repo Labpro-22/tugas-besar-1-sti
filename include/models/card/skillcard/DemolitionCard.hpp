@@ -5,6 +5,9 @@
 #include <limits>
 #include <vector>
 
+
+class Player;
+
 class DemolitionCard : public SkillCard {
 	public:
 		static const int kCardCount = 2;

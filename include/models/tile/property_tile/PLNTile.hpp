@@ -6,6 +6,6 @@ class PLNTile : public UtilityTile{
         PLNTile(int tileID, std::string letterCode,
                 std::string tileName, std::string colourBlock, 
                 int purchasePrice, int mortgageValue);
-        ~PLNTile();
+        ~PLNTile() = default;
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 };

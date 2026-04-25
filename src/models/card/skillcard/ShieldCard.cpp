@@ -1,4 +1,6 @@
 #include "models/card/skillcard/ShieldCard.hpp"
+
+#include <iostream>
 #include "models/player/Player.hpp"
 
 ShieldCard::ShieldCard()

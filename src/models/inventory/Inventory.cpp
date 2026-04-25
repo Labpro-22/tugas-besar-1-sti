@@ -1,4 +1,9 @@
 #include "../../../include/models/inventory/Inventory.hpp"
+#include <map>
+#include "models/tile/property_tile/PropertyTile.hpp"
+#include "models/tile/property_tile/StreetTile.hpp"
+#include "models/tile/property_tile/RailRoadTile.hpp"
+#include "models/card/skillcard/SkillCard.hpp"
 
 Inventory::Inventory() {}
 

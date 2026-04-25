@@ -4,6 +4,8 @@
 #include <iostream>
 #include <limits>
 
+class Player;
+
 class TeleportCard : public SkillCard {
 	public:
 		static const int kCardCount = 2;

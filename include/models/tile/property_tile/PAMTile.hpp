@@ -6,6 +6,6 @@ class PAMTile : public UtilityTile{
         PAMTile(int tileID, std::string letterCode,
                 std::string tileName, std::string colourBlock, 
                 int purchasePrice, int mortgageValue);
-        ~PAMTile();
+        ~PAMTile() = default;
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 };

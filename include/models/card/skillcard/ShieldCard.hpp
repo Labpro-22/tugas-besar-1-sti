@@ -3,6 +3,8 @@
 #include "models/card/skillcard/SkillCard.hpp"
 #include <iostream>
 
+class Player;
+
 class ShieldCard : public SkillCard {
 	private:
 		int remainingTurns_;

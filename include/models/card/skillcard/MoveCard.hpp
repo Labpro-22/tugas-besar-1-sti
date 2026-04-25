@@ -4,6 +4,8 @@
 #include <random>
 #include <string>
 
+class Player;
+
 class MoveCard : public SkillCard {
 	private:
 		int steps_;
