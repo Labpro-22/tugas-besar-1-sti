@@ -1,5 +1,4 @@
-#ifndef AUCTION_HPP
-#define AUCTION_HPP
+#pragma once
 
 #include <memory>
 #include <string>
@@ -7,6 +6,7 @@
 
 #include "models/player/Player.hpp"
 #include "models/tile/property_tile/PropertyTile.hpp"
+#include "views/CommandInterface.hpp"
 #include "views/GameViewInterface.hpp"
 
 class Auction {
@@ -110,5 +110,3 @@ public:
     5. Ketika lelang selesai, auction.finalizeAuction() akan dipanggil untuk memberikan properti kepada pemenang (jika ada) dan melakukan update yang diperlukan
     6. Proses lelang untuk properti berikutnya (jika ada) dapat dipicu lagi dengan memanggil auction.start(...) dari luar
 */
-
-#endif
