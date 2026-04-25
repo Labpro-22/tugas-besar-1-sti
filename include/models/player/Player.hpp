@@ -24,6 +24,9 @@ class Player {
         Player(std::string username, int initialBalance);
         ~Player();
 
+        // GETTER ID
+        int getID() const;
+
         // GETTER USERNAME
         std::string getUsername() const;
 
@@ -97,6 +100,7 @@ class Player {
 
         void setAllPlayersContext(const std::vector<Player*>& players);
         const std::vector<Player*>& getAllPlayers() const;
+        static const std::vector<Player*>& getAllPlayersStatic();
 
         int countRailroad() const;
         int countUtilities() const;

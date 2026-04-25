@@ -34,6 +34,10 @@ Player::~Player()
     }
 }
 
+int Player::getID() const {
+    return id_;
+}
+
 std::string Player::getUsername() const {
     return username_;
 }
@@ -270,6 +274,10 @@ void Player::setAllPlayersContext(const std::vector<Player*>& players)
 
 const std::vector<Player*>& Player::getAllPlayers() const {
     return allPlayers_;
+}
+
+const std::vector<Player*>& Player::getAllPlayersStatic() {
+    return g_allPlayers;
 }
 
 int Player::countRailroad() const {

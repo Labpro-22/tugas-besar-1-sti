@@ -4,6 +4,8 @@
 #include "models/tile/property_tile/RailRoadTile.hpp"
 #include "models/tile/property_tile/StreetTile.hpp"
 #include "models/tile/property_tile/UtilityTile.hpp"
+#include "controllers/GameConfig.hpp"
+#include "models/player/Player.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -73,30 +75,213 @@ class CLIView : public GameViewInterface {
                 std::cout << "Board belum tersedia.\n";
                 return;
             }
-
-            const int n = boardSize();
-            if (n == 0) {
-                std::cout << "Board kosong.\n";
+            if (boardSize() < 40) {
+                std::cout << "Board tidak lengkap (butuh 40 petak).\n";
                 return;
             }
 
-            std::cout << "===== BOARD =====\n";
-            for (int i = 0; i < n; ++i) {
-                Tile& tile = board_->getCurrentTile(i);
-                PropertyTile* property = dynamic_cast<PropertyTile*>(&tile);
+            const int W = 14; 
 
-                std::cout << "[" << i << "] "
-                          << tile.getLetterCode() << " - "
-                          << tile.getTileName();
+            auto getPColor = [&](int id) {
+                if (id == 1) return "\033[38;5;226m";
+                if (id == 2) return "\033[38;5;51m";
+                if (id == 3) return "\033[38;5;201m";
+                if (id == 4) return "\033[38;5;82m";
+                return "\033[0m";
+            };
 
-                if (property != nullptr) {
-                    std::cout << " | " << propertyKind(*property)
-                              << " | Owner: " << property->getOwnerUsername()
-                              << " | Status: " << propertyStatusToString(property->getPropertyStatus());
+            auto getColorData = [&](int idx) -> std::pair<std::string, std::string> {
+                if (idx==1||idx==3) return {"\033[38;5;94m", "[CK]"}; 
+                if (idx==6||idx==8||idx==9) return {"\033[96m", "[BM]"}; 
+                if (idx==11||idx==13||idx==14) return {"\033[95m", "[PK]"}; 
+                if (idx==16||idx==18||idx==19) return {"\033[38;5;208m", "[OR]"}; 
+                if (idx==21||idx==23||idx==24) return {"\033[91m", "[MR]"}; 
+                if (idx==26||idx==27||idx==29) return {"\033[93m", "[KN]"}; 
+                if (idx==31||idx==32||idx==34) return {"\033[92m", "[HJ]"}; 
+                if (idx==37||idx==39) return {"\033[34m", "[BT]"}; 
+                if (idx==12||idx==28) return {"\033[37m", "[AB]"}; 
+                return {"\033[0m", "[DF]"}; 
+            };
+
+            auto getL1 = [&](int idx) {
+                Tile& t = board_->getCurrentTile(idx);
+                auto color = getColorData(idx);
+                std::string rawStr = color.second + " " + t.getLetterCode();
+                
+                int spaces = W - rawStr.length();
+                if (spaces < 0) spaces = 0;
+                return color.first + rawStr + "\033[0m" + std::string(spaces, ' '); 
+            };
+
+            auto getL2 = [&](int idx) {
+                std::string visStr = ""; 
+                std::string colStr = ""; 
+                
+                Tile& t = board_->getCurrentTile(idx);
+                int ownerNum = -1;
+                
+                PropertyTile* p = dynamic_cast<PropertyTile*>(&t);
+                if (p) {
+                    std::string owner = p->getOwnerUsername();
+                    if (owner != "BANK" && !owner.empty()) {
+                        for (Player* player : Player::getAllPlayersStatic()) {
+                            if (player != nullptr && player->getUsername() == owner) {
+                                ownerNum = player->getID() + 1; 
+                                break;
+                            }
+                        }
+                        
+                        std::string ownVis = (ownerNum != -1) ? ("P" + std::to_string(ownerNum)) : owner.substr(0,2); 
+                        StreetTile* s = dynamic_cast<StreetTile*>(p);
+                        if (s) {
+                            int level = s->getLevel();
+                            if (level == 1) ownVis += " ^";
+                            else if (level == 2) ownVis += " ^^";
+                            else if (level == 3) ownVis += " ^^^";
+                            else if (level == 4) ownVis += " *"; 
+                        }
+                        
+                        visStr += ownVis;
+                        if (ownerNum != -1) colStr += getPColor(ownerNum) + ownVis + "\033[0m";
+                        else colStr += ownVis;
+                    }
                 }
 
+                std::string inVis = "", inCol = "";
+                std::string vVis = "", vCol = "";
+                std::string normVis = "", normCol = "";
+
+                for (Player* player : Player::getAllPlayersStatic()) {
+                    if (player == nullptr) continue;
+                    
+                    int pIdx = player->getPosition();
+                    if (pIdx > 0) pIdx--; 
+                    if (player->getPosition() == 0) pIdx = 0; 
+
+                    if (pIdx == idx) {
+                        int pID = player->getID() + 1;
+                        std::string pNum = std::to_string(pID);
+                        std::string pColorFull = getPColor(pID) + pNum + "\033[0m";
+
+                        if (idx == 10) {
+                            bool isJailed = player->isInJail(); 
+                            
+                            if (isJailed) {
+                                inVis += pNum;
+                                inCol += pColorFull;
+                            } else {
+                                vVis += pNum;
+                                vCol += pColorFull;
+                            }
+                        } else {
+                            normVis += pNum;
+                            normCol += pColorFull;
+                        }
+                    }
+                }
+
+                std::string tokenVis = "";
+                std::string tokenCol = "";
+
+                if (idx == 10) {
+                    if (!inVis.empty() || !vVis.empty()) {
+                        std::string inPartVis = inVis.empty() ? "" : "IN:" + inVis;
+                        std::string inPartCol = inCol.empty() ? "" : "IN:" + inCol;
+                        std::string vPartVis = vVis.empty() ? "" : "V:" + vVis;
+                        std::string vPartCol = vCol.empty() ? "" : "V:" + vCol;
+                        
+                        std::string midSpc = (!inVis.empty() && !vVis.empty()) ? " " : "";
+                        
+                        tokenVis = "(" + inPartVis + midSpc + vPartVis + ")";
+                        tokenCol = "(" + inPartCol + midSpc + vPartCol + ")";
+                    }
+                } else {
+                    if (!normVis.empty()) {
+                        tokenVis = "(" + normVis + ")";
+                        tokenCol = "(" + normCol + ")";
+                    }
+                }
+
+                if (!tokenVis.empty()) {
+                    if (!visStr.empty()) {
+                        visStr += " ";
+                        colStr += " ";
+                    }
+                    visStr += tokenVis;
+                    colStr += tokenCol;
+                }
+
+                int spaces = W - visStr.length();
+                if (spaces < 0) spaces = 0;
+                
+                return colStr + std::string(spaces, ' ');
+            };
+
+            int midSpace = 9 * (W + 1) - 1; 
+            std::vector<std::string> centerLines(26, std::string(midSpace, ' '));
+            
+            auto setMid = [&](int idx, std::string text) {
+                int pLeft = (midSpace - text.length()) / 2;
+                int pRight = midSpace - text.length() - pLeft;
+                centerLines[idx] = std::string(pLeft, ' ') + text + std::string(pRight, ' ');
+            };
+
+            setMid(1, "==========================================");
+            setMid(2, "||              NIMONSPOLI              ||");
+            setMid(3, "==========================================");
+            
+            // TODO: Gimana caranya buat Turn yah
+            std::string turnInfo = "TURN 15 / " + std::to_string(Monopoly::getMaxTurn());
+            setMid(5, turnInfo); 
+
+            setMid(8, "-----------------------------------------");
+            setMid(9, "LEGENDA KEPEMILIKAN & STATUS              ");
+            setMid(10, "P1-P4 : Properti milik Pemain 1-4        ");
+            setMid(11, "^     : Rumah Level 1                    ");
+            setMid(12, "^^    : Rumah Level 2                    ");
+            setMid(13, "^^^   : Rumah Level 3                    ");
+            setMid(14, "* : Hotel (Maksimal)                     ");
+            setMid(15, "(1)-(4): Bidak (IN=Tahanan, V=Mampir)    ");
+            setMid(16, "-----------------------------------------");
+            setMid(17, "KODE WARNA:                              ");
+            setMid(18, "[CK]=Coklat    [MR]=Merah                ");
+            setMid(19, "[BM]=Biru Muda [KN]=Kuning               ");
+            setMid(20, "[PK]=Pink      [HJ]=Hijau                ");
+            setMid(21, "[OR]=Orange    [BT]=Biru Tua             ");
+            setMid(22, "[DF]=Aksi      [AB]=Utilitas             ");
+
+            auto printFullHLine = [&]() {
+                std::cout << "+";
+                for(int i=0; i<11; i++) std::cout << std::string(W, '-') << "+";
                 std::cout << "\n";
+            };
+
+            printFullHLine();
+            std::cout << "|";
+            for (int i = 20; i <= 30; i++) std::cout << getL1(i) << "|";
+            std::cout << "\n|";
+            for (int i = 20; i <= 30; i++) std::cout << getL2(i) << "|";
+            std::cout << "\n";
+            printFullHLine();
+
+            for (int i = 0; i < 9; i++) {
+                int leftIdx = 19 - i;
+                int rightIdx = 31 + i;
+                
+                std::cout << "|" << getL1(leftIdx) << "|" << centerLines[i * 3] << "|" << getL1(rightIdx) << "|\n";
+                std::cout << "|" << getL2(leftIdx) << "|" << centerLines[i * 3 + 1] << "|" << getL2(rightIdx) << "|\n";
+                if (i < 8) {
+                    std::cout << "+" << std::string(W, '-') << "+" << centerLines[i * 3 + 2] << "+" << std::string(W, '-') << "+\n";
+                }
             }
+
+            printFullHLine();
+            std::cout << "|";
+            for (int i = 10; i >= 0; i--) std::cout << getL1(i) << "|";
+            std::cout << "\n|";
+            for (int i = 10; i >= 0; i--) std::cout << getL2(i) << "|";
+            std::cout << "\n";
+            printFullHLine();
         }
 
         void cetakAkta() override {

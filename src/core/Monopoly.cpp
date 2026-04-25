@@ -25,6 +25,10 @@ void Monopoly::setInitialBalance(int initialBalance) {
     initialBalance_ = initialBalance;
 }
 
+int Monopoly::getMaxTurn() {
+    return maxTurn_;
+}
+
 void Monopoly::startGame() {
     while (true) {
         view_->showMessage("Selamat datang!\nPutra-putri terbaik bangsa!");
@@ -143,10 +147,10 @@ std::unique_ptr<Board> Monopoly::loadConfig() {
         Reader reader(folder);
         return std::make_unique<Board>(reader.loadBoard());
     } catch (const std::exception& e) {
-        std::cout << "\n[TERTANGKAP BASAH] ConfigReader gagal karena: " << e.what() << "\n";
+        std::cout << "\nConfigReader gagal karena: " << e.what() << "\n";
         return nullptr;
     } catch (...) {
-        std::cout << "\n[TERTANGKAP BASAH] ConfigReader melempar error misterius (bukan turunan std::exception)!\n";
+        std::cout << "\nConfigReader unknown error!\n";
         return nullptr;
     }
 }
