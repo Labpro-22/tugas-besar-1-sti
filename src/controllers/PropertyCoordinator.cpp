@@ -187,7 +187,7 @@ void PropertyCoordinator::processPayRent(Player& player, Tile& currentTile) {
                 rent = utilityTile->calculateRentPrice(count, dice);
             }
             if (player.getBalance() < rent) {
-                processBankruptcyFlow(player, *owner);
+                processBankruptcyFlow(player, *owner, rent);
                 return;
             }
             owner->addMoney(rent);
@@ -246,9 +246,51 @@ void PropertyCoordinator::processBuyBuilding(Player& player) {
     }
 }
 
-void PropertyCoordinator::processBankruptcyFlow(Player& payer, Player& owner) {
-    (void)payer;
-    (void)owner;
+void PropertyCoordinator::processBankruptcyFlow(Player& payer, Player& owner, int rent) {
+    LiquidationManager liquidation(view_, command_);
+
+    view_.showMessage("Uang tidak cukup. Memulai proses likuidasi...\n");
+
+    bool success = liquidation.runLiquidation(payer, rent);
+
+    if (success) {
+        view_.showMessage("Likuidasi berhasil. Membayar kewajiban...\n");
+
+        payer.deductMoney(rent);
+        owner.addMoney(rent);
+
+        view_.showMessage(payer.getUsername() + " membayar M" + std::to_string(rent) + " kepada " + owner.getUsername() + "\n");
+    } else {
+        view_.showMessage("Likuidasi gagal. Pemain bangkrut.\n");
+
+        processBankruptcyToPlayer(payer, owner);
+    }
+}
+
+void PropertyCoordinator::processBankruptcyToPlayer(Player& payer, Player& owner) {
+    // transfer uang
+    int money = payer.getBalance();
+    if (money > 0) {
+        payer.deductMoney(money);
+        owner.addMoney(money);
+    }
+
+    // transfer property
+    std::vector<PropertyTile*> properties = payer.getProperties();
+
+    for (size_t i = 0; i < properties.size(); i++) {
+        PropertyTile* property = properties[i];
+        if (property == nullptr) continue;
+
+        payer.removeProperty(property);
+        owner.addProperty(property);
+
+        property->setOwnerUsername(owner.getUsername());
+    }
+
+    payer.setStatus(Player::PlayerStatus::BANKRUPT);
+
+    view_.showMessage(payer.getUsername() + " bangkrut kepada " + owner.getUsername() + "\n");
 }
 
 void PropertyCoordinator::processMortgage(Player& player) {
