@@ -15,31 +15,37 @@ void SkillCardCoordinator::processPickAndDropSkillCard(Player& player) {
         return;
     }
 
-    view_.showMessage("Kartu yang didapatkan: " + newObtainedCard->getName() + "\n");
-    bool throwNewObtained = false;
+    view_.showMessage("\nKartu yang didapatkan: " + newObtainedCard->getName() + "\n");
+    if (player.getSkillCardCount() >= 3) {
+        view_.showMessage("PERINGATAN: Kamu sudah memiliki 3 kartu di tangan (Maksimal 3)!\n");
+        view_.showMessage("Kamu diwajibkan membuang 1 kartu.\n");
 
-    try {
-        player.getInventory().addSkillCards(std::move(newObtainedCard));
-    }
-    catch (const std::exception& e) {
-        std::cerr << e.what() << '\n';
-        view_.showMessage("Silahkan pilih yang mau dibuang terlebih dahulu\n");
-
-        int selected = command_.getInt(1, player.getSkillCardCount() + 1);
-        if (selected == player.getSkillCardCount() + 1) {
-            throwNewObtained = true;
+        for (std::size_t i = 0; i < player.getSkillCardCount(); ++i) {
+            const SkillCard* card = player.getSkillCardAt(i);
+            if (card == nullptr) {
+                view_.showMessage(std::to_string(i + 1) + ". [Kartu tidak valid]\n");
+                continue;
+            }
+            view_.showMessage(std::to_string(i + 1) + ". " + card->getName() + " - " + card->getDescription() + "\n");
         }
+        view_.showMessage("0. Batal (buang kartu baru)\n");
 
-        if (throwNewObtained) {
+        int selected = command_.getInt(0, static_cast<int>(player.getSkillCardCount()));
+        if (selected == 0) {
             skillCardDeck_.pushToDiscard(std::move(newObtainedCard));
-        } else {
-            std::unique_ptr<SkillCard> thrownAwayCard = player.getInventory().removeSkillCardAt(selected);
-            player.getInventory().addSkillCards(std::move(newObtainedCard));
-            skillCardDeck_.pushToDiscard(std::move(thrownAwayCard));
+            view_.showMessage("Kartu baru dibatalkan dan dikembalikan ke discard pile.\n");
+            return;
         }
+
+        std::size_t selectedIndex = static_cast<std::size_t>(selected - 1);
+        std::unique_ptr<SkillCard> thrownAwayCard = player.getInventory().removeSkillCardAt(selectedIndex);
+        player.getInventory().addSkillCards(std::move(newObtainedCard));
+        skillCardDeck_.pushToDiscard(std::move(thrownAwayCard));
+        view_.showMessage("Kartu pilihanmu dibuang. Kartu baru masuk ke inventory.\n");
         return;
     }
 
+    player.getInventory().addSkillCards(std::move(newObtainedCard));
     view_.showMessage("Kartu berhasil ditambahkan ke inventory.\n");
 }
 
@@ -64,9 +70,15 @@ void SkillCardCoordinator::processSkillCardUse(Player& player, bool& hasUsedSkil
 
         view_.showMessage(std::to_string(i + 1) + ". " + card->getName() + " - " + card->getDescription() + "\n");
     }
+    view_.showMessage("0. Batal\n");
     view_.showMessage("Silahkan pilih kartu yang mau kamu pakai!\n");
 
-    int selected = command_.getInt(1, player.getSkillCardCount());
+    int selected = command_.getInt(0, static_cast<int>(player.getSkillCardCount()));
+    if (selected == 0) {
+        view_.showMessage("Penggunaan kartu dibatalkan.\n");
+        return;
+    }
+
     std::size_t selectedIndex = static_cast<std::size_t>(selected - 1);
     const SkillCard* selectedCard = player.getSkillCardAt(selectedIndex);
 

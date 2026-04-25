@@ -215,6 +215,9 @@ void GameController::processTurn(Player& p) {
     view_.showMessage("\n--- Giliran " + p.getUsername() + " ---");
     bool hasUsedSkillCardThisTurn = false;
 
+    // Setiap awal giliran, pemain mengambil 1 kartu kemampuan dari deck.
+    processPickAndDropSpecialCard(p);
+
     if (p.isInJail()) {
         if (p.thisTurnAutoFreeFromJail()) {
             view_.showMessage("Sudah 3 turn di penjara. Kamu wajib bayar denda!\n");

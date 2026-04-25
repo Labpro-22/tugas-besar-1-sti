@@ -86,19 +86,7 @@ void Monopoly::startGame() {
 
         decks.initDeck(std::move(initialSkillCards));
 
-        if (!loadedFromState) {
-            for (auto& player : players) {
-                std::unique_ptr<SkillCard> card = decks.drawDeck();
-                if (!card) {
-                    break;
-                }
-
-                const std::string playerName = player->getUsername();
-                const std::string cardName = card->getName();
-                player->addSkillCard(std::move(card));
-                view_->showMessage("[SETUP] " + playerName + " mendapatkan kartu " + cardName + "\n");
-            }
-        }
+        (void)loadedFromState;
 
         // tar
         GameController gameController(std::move(players), *board, dice, *view_, *command_, decks); // tar lg pusing command sm si view bedanya apa
