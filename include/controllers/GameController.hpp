@@ -6,6 +6,7 @@
 #include "models/dice/Dice.hpp"
 #include "models/tile/action_tile/special_tile/PrisonTile.hpp"
 #include "models/tile/property_tile/PropertyTile.hpp"
+#include "controllers/Auction.hpp"
 #include <memory>
 #include <vector>
 #include "models/card/Deck.hpp"
@@ -28,6 +29,9 @@ class GameController {
         void processAuction(Player& p, PropertyTile& propertyTile);
         void processBankruptcyToBank(Player& p);
         void transferProperty(Player& from, Player& to, PropertyTile& propertyTile);
+        bool processRandomDice(Player& p);
+        bool processCustomDice(Player& p, int x, int y);
+        bool resolveDiceResult(Player& p, int d1, int d2);
 
         void processPayRent(Player& p, Tile& currentTile);
         void processBankruptcyFlow(Player& payer, Player& owner);
@@ -51,6 +55,7 @@ class GameController {
         GameViewInterface& view_;
         CommandInterface& command_;
         std::vector<std::unique_ptr<Player>> players_;
+        Auction auction_;
 
         int goSalary_;
         int jailFine_;

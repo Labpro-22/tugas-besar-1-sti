@@ -28,6 +28,7 @@ class PropertyTile : public Tile {
         int getLevel() const;
         void setLevel(int level);
         int getMortgageValue() const;
+        std::string getColourBlock() const;// dummy
 
         std::string getOwnerUsername() const;
         void setOwnerUsername(const std::string& ownerUsername);
@@ -60,4 +61,13 @@ class PropertyTile : public Tile {
 
         bool isMortgaged() const;
 
+        bool isOwned() const; // ya own aja asumsinya si pemanggil emg org yg punya ini
+
+        bool hasBuilding() const; // levelnya >= 1
+
+        void setToMortgaged();
+
+        int getSellingPrice() const;
+
+        int sellAllBuildings() const;
 };

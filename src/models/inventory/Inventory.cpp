@@ -162,6 +162,15 @@ int Inventory::countUtilities() const {
     return countUtilities_;
 }
 
+<<<<<<< HEAD
+int Inventory::countProperty() const {
+    return static_cast<int>(properties_.size());
+}
+
+int Inventory::countCard() const {
+    return static_cast<int>(skillCards_.size());
+}
+=======
 std::map<std::string, std::vector<PropertyTile*>> Inventory::getCompleteColourGroups(std::map<std::string, int> countTilesForEachColourBlock) {
     // 1 Pembangunan rumah harus dilakukan 
         // secara merata di
@@ -190,3 +199,16 @@ std::map<std::string, std::vector<PropertyTile*>> Inventory::getCompleteColourGr
     }
     return colourBlockToPropertyTile;
 }
+
+std::map<std::string, std::vector<PropertyTile*>> Inventory::getOwnedPropertiesGroupByColourGroups() {
+    std::map<std::string, std::vector<PropertyTile*>> colourBlockToPropertyTile;
+
+    // Masukin aja dulu semuanya (grouping)
+    for (size_t i = 0; i < properties_.size(); i++) {
+        if (properties_.at(i)->isOwned()) {
+            colourBlockToPropertyTile[properties_.at(i)->getColourBlock()].push_back(properties_.at(i));
+        }
+    }
+    return colourBlockToPropertyTile;
+}
+>>>>>>> develop
