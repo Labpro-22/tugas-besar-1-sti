@@ -1,18 +1,35 @@
 #include "models/player/Player.hpp"
 #include <stdexcept>
+
+namespace {
+std::vector<Player*> g_allPlayers;
+}
+
 Player::Player(std::string username, int initialBalance) :
     id_(countPlayer++), username_(username),
     balance_(initialBalance), position_(0),
     status_(PlayerStatus::ACTIVE), doubleRollCount_(0),
     countJail_(0), playerTurn_(0), lastDiceTotal_(0), shieldTurns_(0),
-    discountPercent_(0), discountTurns_(0) {
-    allPlayers_.push_back(this);
+    discountPercent_(0), discountTurns_(0)
+{
+    g_allPlayers.push_back(this);
+    for (Player* player : g_allPlayers) {
+        if (player != nullptr) {
+            player->setAllPlayersContext(g_allPlayers);
+        }
+    }
 }
 
-Player::~Player() {
-    auto it = std::find(allPlayers_.begin(), allPlayers_.end(), this);
-    if (it != allPlayers_.end()) {
-        allPlayers_.erase(it);
+Player::~Player()
+{
+    auto it = std::find(g_allPlayers.begin(), g_allPlayers.end(), this);
+    if (it != g_allPlayers.end()) {
+        g_allPlayers.erase(it);
+    }
+    for (Player* player : g_allPlayers) {
+        if (player != nullptr) {
+            player->setAllPlayersContext(g_allPlayers);
+        }
     }
 }
 
@@ -245,7 +262,12 @@ std::unique_ptr<SkillCard> Player::removeSkillCardAt(std::size_t idx) {
     return inventory_.removeSkillCardAt(idx);
 }
 
-const std::vector<Player*>& Player::getAllPlayers() {
+void Player::setAllPlayersContext(const std::vector<Player*>& players)
+{
+    allPlayers_ = players;
+}
+
+const std::vector<Player*>& Player::getAllPlayers() const {
     return allPlayers_;
 }
 

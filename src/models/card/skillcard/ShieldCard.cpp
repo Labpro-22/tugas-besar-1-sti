@@ -1,6 +1,5 @@
 #include "models/card/skillcard/ShieldCard.hpp"
-
-#include <iostream>
+#include "models/player/Player.hpp"
 
 ShieldCard::ShieldCard()
     : SkillCard("ShieldCard", "Melindungi pemain dari sanksi merugikan selama 1 giliran"),

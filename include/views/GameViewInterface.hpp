@@ -1,10 +1,16 @@
+#include "raylib.h"
+
 #include "models/tile/Tile.hpp"
 #include "models/tile/property_tile/PropertyTile.hpp"
 #include "models/tile/property_tile/RailRoadTile.hpp"
 #include "models/tile/property_tile/UtilityTile.hpp"
 #include "models/player/Player.hpp"
 #include "models/tile/action_tile/tax_tile/TaxTile.hpp"
+
+// Ini tu jadi ViewManager (yang aku assume)
 class GameViewInterface {
+    protected: 
+
     public:
         // Joker of all trades oakwoawkaw
         virtual void showMessage(std::string) = 0;
@@ -40,7 +46,7 @@ class GameViewInterface {
 
         virtual void bangun();
 
-
+        // TO DO:
         // lelang???
         // kebangkrutan???
         

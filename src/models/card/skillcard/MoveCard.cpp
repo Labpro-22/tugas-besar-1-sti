@@ -1,7 +1,5 @@
 #include "models/card/skillcard/MoveCard.hpp"
-
-#include <random>
-#include <string>
+#include "models/player/Player.hpp"
 
 MoveCard::MoveCard()
     : SkillCard("MoveCard", ""),
@@ -28,7 +26,7 @@ MoveCard::MoveCard(int steps)
 }
 
 void MoveCard::activate(Player& owner) {
-    owner.move(steps_);
+    owner.setPosition(owner.move(steps_));
 }
 
 int MoveCard::getSteps() const {

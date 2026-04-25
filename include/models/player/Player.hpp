@@ -93,7 +93,8 @@ class Player {
         const SkillCard* getSkillCardAt(std::size_t idx) const;
         std::unique_ptr<SkillCard> removeSkillCardAt(std::size_t idx);
 
-        static const std::vector<Player*>& getAllPlayers();
+        void setAllPlayersContext(const std::vector<Player*>& players);
+        const std::vector<Player*>& getAllPlayers() const;
 
         int countRailroad() const;
         int countUtilities() const;
@@ -121,5 +122,5 @@ class Player {
         Inventory inventory_; // belom ada kelasnya wait ye
         static inline int countPlayer = 0;
         int lastDiceTotal_;
-        static inline std::vector<Player*> allPlayers_ = {};
+        std::vector<Player*> allPlayers_ = {};
 };
