@@ -1,4 +1,5 @@
 // INI HANYA UI SEMENTARA, BELUM DIINTEGRASI DENGAN LOGIC GAME
+// .cpp menyusul
 
 #pragma once
 
@@ -19,30 +20,6 @@ private:
     Button newGameBtn;
     Button loadGameBtn;
     Button settingsBtn;
-    
-    // TODO ganti
-    static bool loadTexture(Texture2D& target, const std::string& path) {
-        if (!FileExists(path.c_str())) {
-            return false;
-        }
-
-        target = LoadTexture(path.c_str());
-        if (target.id != 0) {
-            SetTextureFilter(target, TEXTURE_FILTER_POINT);
-        }
-        return target.id != 0;
-    }
-    //TODO ganti
-    static void drawTextureFit(Texture2D texture, Rectangle destination) {
-        DrawTexturePro(
-            texture,
-            {0, 0, static_cast<float>(texture.width), static_cast<float>(texture.height)},
-            destination,
-            {0, 0},
-            0.0f,
-            WHITE
-        );
-    }
 
 public:
     MenuScreen(int width = 1000, int height = 800) : Screen(width, height) {
