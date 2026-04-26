@@ -31,30 +31,6 @@ class GameController {
         ~GameController();
 
         void playGame(int latesTurn, int maxTurn);
-        void processTurn(Player& p);
-        void processMovement(Player& p, int firstDisplacement);
-        void processSpecialCardUse(Player& p, bool& hasUsedSkillCardThisTurn);
-        void processPickAndDropSpecialCard(Player& p);
-        void processRollDice(Player& p);
-        void processAuction(Player& p, PropertyTile& propertyTile);
-        void processBankruptcyToBank(Player& p);
-        bool processRandomDice(Player& p);
-        bool processCustomDice(Player& p, int x, int y);
-        bool resolveDiceResult(Player& p, int d1, int d2);
-
-        void processPayRent(Player& p, Tile& currentTile);
-        void processBankruptcyFlow(Player& payer, Player& owner, int rent);
-
-        void processMortgage(Player& p);
-        void processBuyBuilding(Player& p);
-        void processRedeem(Player& p);
-        void processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn);
-        void processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn);
-        void processFestival(Player& p);
-        void processTakeChanceCard(Player& p);
-        void processTakeCommunityChest(Player& p);
-        bool hasSoleWinner() const;
-        void decideWinner() const;
 
     private:
         // Deck<SpecialCard>...
@@ -71,5 +47,17 @@ class GameController {
 
         int goSalary_;
         int jailFine_;
+        
+        void processTurn(Player& p);
+        void processMovement(Player& p, int firstDisplacement);
+        void processRollDice(Player& p);
+        bool processRandomDice(Player& p);
+        bool processCustomDice(Player& p, int x, int y);
+        bool resolveDiceResult(Player& p, int d1, int d2);
+
+        void processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn);
+        void processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn);
+        bool hasSoleWinner() const;
+        void decideWinner() const;
 };
 
