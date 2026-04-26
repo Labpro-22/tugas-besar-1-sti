@@ -31,7 +31,7 @@ OnLandResult RailRoadTile::onLand(Player& p, CommandInterface&, GameViewInterfac
 
     // === MORTGAGED ===
     if (getPropertyStatus() == MORTGAGED) {
-        view.showMessage("Sedang digadaikan. Tidak ada sewa.\n");
+        view.showMessage("Properti ini sedang digadaikan [M]. Tidak ada sewa yang dikenakan.\n");
         return OnLandResult::Done;
     }
 

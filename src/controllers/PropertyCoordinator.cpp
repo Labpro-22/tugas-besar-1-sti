@@ -434,8 +434,7 @@ void PropertyCoordinator::processBuyBuilding(Player& player) {
     }
 
     if (chosenPropTile->getLevel() == 4) {
-        view_.showMessage("\nUpgrade ke hotel? Biaya: " + Formatter::formattingMoney(price) + " (y/n): ");
-        if (!command_.getBool("")) {
+        if (!command_.getBool("\nUpgrade ke hotel? Biaya: " + Formatter::formattingMoney(price))) {
             view_.showMessage("Batal upgrade.\n");
             return;
         }
@@ -590,8 +589,7 @@ void PropertyCoordinator::processMortgage(Player& player) {
             idx++;
         }
 
-        view_.showMessage("\nJual semua bangunan color group [" + targetColor + "]? (y/n): ");
-        bool wantToSell = command_.getBool(""); 
+        bool wantToSell = command_.getBool("\nJual semua bangunan color group [" + targetColor + "]?"); 
         
         if (wantToSell) {
             int earnedSumTotal = 0;

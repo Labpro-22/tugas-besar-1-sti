@@ -30,7 +30,7 @@ OnLandResult UtilityTile::onLand(Player& p, CommandInterface& command, GameViewI
     }
 
     if (getPropertyStatus() == MORTGAGED) {
-        view.showMessage("Sedang digadaikan.\n");
+        view.showMessage("Properti ini sedang digadaikan [M]. Tidak ada sewa yang dikenakan.\n");
         return OnLandResult::Done;
     }
 
