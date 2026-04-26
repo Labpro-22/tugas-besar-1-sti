@@ -164,30 +164,32 @@ void PropertyCoordinator::processTakeCommunityChest(Player& player) {
         
             break;
 
-        case CommunityChestCard::ElectionPay200ToEachPlayer:
-            int sumMoney = 0;
-            for (auto& otherPtr : players_) {
-                Player* other = otherPtr.get();
-                if (other == nullptr || other == &player || other->isBankrupt()) {
-                    continue;
+        case CommunityChestCard::ElectionPay200ToEachPlayer : {
+                int sumMoney = 0;
+                for (auto& otherPtr : players_) {
+                    Player* other = otherPtr.get();
+                    if (other == nullptr || other == &player || other->isBankrupt()) {
+                        continue;
+                    }
+                    sumMoney += 200;
                 }
-                sumMoney += 200;
-            }
 
-            if (player.getBalance() < sumMoney) {
-                throw CardPaymentFailedException(101, "Gagal memakai kartu ElectionPay200ToEachPlayer\n");
-            }
-
-            // harusnya udh aman di sini
-            for (auto& otherPtr : players_) {
-                Player* other = otherPtr.get();
-                if (other == nullptr || other == &player || other->isBankrupt()) {
-                    continue;
+                if (player.getBalance() < sumMoney) {
+                    throw CardPaymentFailedException(101, "Gagal memakai kartu ElectionPay200ToEachPlayer\n");
                 }
-                player.deductMoney(200);
-                other->addMoney(200);
+
+                // harusnya udh aman di sini
+                for (auto& otherPtr : players_) {
+                    Player* other = otherPtr.get();
+                    if (other == nullptr || other == &player || other->isBankrupt()) {
+                        continue;
+                    }
+                    player.deductMoney(200);
+                    other->addMoney(200);
+                }
             }
             break;
+        
         default:
             break;
     }

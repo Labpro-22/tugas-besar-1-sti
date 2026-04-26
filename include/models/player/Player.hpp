@@ -4,7 +4,7 @@
 #include "models/board/Board.hpp"
 #include "models/inventory/Inventory.hpp"
 #include "models/tile/property_tile/PropertyTile.hpp"
-#include "exception/InvariantViolationException/InsufficientFundsException/InsufficientFundsException.hpp"
+#include "models/exception/InvariantViolationException/InsufficientFundsException/InsufficientFundsException.hpp"
 #include <functional>
 #include <memory>
 #include <cstddef>
