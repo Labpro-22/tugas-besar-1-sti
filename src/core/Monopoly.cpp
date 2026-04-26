@@ -125,6 +125,11 @@ std::vector<std::unique_ptr<Player>> Monopoly::registerPlayers(size_t numOfPlaye
                 continue;
             }
 
+            if (usn == "BANK") {
+                view_->showMessage("Tidak boleh menggunakan BANK sebagai username\n");
+                continue;
+            }
+
             players_.push_back(std::make_unique<Player>(usn, initialBalance_));
             break;
         }

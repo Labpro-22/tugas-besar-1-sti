@@ -34,6 +34,7 @@ void GameController::setCurrentTurn(int latestTurn) {
 void GameController::playGame(int latestTurn, int maxTurn) {
     currentTurn_ = latestTurn;
     transactionLog_.clear();
+    view_.showMessage("Permainan dimulai!\n");
     while ((currentTurn_ <= maxTurn || maxTurn == -1) && !hasSoleWinner()) {
         for (auto& player : players_) {
             if (!player->isBankrupt()) {
