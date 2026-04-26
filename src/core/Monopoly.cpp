@@ -290,6 +290,16 @@ bool Monopoly::loadState(std::unique_ptr<Board>& board, std::vector<std::unique_
                 } else {
                     propTile->setLevel(std::stoi(nBangunanStr));
                 }
+                // Jika properti dimiliki oleh pemain, tambahkan ke inventory pemain
+                // PLIS JANGAN DI HAPUS - DEMI LIQUIDATION PLIS 
+                if (pemilik != "BANK") {
+                    for (auto& pl : players) {
+                        if (pl->getUsername() == pemilik) {
+                            pl->addProperty(propTile);
+                            break;
+                        }
+                    }
+                }
             }
         }
 
