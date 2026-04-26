@@ -3,6 +3,7 @@
 #include "controllers/AuctionCoordinator.hpp"
 #include "controllers/PropertyCoordinator.hpp"
 #include "controllers/SkillCardCoordinator.hpp"
+#include "controllers/GameConfig.hpp"
 #include "models/tile/action_tile/special_tile/GoTile.hpp"
 
 #include <utility>
@@ -250,8 +251,15 @@ void GameController::processTurn(Player& p) {
     if (p.isInJail()) {
         if (p.thisTurnAutoFreeFromJail()) {
             view_.showMessage("Sudah 3 turn di penjara. Kamu wajib bayar denda!\n");
-            p.deductMoney(jailFine_);
+            if (p.getBalance() < GameConfig::getJailFine()) {
+                view_.showMessage("Kamu tidak mampu membayar denda wajib!\n");
+                processBankruptcyToBank(p);
+                return;
+            }
+
+            p.deductMoney(GameConfig::getJailFine());
             p.leaveJail();
+            p.resetJailTurn();
             processNormalTurn(p, hasUsedSkillCardThisTurn);
         } else {
             processJailTurn(p, hasUsedSkillCardThisTurn);
@@ -394,7 +402,7 @@ void GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn) 
             case CommandType::BAYAR_DENDA: {
                 bool wajibBayar = p.thisTurnAutoFreeFromJail();
 
-                if (p.getBalance() < jailFine_) {
+                if (p.getBalance() < GameConfig::getJailFine()) {
                     if (wajibBayar) {
                         view_.showMessage("Kamu tidak mampu membayar denda wajib!\n");
                         processBankruptcyToBank(p);
@@ -405,7 +413,7 @@ void GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn) 
                     return;
                 }
 
-                p.deductMoney(jailFine_);
+                p.deductMoney(GameConfig::getJailFine());
                 p.leaveJail();
                 p.resetJailTurn();
 
