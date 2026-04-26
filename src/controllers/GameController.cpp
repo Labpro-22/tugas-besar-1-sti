@@ -127,6 +127,18 @@ void GameController::handleSkillCardUsage(Player& p, SkillCard& card) {
     else if (dynamic_cast<LassoCard*>(&card)) {
         executeLassoCard(p);
     }
+    else if (auto* shield = dynamic_cast<ShieldCard*>(&card)) {
+        shield->activate(p); 
+        addTransactionLog(p.getUsername(), "KARTU", "Menggunakan Shield");
+    }
+    else if (auto* discount = dynamic_cast<DiscountCard*>(&card)) {
+        discount->activate(p); 
+        addTransactionLog(p.getUsername(), "KARTU", "Menggunakan Discount");
+    }
+    else if (auto* demo = dynamic_cast<DemolitionCard*>(&card)) {
+        demo->activate(p); 
+        addTransactionLog(p.getUsername(), "KARTU", "Menggunakan Demolition");
+    }
 }
 
 // LOGIKA MOVE CARD
@@ -161,11 +173,11 @@ void GameController::executeLassoCard(Player& owner) {
     int minDistance = 9999;
     int boardSize = board_.getSize();
 
-    for (Player* candidate : owner.getAllPlayers()) {
-        if (candidate == nullptr || candidate == &owner || candidate->isBankrupt()) continue;
+    for (auto& pPtr : players_) {
+        Player* candidate = pPtr.get();
+        if (candidate == &owner || candidate->isBankrupt()) continue;
 
         int dist = (candidate->getPosition() - ownerPos + boardSize) % boardSize;
-        
         if (dist > 0 && dist < minDistance) {
             minDistance = dist;
             victim = candidate;
@@ -173,11 +185,17 @@ void GameController::executeLassoCard(Player& owner) {
     }
 
     if (victim) {
-        view_.showMessage(owner.getUsername() + " menarik " + victim->getUsername() + " ke petak " + std::to_string(ownerPos));
+        view_.showMessage(owner.getUsername() + " menarik " + victim->getUsername() + " ke petak " + std::to_string(ownerPos) + "\n");
         victim->setPosition(ownerPos);
-        board_.getCurrentTile(ownerPos).onLand(*victim, command_, view_);
+        
+        Tile& currentTile = board_.getCurrentTile(ownerPos);
+        OnLandResult res = currentTile.onLand(*victim, command_, view_);
+        
+        if (res == OnLandResult::TriggerTryToPayRent) {
+            propertyCoordinator_->processPayRent(*victim, currentTile);
+        }
     } else {
-        view_.showMessage("Tidak ada pemain di depan yang bisa ditarik.");
+        view_.showMessage("Tidak ada lawan di depan yang bisa ditarik.\n");
     }
 }
 
