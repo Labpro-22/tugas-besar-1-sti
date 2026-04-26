@@ -1,4 +1,5 @@
 #include "controllers/Auction.hpp"
+#include "models/exception/SessionException/BankruptcyException.hpp"
 
 Auction::Auction(std::vector<std::unique_ptr<Player>>& players,
                 GameViewInterface& view)
@@ -249,9 +250,9 @@ void Auction::processBankruptcyToBank(Player& bankruptPlayer) {
     }
 
     std::vector<PropertyTile*> properties = bankruptPlayer.getProperties();
-
+    
     bankruptPlayer.setStatus(Player::PlayerStatus::BANKRUPT);
-
+    
     if (properties.empty()) {
         view_.showMessage("Pemain tidak memiliki properti untuk dilelang.\n");
         return;
@@ -351,7 +352,7 @@ void Auction::runBankruptcyAuction(Player& bankruptPlayer, CommandInterface& com
 
     if (properties.empty()) {
         view_.showMessage("Pemain tidak memiliki properti untuk dilelang.\n");
-        return;
+        throw BankruptcyException(bankruptPlayer.getUsername());
     }
 
     view_.showMessage("Seluruh properti dikembalikan ke Bank.\n");
@@ -388,4 +389,6 @@ void Auction::runBankruptcyAuction(Player& bankruptPlayer, CommandInterface& com
     }
 
     view_.showMessage("Permainan berlanjut dengan " + std::to_string(activePlayers) + " pemain tersisa.\n");
+
+    throw BankruptcyException(bankruptPlayer.getUsername());
 }

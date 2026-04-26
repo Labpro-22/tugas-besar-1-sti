@@ -1,4 +1,5 @@
 #include "models/io/ConfigReader.hpp"
+#include "models/exception/ConfigException/ConfigException.hpp"
 
 #include "controllers/GameConfig.hpp"
 

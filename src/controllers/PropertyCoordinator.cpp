@@ -1,5 +1,5 @@
 #include "controllers/PropertyCoordinator.hpp"
-
+#include "models/exception/SessionException/BankruptcyException.hpp"
 #include <iostream>
 #include <iterator>
 #include <map>
@@ -355,8 +355,8 @@ void PropertyCoordinator::processBankruptcyToPlayer(Player& payer, Player& owner
     }
 
     payer.setStatus(Player::PlayerStatus::BANKRUPT);
-
     view_.showMessage(payer.getUsername() + " bangkrut kepada " + owner.getUsername() + "\n");
+    throw BankruptcyException(payer.getUsername());
 }
 
 void PropertyCoordinator::processMortgage(Player& player) {

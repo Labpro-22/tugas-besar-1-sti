@@ -105,7 +105,7 @@ void Monopoly::startGame() {
 std::vector<std::unique_ptr<Player>> Monopoly::registerPlayers(size_t numOfPlayers) {
     // register minta nama dll
     if (numOfPlayers < 2) {
-        // throw exception
+        // dihandle yg lain
     }
     std::vector<std::unique_ptr<Player>> players_;
     for (size_t i = 0; i < numOfPlayers; i++) {
