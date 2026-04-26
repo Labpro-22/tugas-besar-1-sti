@@ -125,4 +125,10 @@ public:
     void executeSellBuildings(Player& payer, StreetTile& street);
 
     void sortSelectedActionsByPriority();
+
+    bool hasConflictingSelectedAction(const LiquidationAction& action) const;
+
+    void executeSellBuildingsColorGroup(Player& payer, const std::string& colorGroup);
+
+    void rebuildAvailableActions(Player& payer);
 };
