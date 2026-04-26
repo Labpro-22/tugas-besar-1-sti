@@ -16,7 +16,7 @@ RailRoadTile::RailRoadTile(int tileID, std::string letterCode, std::string tileN
     }
 }
 
-OnLandResult RailRoadTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
+OnLandResult RailRoadTile::onLand(Player& p, CommandInterface&, GameViewInterface& view) {
     view.showMessage("Kamu mendarat di " + getTileName() + " (" + getLetterCode() + ")!\n");
 
     // === BELUM DIMILIKI ===

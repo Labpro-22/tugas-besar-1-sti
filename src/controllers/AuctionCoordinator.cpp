@@ -14,8 +14,3 @@ void AuctionCoordinator::processBankruptcyToBank(Player& player) {
     Auction auctionEngine(players_, view_);
     auctionEngine.runBankruptcyAuction(player, command_);
 }
-
-void AuctionCoordinator::transferProperty(Player& from, Player& to, PropertyTile& propertyTile) {
-    from.removeProperty(&propertyTile);
-    to.addProperty(&propertyTile);
-}

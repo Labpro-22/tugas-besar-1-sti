@@ -1,10 +1,8 @@
 #include "models/tile/action_tile/special_tile/FreeParkingTile.hpp"
-#include "models/player/Player.hpp"
+#include "views/GameViewInterface.hpp"
 #include <iostream>
 
-OnLandResult FreeParkingTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
-    std::cout << "Kamu mendarat di petak Bebas Parkir!\n";
-    std::cout << "Beristirahatlah sejenak...\n";
-    std::cout << "---\n";
+OnLandResult FreeParkingTile::onLand(Player&, CommandInterface&, GameViewInterface& view) {
+    view.showMessage("Kamu di free parking tile!\n");
     return OnLandResult::Done;
 }

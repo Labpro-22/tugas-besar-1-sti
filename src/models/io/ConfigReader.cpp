@@ -348,9 +348,9 @@ Board Reader::loadBoard()
 {
     readMisc();
     readSpecial();
+    readTax();
     readRailRoad();
     readUtility();
-    readTax();
     std::vector<Tile*> propertyTiles = readProperty();
     std::vector<Tile*> actionTiles = readAction();
     std::vector<Tile*> allTiles;

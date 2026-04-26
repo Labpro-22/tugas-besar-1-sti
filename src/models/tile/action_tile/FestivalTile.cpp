@@ -8,7 +8,7 @@
 #include <string>
 #include <limits>
 
-OnLandResult FestivalTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
+OnLandResult FestivalTile::onLand(Player& p, CommandInterface&, GameViewInterface& view) {
     view.showMessage("Hi!\n Kamu ada di petak Festival!\n");
     if (p.getProperties().empty()) {
         // artinya langsung balik kelar

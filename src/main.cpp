@@ -501,7 +501,9 @@ class CLICommand : public CommandInterface {
             if (cmd == "CETAK_LOG") return Command(CommandType::CETAK_LOG);
             if (cmd == "GUNAKAN_KEMAMPUAN") return Command(CommandType::GUNAKAN_KEMAMPUAN);
             if (cmd == "BAYAR_DENDA") return Command(CommandType::BAYAR_DENDA);
-            if (cmd == "END_COMMAND") return Command(CommandType::END_COMMAND);
+            if (cmd == "END_COMMAND" || cmd == "END_TURN") return Command(CommandType::END_COMMAND);
+            if (cmd == "INVENTORY") return Command(CommandType::INVENTORY);
+            if (cmd == "POSITION") return Command(CommandType::POSITION);
 
             return Command(CommandType::END_COMMAND);
         }

@@ -11,7 +11,7 @@
 #include "views/CommandInterface.hpp"
 #include "views/GameViewInterface.hpp"
 #include "controllers/Liquidation.hpp"
-
+#include "models/card/CommunityChestCard.hpp"
 #include <memory>
 #include <vector>
 
@@ -31,6 +31,7 @@ class PropertyCoordinator {
         void processBankruptcyFlow(Player& payer, Player& owner, int rent);
         void processBankruptcyToPlayer(Player& payer, Player& owner);
         void processMortgage(Player& player);
+        void processTakeCommunityChest(Player& player);
 
     private:
         std::vector<std::unique_ptr<Player>>& players_;
