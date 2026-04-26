@@ -54,9 +54,10 @@ class Player {
         // JAIL RELATED
         bool isInJail() const;
         bool thisTurnAutoFreeFromJail() const;
-        void incrementJailTurn();
+        void decrementJailTurn();
         int getCountJail() const;
         void resetJailTurn();
+        void setJailTurn(int count);
         void leaveJail();
 
         // Untuk PPH

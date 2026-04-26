@@ -1,5 +1,6 @@
 #include "models/tile/property_tile/StreetTile.hpp"
 #include "models/player/Player.hpp"
+#include "utils/Formatter.hpp"
 
 StreetTile::StreetTile(int tileID, std::string letterCode,
     std::string tileName, std::string colourBlock,
@@ -15,38 +16,51 @@ StreetTile::StreetTile(int tileID, std::string letterCode,
 StreetTile::~StreetTile() = default;
 
 OnLandResult StreetTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
-    view.showMessage("Halo kamu ada di street tile\n");
-    if (isMortgaged()) {
-        view.showMessage("Properti sedang di Mortgaged, tidak ada sewa\n");
-        return OnLandResult::Done;
-    }
+    view.showMessage("Kamu mendarat di " + getTileName() + " (" + getLetterCode() + ")");
 
-    // milik sendiri
+    // === MILIK SENDIRI ===
     if (getOwnerUsername() == p.getUsername()) {
-        view.showMessage("Kamu mendarat di properti milikmu.\n");
+        view.showMessage("!\nKamu memiliki properti ini.\n");
         return OnLandResult::Done;
     }
     
+    // === MILIK ORANG LAIN ===
     if (!isOwnedByBank()) {
+        if (isMortgaged()) {
+            view.showMessage(", milik " + getOwnerUsername() + ".\n");
+            view.showMessage("Properti ini sedang digadaikan [M]. Tidak ada sewa yang dikenakan.\n");
+            return OnLandResult::Done;
+        }
         // artinya player lain
         return OnLandResult::TriggerTryToPayRent;
     }
 
+    // === BELUM DIMILIKI (PROSES BELI) ===
+    view.showMessage("!\n");
+    view.cetakAkta(getLetterCode(), false);
+    view.showMessage("Uang kamu saat ini: " + Formatter::formattingMoney(p.getBalance()) + "\n");
     if (p.getBalance() < getPurchasePrice()) {
+        view.showMessage("Uangmu tidak cukup.\n");
+        view.showMessage("Properti ini akan masuk ke sistem lelang...\n");
         return OnLandResult::TriggerAuction;
     }
 
+    view.showMessage("Apakah kamu ingin membeli properti ini seharga " + Formatter::formattingMoney(getPurchasePrice()) + "?\n");
     bool wantToBuy = command.askWantToBuyProperty();
+    
     if (!wantToBuy) {
+        view.showMessage("Properti ini akan masuk ke sistem lelang...\n");
         return OnLandResult::TriggerAuction;
     }
 
-    // calculate
     p.deductMoney(getPurchasePrice());
     setOwnerUsername(p.getUsername());
+    setPropertyStatus(OWNED); 
+    p.addProperty(this);
 
-    // proses beli
-    view.showMessage("Pembelian berhasil dilakukan!\n");
+    view.showMessage(getTileName() + " kini menjadi milikmu!\n");
+    view.showMessage("Uang tersisa: " + Formatter::formattingMoney(p.getBalance()) + "\n");
+
     return OnLandResult::Done;
 }
 //  Apabila pemain memonopoli seluruh Street dalam satu color 
@@ -71,7 +85,9 @@ int StreetTile::calculateRentPrice(bool completedColourGroup) const {
     } else {
         rent = biayaSewa;
     }
-    return rent * festivalMultiplier_;
+
+    bool festivalActive = (festivalMultiplier_ > 1 && festivalDuration_ > 0);
+    return rent * (festivalActive ? festivalMultiplier_ : 1);
 }
 
 

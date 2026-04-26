@@ -9,7 +9,7 @@
 #include <limits>
 
 OnLandResult FestivalTile::onLand(Player& p, CommandInterface&, GameViewInterface& view) {
-    view.showMessage("Hi!\n Kamu ada di petak Festival!\n");
+    view.showMessage("Hi!\nKamu ada di petak Festival!\n");
     if (p.getProperties().empty()) {
         // artinya langsung balik kelar
         view.showMessage("Yah!\n Sayang sekali kamu tidak punya apa apa, tapi tenang kamu punya kami kok ahihihihihihi");

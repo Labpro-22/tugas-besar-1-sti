@@ -22,6 +22,7 @@ class Board
         Board(Board&&) = default;
         Board& operator=(Board&&) = default;
         void addTile(std::unique_ptr<Tile> tile);
+        void initColourGroupCounts();
         
         // geser ke tile setelah ditambahin distance (hasil roll dadu)
         Tile& moveToNextTile(int distance);
@@ -34,6 +35,7 @@ class Board
 
 
         bool isCompletedColourGroup(std::string ownerName, std::string colourBlock);
+        void decrementFestivalDurations();
         
         int getJailPosition() const;
         void setJailPosition(int pos);

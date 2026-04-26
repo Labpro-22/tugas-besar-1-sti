@@ -56,7 +56,7 @@ class PropertyTile : public Tile {
 
         int resetTurnTo3(); // jadikan max lagi
 
-        bool alreadyMaxMultiplier()const;
+        bool alreadyMaxMultiplier() const;
 
         bool festivalActive();
 
@@ -70,7 +70,7 @@ class PropertyTile : public Tile {
 
         int getSellingPrice() const;
 
-        int sellAllBuildings() const;
+        int sellAllBuildings();
 
         std::string propertyStatusToText() const;
 

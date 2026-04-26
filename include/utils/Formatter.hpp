@@ -4,7 +4,7 @@
 class Formatter {
     public:
         static std::string formattingMoney(int money) {
-            return std::to_string(money);
+            return "M" + std::to_string(money);
         }
 
         static std::string formatTileNameAndCode(std::string tileName, std::string tileCode) {

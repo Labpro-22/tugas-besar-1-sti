@@ -230,7 +230,7 @@ void CLIView::cetakPapan(Player& pl, int currentTurn) {
     printFullHLine();
 }
 
-void CLIView::cetakAkta(const std::string& kodePetak) {
+void CLIView::cetakAkta(const std::string& kodePetak, bool showStatus) {
     if (board_ == nullptr) {
         std::cout << "Board belum tersedia.\n";
         return;
@@ -287,13 +287,6 @@ void CLIView::cetakAkta(const std::string& kodePetak) {
         else warna = "PROPERTI"; 
     }
 
-    std::string statusStr = property->propertyStatusToText();
-    std::string ownerStr = property->getOwnerUsername();
-    std::string fullStatus = statusStr;
-    if (statusStr == "OWNED" || ownerStr != "BANK") {
-        fullStatus += " (" + ownerStr + ")";
-    }
-
     std::cout << "\n+========================================+\n";
     printCenter("AKTA KEPEMILIKAN");
     printCenter("[" + warna + "] " + property->getTileName() + " (" + property->getLetterCode() + ")");
@@ -342,9 +335,29 @@ void CLIView::cetakAkta(const std::string& kodePetak) {
         if (utilFactors.empty()) printCenter("Data pengali utilitas kosong.");
     }
 
+    if (property->festivalActive()) {
+        std::cout << "+----------------------------------------+\n";
+        printCenter("!!! FESTIVAL AKTIF !!!");
+        printLR("Multiplier Sewa", ": " + std::to_string(property->getFestivalMultiplier()) + "x");
+        printLR("Sisa Durasi", ": " + std::to_string(property->getFestivalDuration()) + " giliran");
+    }
+
     std::cout << "+========================================+\n";
-    printLR("Status", ": " + fullStatus);
-    std::cout << "+========================================+\n\n";
+    
+    if (showStatus) {
+        std::string statusStr = property->propertyStatusToText();
+        std::string ownerStr = property->getOwnerUsername();
+        std::string fullStatus = statusStr;
+        
+        if (statusStr == "OWNED" || ownerStr != "BANK") {
+            fullStatus += " (" + ownerStr + ")";
+        }
+
+        printLR("Status", ": " + fullStatus);
+        std::cout << "+========================================+\n";
+    }
+    
+    std::cout << "\n";
 }
 
 // Jangan lupa ubah signature di interface base class menjadi (Player* player)

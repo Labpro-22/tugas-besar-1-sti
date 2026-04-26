@@ -1,5 +1,7 @@
 #include "models/board/Board.hpp"
 #include "models/exception/InvariantViolationException/InvariantViolationException.hpp"
+#include "models/tile/property_tile/RailRoadTile.hpp"
+#include "models/tile/property_tile/UtilityTile.hpp"
 
 int Board::activeBoardSize_ = 0;
 
@@ -11,6 +13,26 @@ Board::~Board() = default;
 
 void Board::addTile(std::unique_ptr<Tile> tile) {
     tiles_.push_back(std::move(tile));
+}
+
+void Board::initColourGroupCounts() {
+    countTilesForEachColourBlock_.clear(); 
+
+    for (int i = 0; i < size_; i++) {
+        Tile& t = getCurrentTile(i); 
+        PropertyTile* pt = dynamic_cast<PropertyTile*>(&t);
+
+        if (pt) {
+            if (dynamic_cast<RailRoadTile*>(pt) || dynamic_cast<UtilityTile*>(pt)) {
+                continue;
+            }
+
+            std::string color = pt->getColourBlock();
+            if (!color.empty()) {
+                countTilesForEachColourBlock_[color]++;
+            }
+        }
+    }
 }
 
 Tile& Board::moveToNextTile(int distance) {
@@ -81,6 +103,19 @@ bool Board::isCompletedColourGroup(std::string ownerName, std::string colourBloc
     }
     
     return true;
+}
+
+void Board::decrementFestivalDurations() {
+    for (auto& tile : tiles_) {
+        PropertyTile* propTile = dynamic_cast<PropertyTile*>(tile.get());
+        if (propTile && propTile->festivalActive()) {
+            int newDuration = propTile->getFestivalDuration() - 1;
+            propTile->setFestivalDuration(newDuration);
+            if (newDuration == 0) {
+                propTile->resetFestivalEffect();
+            }
+        }
+    }
 }
 
 std::map<std::string, size_t> Board::getCountTilesForEachColourBlock() const {

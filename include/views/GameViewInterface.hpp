@@ -19,8 +19,8 @@ class GameViewInterface {
         virtual void showMessage(const std::string message) = 0;
         virtual void setBoardContext(Board* board) = 0;
         virtual void cetakPapan(Player& pl, int currentTurn) = 0;
-        virtual void cetakAkta(const std::string& kodePetak) = 0;
         virtual void cetakProperti(Player* player) = 0;
+        virtual void cetakAkta(const std::string& kodePetak, bool showStatus = true) = 0;
 
         virtual ~GameViewInterface() = default;
 };

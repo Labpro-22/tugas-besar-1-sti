@@ -25,12 +25,12 @@ OnLandResult UtilityTile::onLand(Player& p, CommandInterface& command, GameViewI
         setPropertyStatus(OWNED);
         p.addProperty(this);
 
-        view.showMessage(getTileName() + " kini menjadi milikmu!\n");
+        view.showMessage("Belum ada yang menginjaknya duluan, " + getTileName() + " kini menjadi milikmu!\n");
         return OnLandResult::Done;
     }
 
     if (getPropertyStatus() == MORTGAGED) {
-        view.showMessage("Sedang digadaikan.\n");
+        view.showMessage("Properti ini sedang digadaikan [M]. Tidak ada sewa yang dikenakan.\n");
         return OnLandResult::Done;
     }
 

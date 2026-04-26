@@ -383,6 +383,8 @@ Board Reader::loadBoard()
         }
     }
 
+    board.initColourGroupCounts();
+
     return board;
 }
 

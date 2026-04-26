@@ -41,7 +41,6 @@ class CLIView : public GameViewInterface {
 
         void setBoardContext(Board* board) override;
         void cetakPapan(Player& pl, int currentTurn) override;
-        void cetakAkta(const std::string& kodePetak) override;
         void cetakProperti(Player* player) override;
-
+        void cetakAkta(const std::string& kodePetak, bool showStatus = true) override;
 };
