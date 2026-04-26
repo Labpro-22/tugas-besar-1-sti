@@ -174,10 +174,6 @@ void GameController::processMortgage(Player& p) {
 }
 
 // AUCTION RELATED -------
-void GameController::transferProperty(Player& from, Player& to, PropertyTile& propertyTile) {
-	auctionCoordinator_->transferProperty(from, to, propertyTile);
-}
-
 void GameController::processAuction(Player& triggerPlayer, PropertyTile& propertyTile) {
 	auctionCoordinator_->processAuction(triggerPlayer, propertyTile);
 }

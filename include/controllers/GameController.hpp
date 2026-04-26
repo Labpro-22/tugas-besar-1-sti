@@ -38,7 +38,6 @@ class GameController {
         void processRollDice(Player& p);
         void processAuction(Player& p, PropertyTile& propertyTile);
         void processBankruptcyToBank(Player& p);
-        void transferProperty(Player& from, Player& to, PropertyTile& propertyTile);
         bool processRandomDice(Player& p);
         bool processCustomDice(Player& p, int x, int y);
         bool resolveDiceResult(Player& p, int d1, int d2);

@@ -68,28 +68,10 @@ class Auction {
 
         // proses lelang ketika pemain bangkrut ke bank
         void processBankruptcyToBank(Player& bankruptPlayer);
-
-        bool isStarted() const; // bantu GUI cek apakah lelang sedang berlangsung
         bool isFinished() const; // bantu GUI cek apakah lelang sudah selesai
-
-        AuctionState getState() const; 
-        AuctionCause getCause() const;
-
-        PropertyTile* getProperty() const; // properti yang sedang dilelang
-        Player* getTriggerPlayer() const; // pemain yang memicu lelang
         Player* getCurrentPlayer() const; // pemain yang sedang giliran lelang
-        Player* getHighestBidder() const; // pemain dengan penawaran tertinggi
-
-        int getHighestBid() const; // jumlah penawaran tertinggi saat ini
-        int getCurrentParticipantIndex() const; // index peserta yang sedang giliran lelang
-        int getpassesCount() const; // jumlah pass beruntun saat ini, untuk mendeteksi apakah pemain berikutnya wajib bid
-        int getParticipantSize() const; // jumlah peserta lelang saat ini
 
         int getMinBid() const; // dapatkan jumlah minimum untuk bid berikutnya (1 lebih tinggi dari highestBid, atau 0 jika belum ada bid)
-
-        const std::vector<Player*>& getParticipants() const; // daftar peserta lelang saat ini, untuk GUI tampilkan daftar pemain yang ikut
-
-        std::string getStatusText() const; // untuk GUI tampilkan status lelang, termasuk properti yang dilelang, penyebab lelang, pemain dengan penawaran tertinggi, dan giliran pemain saat ini
 
         void reset(); // reset state internal lelang, untuk dipakai sebelum start() agar bisa dipakai berulang kali untuk properti berikutnya
 
