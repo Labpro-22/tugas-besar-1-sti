@@ -13,47 +13,101 @@ PropertyCoordinator::PropertyCoordinator(std::vector<std::unique_ptr<Player>>& p
     : players_(players), board_(board), dice_(dice), view_(view), command_(command) {}
 
 void PropertyCoordinator::processFestival(Player& player) {
-    view_.showMessage("Daftar properti milikmu...\n");
+    view_.showMessage("Daftar properti milikmu:\n");
 
-    std::string chosenPropCode;
+    std::vector<PropertyTile*> owned = player.getProperties(); 
+    if (owned.empty()) {
+        view_.showMessage("Kamu belum memiliki properti apa pun untuk mengadakan festival!\n");
+        return;
+    }
+
+    for (PropertyTile* pt : owned) {
+        view_.showMessage("- " + pt->getLetterCode() + " (" + pt->getTileName() + ")\n");
+    }
+
     PropertyTile* propTile = nullptr;
-    do {
-        view_.showMessage("Masukkan kode properti untuk festival: ");
-        Command cmd = command_.getCommand();
-        chosenPropCode = cmd.getStringArg();
+    std::string chosenPropCode;
+
+    while (true) {
+        view_.showMessage("\nMasukkan kode properti: ");
+        
+        chosenPropCode = command_.getString(); 
+
         if (!board_.has(chosenPropCode)) {
-            view_.showMessage("Kode tidak valid!\n");
-            continue;
+            view_.showMessage("-> Kode properti tidak valid!\n");
+            continue; 
         }
 
         if (!player.hasProperty(chosenPropCode)) {
-            view_.showMessage("Tetot\n");
-            continue;
+            view_.showMessage("-> Properti bukan milikmu!\n");
+            continue; 
         }
 
         propTile = &player.getProperty(chosenPropCode);
-
-        if (!propTile->canDoubleFestival()) {
-            view_.showMessage("Ga bs double lagi woyyy\n");
-            propTile = nullptr;
-            continue;
-        }
-
-    } while (propTile == nullptr);
-
-    if (propTile->festivalActive()) {
-        if (propTile->canDoubleFestival()) {
-            if (!propTile->alreadyMaxMultiplier()) {
-                propTile->doubleTheMultiplier();
-            }
-            propTile->resetTurnTo3();
-        }
-    } else {
-        propTile->doubleTheMultiplier();
-        propTile->resetTurnTo3();
+        break; 
     }
 
-    view_.showMessage("Hihi hiha!\n");
+    auto getPreviewRent = [&](PropertyTile* pt) -> int {
+        StreetTile* st = dynamic_cast<StreetTile*>(pt);
+        if (st) {
+            std::map<std::string, std::vector<PropertyTile*>> completeGroups = player.getCompleteColourGroups(board_.getCountTilesForEachColourBlock());
+            bool isMonopoly = (completeGroups.find(st->getColourBlock()) != completeGroups.end());
+            return st->calculateRentPrice(isMonopoly);
+        }
+
+        RailRoadTile* rt = dynamic_cast<RailRoadTile*>(pt);
+        if (rt) {
+            int rrCount = 0;
+            for (PropertyTile* prop : owned) {
+                if (dynamic_cast<RailRoadTile*>(prop)) rrCount++;
+            }
+            return rt->calculateRentPrice(rrCount);
+        }
+
+        UtilityTile* ut = dynamic_cast<UtilityTile*>(pt);
+        if (ut) {
+            int utCount = 0;
+            for (PropertyTile* prop : owned) {
+                if (dynamic_cast<UtilityTile*>(prop)) utCount++;
+            }
+            return ut->calculateRentPrice(utCount, 1); 
+        }
+        return 0;
+    };
+
+    int rentAwal = getPreviewRent(propTile); 
+
+    bool isUtility = dynamic_cast<UtilityTile*>(propTile) != nullptr;
+    std::string utilityNote = isUtility ? " x Dadu" : "";
+
+    if (!propTile->festivalActive()) {
+        propTile->setFestivalMultiplier(2);
+        propTile->setFestivalDuration(3);
+        
+        int rentSekarang = getPreviewRent(propTile);
+
+        view_.showMessage("\nEfek festival aktif!\n\n");
+        view_.showMessage("Sewa awal     : " + Formatter::formattingMoney(rentAwal) + utilityNote + "\n");
+        view_.showMessage("Sewa sekarang : " + Formatter::formattingMoney(rentSekarang) + utilityNote + "\n");
+        view_.showMessage("Durasi        : 3 giliran\n");
+
+    } else if (propTile->alreadyMaxMultiplier()) {
+        propTile->setFestivalDuration(3);
+
+        view_.showMessage("\nEfek sudah maksimum (harga sewa sudah digandakan tiga kali)\n\n");
+        view_.showMessage("Durasi di-reset menjadi: 3 giliran\n");
+
+    } else {
+        propTile->doubleTheMultiplier();
+        propTile->setFestivalDuration(3);
+        
+        int rentSekarang = getPreviewRent(propTile);
+
+        view_.showMessage("\nEfek diperkuat!\n\n");
+        view_.showMessage("Sewa sebelumnya : " + Formatter::formattingMoney(rentAwal) + utilityNote + "\n");
+        view_.showMessage("Sewa sekarang   : " + Formatter::formattingMoney(rentSekarang) + utilityNote + "\n");
+        view_.showMessage("Durasi di-reset menjadi: 3 giliran\n");
+    }
 }
 
 void PropertyCoordinator::processTakeChanceCard(Player& player) {
@@ -129,7 +183,7 @@ void PropertyCoordinator::processTakeChanceCard(Player& player) {
         case ChanceCard::GoToJail:
             player.setPosition(board_.getJailPosition());
             player.setStatus(Player::JAILED);
-            player.resetJailTurn();
+            player.setJailTurn(3);
             view_.showMessage("[CHANCE] Kamu masuk penjara.\n");
             break;
 

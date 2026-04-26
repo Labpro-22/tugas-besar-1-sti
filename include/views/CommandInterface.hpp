@@ -75,4 +75,6 @@ class CommandInterface {
         virtual bool askWantToBuyProperty() = 0;
 
         virtual bool getBool(std::string message) =0;
+
+        virtual std::string getString() = 0;
 };

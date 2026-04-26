@@ -35,6 +35,7 @@ class Board
 
 
         bool isCompletedColourGroup(std::string ownerName, std::string colourBlock);
+        void decrementFestivalDurations();
         
         int getJailPosition() const;
         void setJailPosition(int pos);

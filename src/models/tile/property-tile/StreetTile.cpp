@@ -85,7 +85,9 @@ int StreetTile::calculateRentPrice(bool completedColourGroup) const {
     } else {
         rent = biayaSewa;
     }
-    return rent * festivalMultiplier_;
+
+    bool festivalActive = (festivalMultiplier_ > 1 && festivalDuration_ > 0);
+    return rent * (festivalActive ? festivalMultiplier_ : 1);
 }
 
 

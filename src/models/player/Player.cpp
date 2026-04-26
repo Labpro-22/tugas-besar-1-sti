@@ -112,11 +112,11 @@ bool Player::isInJail() const {
 }
 
 bool Player::thisTurnAutoFreeFromJail() const {
-    return countJail_ + 1 == 3;
+    return countJail_ == 0;
 }
 
-void Player::incrementJailTurn() {
-    countJail_++;
+void Player::decrementJailTurn() {
+    countJail_--;
 }
 
 int Player::getCountJail() const {
@@ -125,6 +125,10 @@ int Player::getCountJail() const {
 
 void Player::resetJailTurn() {
     countJail_ = 0;
+}
+
+void Player::setJailTurn(int count) {
+    countJail_ = count;
 }
 
 void Player::leaveJail() {

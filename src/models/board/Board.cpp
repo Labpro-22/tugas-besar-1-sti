@@ -104,6 +104,19 @@ bool Board::isCompletedColourGroup(std::string ownerName, std::string colourBloc
     return true;
 }
 
+void Board::decrementFestivalDurations() {
+    for (auto& tile : tiles_) {
+        PropertyTile* propTile = dynamic_cast<PropertyTile*>(tile.get());
+        if (propTile && propTile->festivalActive()) {
+            int newDuration = propTile->getFestivalDuration() - 1;
+            propTile->setFestivalDuration(newDuration);
+            if (newDuration == 0) {
+                propTile->resetFestivalEffect();
+            }
+        }
+    }
+}
+
 std::map<std::string, size_t> Board::getCountTilesForEachColourBlock() const {
     return countTilesForEachColourBlock_;
 }

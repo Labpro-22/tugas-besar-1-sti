@@ -22,7 +22,7 @@ void ChanceCard::useChance(Player& owner) const {
 
         case GoToJail:
             owner.setStatus(Player::JAILED);
-            owner.resetJailTurn();
+            owner.setJailTurn(3);
             // TODO: Integrasi board untuk set posisi owner ke tile penjara.
             break;
 

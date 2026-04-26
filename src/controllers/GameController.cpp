@@ -8,6 +8,7 @@
 #include "models/tile/property_tile/StreetTile.hpp"
 #include "models/tile/property_tile/RailRoadTile.hpp"
 #include "models/tile/property_tile/UtilityTile.hpp"
+#include "utils/Formatter.hpp"
 
 #include <map>
 #include <iomanip>
@@ -39,6 +40,7 @@ void GameController::playGame(int latestTurn, int maxTurn) {
                 processTurn(*player);
             }
         }
+        board_.decrementFestivalDurations();
         currentTurn_++;
     }
     decideWinner();
@@ -104,7 +106,7 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
 		case OnLandResult::TriggerMoveToJail:
             p.setPosition(board_.getJailPosition());
             p.setStatus(Player::PlayerStatus::JAILED);
-            p.resetJailTurn();
+            p.setJailTurn(3);
             view_.showMessage("Kamu dipindahkan ke penjara\n");
 			break;
 		case OnLandResult::TriggerTryToPayRent:
@@ -305,11 +307,14 @@ bool GameController::resolveDiceResult(Player& p, int d1, int d2){
 			view_.showMessage("Triple double! Masuk penjara.\n");
             addTransactionLog(p.getUsername(), "DOUBLE", "Triple double -> masuk penjara");
 			p.setStatus(Player::PlayerStatus::JAILED);
-			p.resetJailTurn();
+			p.setJailTurn(3);
 			p.setPosition(board_.getJailPosition());
 			return false;
 		}
 		processMovement(p, total);
+		if (p.isInJail()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -428,11 +433,8 @@ bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
 
         case CommandType::CETAK_AKTA: {
             view_.showMessage("\nMasukkan kode petak: ");
-            std::string kodePetak;
-            // TODO: inputnya enaknya gimana yah???
-            std::cin >> kodePetak;
 
-            std::cin.ignore(10000, '\n');
+            std::string kodePetak = command_.getString();
 
             for (char &c : kodePetak) {
                 c = toupper(c);
@@ -494,9 +496,24 @@ bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
 }
 
 bool GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice) {
+    if (p.thisTurnAutoFreeFromJail()) {
+        if (p.getBalance() < GameConfig::getJailFine()) {
+            view_.showMessage("Kamu tidak mampu membayar denda wajib setelah 3 turn di penjara.\n");
+            auctionCoordinator_->processBankruptcyToBank(p);
+            return false;
+        }
+        int oldPlayerBalance = p.getBalance();
+        p.deductMoney(GameConfig::getJailFine());
+        p.leaveJail();
+        p.resetJailTurn();
+        view_.showMessage("Denda wajib dibayar setelah 3 turn di penjara. Kamu keluar dari penjara dan dapat melempar dadu.\n");
+        view_.showMessage("Uang kamu: " + Formatter::formattingMoney(oldPlayerBalance) + " -> " + Formatter::formattingMoney(p.getBalance()) + "\n");
+
+        return true;
+    }
+
     view_.showMessage("\nAnda sedang berada di penjara.\n");
     view_.showMessage("Command valid: BAYAR_DENDA, LEMPAR_DADU, ATUR_DADU X Y, GUNAKAN_KEMAMPUAN, INVENTORY, POSITION, END_COMMAND\n");
-
     Command cmd = command_.getCommand();
     while (cmd.getType() == CommandType::INVALID) {
         view_.showMessage("Perintah tidak valid. Coba lagi: ");
@@ -675,7 +692,7 @@ bool GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, 
 
         case CommandType::END_COMMAND: {
             if (p.isInJail()) {
-                p.incrementJailTurn();
+                p.decrementJailTurn();
             }
 
             processEndTurn(p);

@@ -218,9 +218,7 @@ bool Monopoly::loadState(std::unique_ptr<Board>& board, std::vector<std::unique_
                 if (pos != std::string::npos) {
                     try {
                         int count = std::stoi(statusStr.substr(pos + 1));
-                        for (int k = 0; k < count; ++k) {
-                            player->incrementJailTurn();
-                        }
+                        player->setJailTurn(count);
                     } catch (...) {
                         // ignore malformed suffix
                     }

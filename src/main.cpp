@@ -733,6 +733,16 @@ class CLICommand : public CommandInterface {
         bool getBool(std::string message) override {
             return askYesNo(message);
         }
+
+        std::string getString() override {
+            std::string input;
+            std::cin >> input;
+            
+            std::cin.clear();
+            std::cin.ignore(10000, '\n'); 
+            
+            return input;
+        }
 };
 
 int main() {

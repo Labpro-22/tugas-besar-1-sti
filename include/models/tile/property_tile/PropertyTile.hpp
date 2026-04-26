@@ -56,7 +56,7 @@ class PropertyTile : public Tile {
 
         int resetTurnTo3(); // jadikan max lagi
 
-        bool alreadyMaxMultiplier()const;
+        bool alreadyMaxMultiplier() const;
 
         bool festivalActive();
 
