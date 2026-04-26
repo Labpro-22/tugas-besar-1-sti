@@ -15,10 +15,11 @@ StreetTile::StreetTile(int tileID, std::string letterCode,
 StreetTile::~StreetTile() = default;
 
 OnLandResult StreetTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
-    view.showMessage("Halo kamu ada di street tile");
+    view.showMessage("Halo kamu ada di street tile\n");
 
     // milik sendiri
     if (getOwnerUsername() == p.getUsername()) {
+        view.showMessage("Kamu memiliki properti ini.\n");
         return OnLandResult::Done;
     }
     
