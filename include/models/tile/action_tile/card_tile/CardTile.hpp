@@ -1,0 +1,10 @@
+#pragma once
+#include "models/tile/action_tile/ActionTile.hpp"
+#include <string>
+
+class CardTile : public ActionTile {
+    public:
+        CardTile(int tileID, std::string letterCode, std::string tileName)
+            : ActionTile(tileID, letterCode, tileName) {}
+        ~CardTile() = default;
+};

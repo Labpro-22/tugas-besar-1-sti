@@ -2,7 +2,14 @@
 
 # Compiler settings
 CXX      := g++
+# CXXFLAGS := -Wall -Wextra -std=c++17 -I include -IC:/raylib/include
 CXXFLAGS := -Wall -Wextra -std=c++17 -I include
+
+ifeq ($(OS),Windows_NT)
+	EXE_EXT := .exe
+else
+	EXE_EXT :=
+endif
 
 # Directories
 SRC_DIR     := src
@@ -13,11 +20,18 @@ DATA_DIR    := data
 CONFIG_DIR  := config
 
 # Target executable
-TARGET := $(BIN_DIR)/game
+# TARGET := $(BIN_DIR)/game
+TARGET := $(BIN_DIR)/game$(EXE_EXT)
+
+# Recursive source finding without relying on shell-specific `find`
+rwildcard = $(foreach d,$(wildcard $(1)/*),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
+
 
 # 1. Recursive Source Finding
 # Secara otomatis mencari semua file .cpp di dalam src/ dan semua sub-foldernya
-SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
+# SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
+# Ambil semua source .cpp untuk build CLI, tetapi skip tree GUI yang bergantung ke raylib.
+SRCS := $(filter-out $(SRC_DIR)/views/gui/%,$(call rwildcard,$(SRC_DIR),*.cpp))
 
 # 2. Dynamic Object Mapping
 # Mengubah path src/xxx/yyy.cpp menjadi build/xxx/yyy.o
@@ -42,7 +56,11 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 # Run the game
 run: all
-	./$(TARGET)
+# 	./$(TARGET)
+	$(TARGET)
+
+# Explicit CLI alias.
+cli: run
 
 # Clean up generated files
 clean:

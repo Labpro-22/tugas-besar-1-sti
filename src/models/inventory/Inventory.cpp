@@ -1,0 +1,229 @@
+#include "../../../include/models/inventory/Inventory.hpp"
+#include <map>
+#include "models/tile/property_tile/PropertyTile.hpp"
+#include "models/tile/property_tile/StreetTile.hpp"
+#include "models/tile/property_tile/UtilityTile.hpp"
+#include "models/tile/property_tile/RailRoadTile.hpp"
+#include "models/card/skillcard/SkillCard.hpp"
+#include "models/exception/InvariantViolationException/CardSlotFull.hpp"
+
+Inventory::Inventory() {}
+
+Inventory::~Inventory() {}
+
+std::vector<PropertyTile*> Inventory::getProperties() const {
+    return properties_;
+}
+
+std::vector<PropertyTile*> Inventory::getMortgagedProperties() const {
+    std::vector<PropertyTile*> mortgagedProps;
+    for (size_t i = 0; i < getProperties().size(); i++) {
+        if (getProperties().at(i) != nullptr && getProperties().at(i)->isMortgaged()) {
+            mortgagedProps.push_back(getProperties().at(i));
+        }
+    }
+    return mortgagedProps;
+}
+
+void Inventory::addProperty(PropertyTile *propertyTile) {
+    if (propertyTile == nullptr) return;
+
+    if (!hasProperty(propertyTile)) {
+        properties_.push_back(propertyTile);
+        if (dynamic_cast<RailRoadTile*>(propertyTile) != nullptr) {
+            countRailRoads_++;
+        }
+        if (dynamic_cast<UtilityTile*>(propertyTile) != nullptr) {
+            countUtilities_++;
+        }
+    }
+}
+
+// better make id seperinya tp lg malas hehe
+void Inventory::removeProperty(PropertyTile *propertyTile) {
+    if (propertyTile == nullptr) return;
+    for (size_t i = 0; i < properties_.size(); i++) {
+        if (properties_[i] == propertyTile) {
+            properties_.erase(properties_.begin() + i);
+            if (dynamic_cast<RailRoadTile*>(propertyTile) != nullptr) {
+                countRailRoads_--;
+            }
+            if (dynamic_cast<PropertyTile*>(propertyTile) != nullptr) {
+                countUtilities_--;
+            }
+            return;
+        }
+    }
+}
+
+bool Inventory::hasProperty(PropertyTile* propertyTile) const {
+    if (propertyTile == nullptr) return false;
+
+    for (size_t i = 0; i < properties_.size(); i++) {
+        if (properties_[i]->getTileID() == propertyTile->getTileID()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Inventory::clearProperties() {
+    properties_.clear();
+}
+
+std::vector<SkillCard*> Inventory::getSkillCards() const {
+    std::vector<SkillCard*> out;
+    out.reserve(skillCards_.size());
+    for (const auto& uptr : skillCards_) {
+        out.push_back(uptr.get());
+    }
+    return out;
+}
+
+// perlu exception??
+void Inventory::addSkillCards(std::unique_ptr<SkillCard> skillCard) {
+    if (!skillCard) {
+        return;
+    }
+
+    if (skillCards_.size() >= 3) {
+        throw CardSlotFull();
+    }
+
+    skillCards_.push_back(std::move(skillCard));
+}
+
+void Inventory::removeSkillCard(const SkillCard& skillCard) {
+    for (size_t i = 0; i < skillCards_.size(); i++) {
+        if (skillCards_[i].get() == &skillCard) {
+            skillCards_.erase(skillCards_.begin() + i);
+            return;
+        }
+    }
+}
+
+int Inventory::countAllPropertyValueBasedOnPurchasePrice() const {
+    int sum = 0;
+    for (size_t i = 0; i < properties_.size(); i++) {
+        sum += properties_.at(i)->getPurchasePrice();
+    }
+    return sum;
+}
+
+int Inventory::countAllBuildingsBasedOnPurchasePrice() const {
+    int sum = 0;
+    for (size_t i = 0; i < properties_.size(); i++) {
+        PropertyTile* property = properties_.at(i);
+        StreetTile* s = dynamic_cast<StreetTile*>(property);
+        if (s) {
+            int level = property->getLevel();
+            if (level <= 0) continue;
+            std::map<int, int> buildingPrice = s->getBuildPrice();
+            int housePrice = buildingPrice.count(1) ? buildingPrice.at(1) : 0;
+            int hotelPrice = buildingPrice.count(5) ? buildingPrice.at(5) : housePrice;
+            if (level < 5) {
+                sum += level * housePrice;
+            } else {
+                sum += 4 * housePrice + hotelPrice;
+            }
+        }
+    }
+    return sum;
+}
+
+std::size_t Inventory::getSkillCardCount() const {
+    return skillCards_.size();
+}
+
+const SkillCard* Inventory::getSkillCardAt(std::size_t idx) const {
+    if (idx >= skillCards_.size()) {
+        // TODO
+        //throw OutOfRangeException;
+        return nullptr;
+    }
+    return skillCards_.at(idx).get();
+}
+
+std::unique_ptr<SkillCard> Inventory::removeSkillCardAt(std::size_t idx) {
+    if (idx >= skillCards_.size()) {
+        // TODO
+        //throw OutOfRangeException;
+        return nullptr;
+    }
+
+    std::unique_ptr<SkillCard> card = std::move(skillCards_.at(idx));
+    skillCards_.erase(skillCards_.begin() + static_cast<std::ptrdiff_t>(idx));
+    return card;
+}
+
+bool Inventory::isExistsTileBasedOnCode(std::string code) const {
+    for (PropertyTile* p : properties_) {
+        if (p != nullptr && p->getLetterCode() == code) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int Inventory::countRailRoads() const {
+    return countRailRoads_;
+}
+
+int Inventory::countUtilities() const {
+    return countUtilities_;
+}
+
+int Inventory::countProperty() const {
+    return static_cast<int>(properties_.size());
+}
+
+int Inventory::countCard() const {
+    return static_cast<int>(skillCards_.size());
+}
+
+std::map<std::string, std::vector<PropertyTile*>> Inventory::getCompleteColourGroups(const std::map<std::string, size_t>& countTilesForEachColourBlock) {
+    std::map<std::string, std::vector<PropertyTile*>> colourBlockToPropertyTile;
+
+    for (size_t i = 0; i < properties_.size(); i++) {
+        colourBlockToPropertyTile[properties_.at(i)->getColourBlock()].push_back(properties_.at(i));
+    }
+
+    for (auto it = colourBlockToPropertyTile.begin(); it != colourBlockToPropertyTile.end(); /* KOSONG */ ) {
+        const std::string& colour = it->first;
+        const std::vector<PropertyTile*>& tiles = it->second;
+
+        auto targetCountIt = countTilesForEachColourBlock.find(colour);
+        size_t targetCount = (targetCountIt != countTilesForEachColourBlock.end()) ? targetCountIt->second : 0;
+
+        if (tiles.size() != targetCount || targetCount == 0) {
+            it = colourBlockToPropertyTile.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    return colourBlockToPropertyTile;
+}
+
+std::map<std::string, std::vector<PropertyTile*>> Inventory::getOwnedPropertiesGroupByColourGroups() {
+    std::map<std::string, std::vector<PropertyTile*>> colourBlockToPropertyTile;
+
+    // Masukin aja dulu semuanya (grouping)
+    for (size_t i = 0; i < properties_.size(); i++) {
+        if (properties_.at(i)->isOwned()) {
+            colourBlockToPropertyTile[properties_.at(i)->getColourBlock()].push_back(properties_.at(i));
+        }
+    }
+    return colourBlockToPropertyTile;
+}
+
+std::map<std::string, std::vector<PropertyTile*>> Inventory::groupPropertiesByColorGroup() const {
+    std::map<std::string, std::vector<PropertyTile*>> groupedProperties;
+    for (PropertyTile* property : properties_) {
+        if (property == nullptr) {
+            continue;
+        }
+        groupedProperties[property->getColourBlock()].push_back(property);
+    }
+    return groupedProperties;
+}

@@ -1,0 +1,12 @@
+#pragma once
+#include "SpecialTile.hpp"
+#include "models/player/Player.hpp"
+#include <string>
+
+class GoToJailTile : public SpecialTile {
+    public:
+        GoToJailTile(int tileID, std::string letterCode, std::string tileName)
+            : SpecialTile(tileID, letterCode, tileName) {}
+        ~GoToJailTile() = default;
+        OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
+};

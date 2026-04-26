@@ -1,0 +1,1434 @@
+@startuml
+
+
+
+
+
+/' Objects '/
+
+class ActionTile {
+	+ActionTile(int tileID, std::string letterCode, std::string tileName)
+	+~ActionTile()
+}
+
+
+class Auction {
+	+Auction(std::vector<std::unique_ptr<Player>>& players, GameViewInterface& view)
+	+~Auction()
+	-cause_ : AuctionCause
+	-state_ : AuctionState
+	-view_ : GameViewInterface&
+	+getCurrentPlayer() : Player* {query}
+	-highestBidder_ : Player*
+	-triggerPlayer_ : Player*
+	-property_ : PropertyTile*
+	+canCurrentPlayerBid(int amount) : bool {query}
+	+canCurrentPlayerPass() : bool {query}
+	-finished_ : bool
+	-hasAnyBid_ : bool
+	+isFinished() : bool {query}
+	-isForcedBidTurn() : bool {query}
+	-isValidParticipant(const Player* player) : bool {query}
+	-currentParticipantIndex_ : int
+	-findTriggerPlayerIndex() : int {query}
+	+getMinBid() : int {query}
+	-highestBid_ : int
+	-passesCount_ : int
+	-participants_ : std::vector<Player*>
+	-players_ : std::vector<std::unique_ptr<Player>>&
+	-advanceTurn() : void
+	+bidCurrentPlayer(int amount) : void
+	-buildParticipants() : void
+	-finalizeAuction() : void
+	-givePropertyToWinner() : void
+	+passCurrentPlayer() : void
+	+processBankruptcyToBank(Player& bankruptPlayer) : void
+	+reset() : void
+	+runAuction(Player& triggerPlayer, PropertyTile& propertyTile, AuctionCause cause, CommandInterface& command) : void
+	+runBankruptcyAuction(Player& bankruptPlayer, CommandInterface& command) : void
+	+start(Player& triggerPlayer, PropertyTile& propertyTile, AuctionCause cause) : void
+}
+
+
+class AuctionCoordinator {
+	+AuctionCoordinator(std::vector<std::unique_ptr<Player>>& players, GameViewInterface& view, CommandInterface& command)
+	-command_ : CommandInterface&
+	-view_ : GameViewInterface&
+	-players_ : std::vector<std::unique_ptr<Player>>&
+	+processAuction(Player& triggerPlayer, PropertyTile& propertyTile) : void
+	+processBankruptcyToBank(Player& player) : void
+}
+
+
+class BankruptcyException {
+	+BankruptcyException(const std::string& playerName)
+	+~BankruptcyException()
+}
+
+
+class Board {
+	+Board(int size)
+	+Board(Board& &)
+	+~Board()
+	+operator=(Board& &) : Board&
+	+getCurrentTile(int id) : Tile&
+	+getTileByCode(const std::string& code) : Tile&
+	+moveToNextTile(int distance) : Tile&
+	+has(std::string code) : bool
+	+isCompletedColourGroup(std::string ownerName, std::string colourBlock) : bool
+	+{static} getActiveBoardSize() : int
+	+getJailPosition() : int {query}
+	+getSize() : int {query}
+	+getStartPosition() : int {query}
+	+getTileIndexByCode(const std::string& code) : int {query}
+	-jailPosition_ : int
+	-size_ : int
+	-startPosition_ : int
+	-{static} activeBoardSize_ : static int
+	+getCountTilesForEachColourBlock() : std::map<std::string , size_t> {query}
+	-countTilesForEachColourBlock_ : std::map<std::string, size_t>
+	-tiles_ : std::vector<std::unique_ptr<Tile>>
+	+addCountTilesForEachColourBlock() : void
+	+addTile(std::unique_ptr<Tile> tile) : void
+	+decrementFestivalDurations() : void
+	+initColourGroupCounts() : void
+	+setJailPosition(int pos) : void
+	+setStartPosition(int pos) : void
+}
+
+
+class Button {
+	+Button()
+	+Button(Rectangle bounds, std::string label)
+	+Button(Rectangle bounds, std::string texturePath, std::string label)
+	+Button(Button&& other)
+	+~Button()
+	+operator=(Button&& other) : Button&
+	-{ : Rectangle bounds_
+	-{ : Rectangle bounds_
+	-{ : Rectangle bounds_
+	-{ : Rectangle bounds_
+	+getBounds() : Rectangle& {query}
+	-texture_ : Texture2D
+	-hasTexture_ : bool
+	+isClicked(Vector2 mouse) : bool {query}
+	+isHovered(Vector2 mouse) : bool {query}
+	-label_ : std::string
+	+draw(Vector2 mouse) : void {query}
+	+setBounds(Rectangle bounds) : void
+	+setTexture(std::string texturePath) : void
+	-unload() : void
+}
+
+
+class CLICommand {
+	+getCommand() : Command
+	+askWantToBuyProperty() : bool
+	+askWantToLoadState() : bool
+	+askWantToSellAllBuildings(std::string question) : bool
+	-{static} askYesNo(const std::string& prompt) : bool
+	+getBool(std::string message) : bool
+	-{static} parseInt(const std::string& token, int& value) : bool
+	+askNumOfPlayer() : int
+	+getAuctionBidOrPass(int currentBid, int playerBalance) : int
+	+getInt(int lowerBound, int upperBound) : int
+	+askFolderForConfig() : std::string
+	+askPlayerUsername(int i) : std::string
+	+askStateFilename() : std::string
+	+getString() : std::string
+	+getTileToGetFestival() : std::string
+	-{static} toUpper(std::string s) : std::string
+}
+
+
+class CLIView {
+	-board_ : Board*
+	-boardSize() : int {query}
+	-{static} propertyKind(const PropertyTile& property) : std::string
+	+cetakAkta(const std::string& kodePetak, bool showStatus) : void
+	+cetakPapan(Player& pl, int currentTurn) : void
+	+cetakProperti(Player* player) : void
+	+setBoardContext(Board* board) : void
+	+showMessage(std::string message) : void
+}
+
+
+class CardPaymentFailedException {
+	+CardPaymentFailedException(int code, const std::string& message)
+	+~CardPaymentFailedException()
+}
+
+
+class CardSlotFull {
+	+CardSlotFull()
+	+~CardSlotFull()
+}
+
+
+class CardTile {
+	+CardTile(int tileID, std::string letterCode, std::string tileName)
+	+~CardTile()
+}
+
+
+class ChanceCard {
+	+ChanceCard()
+	+ChanceCard(Instruction instruction)
+	+{static} randomCard() : ChanceCard
+	-instruction_ : Instruction
+	+getInstruction() : int {query}
+	+{static} kInstructionCount : static const int
+	-description_ : std::string
+	-{static} instructionToDescription(Instruction instruction) : std::string
+	+getDescription() : std::string& {query}
+	+useChance(class Player& owner) : void {query}
+}
+
+
+class ChanceTile {
+	+ChanceTile(int tileID, std::string letterCode, std::string tileName)
+	+~ChanceTile()
+	+onLand(Player& p, CommandInterface& command, GameViewInterface& view) : OnLandResult
+}
+
+
+class Command {
+	+Command(CommandType type)
+	+Command(CommandType type, std::vector<int> args)
+	+Command(CommandType type, std::string stringArg)
+	-type_ : CommandType
+	+getArg(int idx) : int {query}
+	+getArgCount() : int {query}
+	+getType() : int {query}
+	+getStringArg() : std::string {query}
+	-stringArg_ : std::string
+	-args_ : std::vector<int>
+}
+
+
+abstract class CommandInterface {
+	+~CommandInterface()
+	+{abstract} getCommand() : Command
+	+{abstract} askWantToBuyProperty() : bool
+	+{abstract} askWantToLoadState() : bool
+	+askWantToSellAllBuildings(std::string question) : bool
+	+{abstract} getBool(std::string message) : bool
+	+{abstract} askNumOfPlayer() : int
+	+{abstract} getAuctionBidOrPass(int currentBid, int playerBalance) : int
+	+{abstract} getInt(int lowerBound, int upperBound) : int
+	+{abstract} askFolderForConfig() : std::string
+	+{abstract} askPlayerUsername(int i) : std::string
+	+{abstract} askStateFilename() : std::string
+	+{abstract} getString() : std::string
+	+{abstract} getTileToGetFestival() : std::string
+}
+
+
+class CommunityChestCard {
+	+CommunityChestCard()
+	+CommunityChestCard(Instruction instruction)
+	+{static} randomCard() : CommunityChestCard
+	-instruction_ : Instruction
+	+getInstruction() : int {query}
+	+{static} kInstructionCount : static const int
+	-description_ : std::string
+	-{static} instructionToDescription(Instruction instruction) : std::string
+	+getDescription() : std::string& {query}
+	+useCommunityChest(Player& owner, const std::vector<std::unique_ptr<Player>>& allPlayers) : void {query}
+}
+
+
+class CommunityChestTile {
+	+CommunityChestTile(int tileID, std::string letterCode, std::string tileName)
+	+~CommunityChestTile()
+	+onLand(Player& p, CommandInterface& command, GameViewInterface& view) : OnLandResult
+}
+
+
+class ConfigException {
+	+ConfigException(int code, const std::string& message)
+	+~ConfigException()
+}
+
+
+class ConfigScreen {
+	+ConfigScreen(int width, int height)
+	+~ConfigScreen()
+	#height : int
+	#width : int
+	+render() : void
+}
+
+
+class Deck <template<typename T>> {
+	+Deck(int capacity)
+	-capacity_ : int
+	+getDiscardCount() : int {query}
+	+getDrawCount() : int {query}
+	-drawPile_ : std::stack<std::unique_ptr<T>>
+	+drawDeck() : std::unique_ptr<T>
+	-discardPile_ : std::vector<std::unique_ptr<T>>
+	+initDeck(std::vector<std::unique_ptr<T>> initialCards) : void
+	+pushToDiscard(std::unique_ptr<T> item) : void
+	+shuffleDeck() : void
+}
+
+
+class DemolitionCard {
+	+DemolitionCard()
+	+{static} kCardCount : static const int
+	+activate(Player& owner) : void
+}
+
+
+class Dice {
+	+Dice()
+	+~Dice()
+	+isDouble() : bool
+	-die1_ : int
+	-die2_ : int
+	+getDie1() : int {query}
+	+getDie2() : int {query}
+	+getRollResult() : int {query}
+	+roll() : void
+	+rollSettingan(int die1, int die2) : void
+}
+
+
+class DiscountCard {
+	+DiscountCard()
+	+DiscountCard(int discountPercent, int remainingTurns)
+	-discountPercent_ : int
+	+getDiscountPercent() : int {query}
+	+getRemainingTurns() : int {query}
+	-remainingTurns_ : int
+	+{static} kCardCount : static const int
+	+activate(Player& owner) : void
+	+consumeTurn() : void
+}
+
+
+class FestivalTile {
+	+FestivalTile(int tileID, std::string letterCode, std::string tileName)
+	+~FestivalTile()
+	+onLand(Player& p, CommandInterface& command, GameViewInterface& view) : OnLandResult
+}
+
+
+class Formatter {
+	+{static} formatLog(int turn, std::string username, std::string actionType, std::string detail) : std::string
+	+{static} formatTileNameAndCode(std::string tileName, std::string tileCode) : std::string
+	+{static} formattingMoney(int money) : std::string
+}
+
+
+class FreeParkingTile {
+	+FreeParkingTile(int tileID, std::string letterCode, std::string tileName)
+	+~FreeParkingTile()
+	+onLand(Player& p, CommandInterface& command, GameViewInterface& view) : OnLandResult
+}
+
+
+class GameConfig {
+	+{static} getGoSalary() : int
+	+{static} getJailFine() : int
+	+{static} getMaxTurn() : int
+	+{static} getStartingBalance() : int
+	-{static} GO_SALARY : static int
+	-{static} JAIL_FINE : static int
+	-{static} MAX_TURN : static int
+	-{static} STARTING_BALANCE : static int
+	+{static} setGoSalary(int goSalary) : void
+	+{static} setJailFine(int jailFine) : void
+	+{static} setMaxTurn(int maxTurn) : void
+	+{static} setStartingBalance(int startingBalance) : void
+}
+
+
+class GameController {
+	+GameController(std::vector<std::unique_ptr<Player>> players, Board& board, Dice& dice, GameViewInterface& view, CommandInterface& command, Deck<SkillCard>& specialCardDeck_)
+	+~GameController()
+	-auction_ : Auction
+	-board_ : Board&
+	-command_ : CommandInterface&
+	-specialCardDeck_ : Deck<SkillCard>&
+	-dice_ : Dice&
+	-view_ : GameViewInterface&
+	-hasSoleWinner() : bool {query}
+	-processCustomDice(Player& p, int x, int y) : bool
+	-processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice) : bool
+	-processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice) : bool
+	-processRandomDice(Player& p) : bool
+	-resolveDiceResult(Player& p, int d1, int d2) : bool
+	-currentTurn_ : int
+	-goSalary_ : int
+	-jailFine_ : int
+	-auctionCoordinator_ : std::unique_ptr<AuctionCoordinator>
+	-propertyCoordinator_ : std::unique_ptr<PropertyCoordinator>
+	-skillCardCoordinator_ : std::unique_ptr<SkillCardCoordinator>
+	-transactionLog_ : std::vector<std::string>
+	-players_ : std::vector<std::unique_ptr<Player>>
+	-addTransactionLog(const std::string& username, const std::string& action, const std::string& detail) : void
+	-decideWinner() : void {query}
+	-executeLassoCard(Player& p) : void
+	-executeMoveCard(Player& p, MoveCard& card) : void
+	-executeTeleportCard(Player& p) : void
+	-handleSkillCardUsage(Player& p, SkillCard& card) : void
+	+playGame(int latesTurn, int maxTurn) : void
+	-printTransactionLog(int lastN) : void
+	-processEndTurn(Player& p) : void
+	-processMovement(Player& p, int firstDisplacement) : void
+	-processRollDice(Player& p) : void
+	-processTurn(Player& p) : void
+	+setCurrentTurn(int latestTurn) : void
+	-showInventory(Player& p) : void
+	-showPosition(Player& p) : void
+}
+
+
+abstract class GameViewInterface {
+	+~GameViewInterface()
+	+{abstract} cetakAkta(const std::string& kodePetak, bool showStatus) : void
+	+{abstract} cetakPapan(Player& pl, int currentTurn) : void
+	+{abstract} cetakProperti(Player* player) : void
+	+{abstract} setBoardContext(Board* board) : void
+	+{abstract} showMessage(const std::string message) : void
+}
+
+
+class GeneralException {
+	+GeneralException(const std::string& message, int code)
+	+~GeneralException()
+	+what() : char* {query}
+	#errorCode_ : int
+	+getErrorCode() : int {query}
+	#errorMsg_ : std::string
+	+getErrorMessage() : std::string {query}
+}
+
+
+class GoTile {
+	+GoTile(int tileID, std::string letterCode, std::string tileName, int salary)
+	+~GoTile()
+	+onLand(Player& p, CommandInterface& command, GameViewInterface& view) : OnLandResult
+	+getSalary() : int {query}
+	-salary_ : int
+}
+
+
+class GoToJailTile {
+	+GoToJailTile(int tileID, std::string letterCode, std::string tileName)
+	+~GoToJailTile()
+	+onLand(Player& p, CommandInterface& command, GameViewInterface& view) : OnLandResult
+}
+
+
+abstract class IDice {
+	+~IDice()
+	+{abstract} isDouble() : bool
+	+{abstract} roll() : int
+	+{abstract} rollSettingan(int die1, int die2) : int
+}
+
+
+class IncomeTaxTile {
+	+IncomeTaxTile(int tileID, std::string letterCode, std::string tileName)
+	+~IncomeTaxTile()
+	+onLand(Player& p, CommandInterface& command, GameViewInterface& view) : OnLandResult
+	+getTaxPercentage() : float {query}
+	+getPPHFlatCost() : int {query}
+	-{static} taxPercentage_ : static inline float
+	-{static} flatCost_ : static inline int
+	+{static} setPPHFlatCost(int cost) : void
+	+{static} setTaxPercentage(float percentage) : void
+}
+
+
+class InsufficientFundsException {
+	+InsufficientFundsException(int code, const std::string& message)
+	+~InsufficientFundsException()
+}
+
+
+class InvalidCommandAction {
+	+InvalidCommandAction(const std::string& action)
+	+~InvalidCommandAction()
+}
+
+
+class InvariantViolationException {
+	+InvariantViolationException(int code, const std::string& message)
+	+~InvariantViolationException()
+}
+
+
+class Inventory {
+	+Inventory()
+	+~Inventory()
+	+getSkillCardAt(std::size_t idx) : SkillCard* {query}
+	+hasProperty(PropertyTile* propertyTile) : bool {query}
+	+isExistsTileBasedOnCode(std::string code) : bool {query}
+	+countAllBuildingsBasedOnPurchasePrice() : int {query}
+	+countAllPropertyValueBasedOnPurchasePrice() : int {query}
+	+countCard() : int {query}
+	+countProperty() : int {query}
+	+countRailRoads() : int {query}
+	-countRailRoads_ : int
+	+countUtilities() : int {query}
+	-countUtilities_ : int
+	+getCompleteColourGroups(const std::map<std::string, size_t>& countTilesForEachColourBlock) : std::map<std::string , std::vector<PropertyTile*>>
+	+getOwnedPropertiesGroupByColourGroups() : std::map<std::string , std::vector<PropertyTile*>>
+	+groupPropertiesByColorGroup() : std::map<std::string , std::vector<PropertyTile*>> {query}
+	+getSkillCardCount() : std::size_t {query}
+	+removeSkillCardAt(std::size_t idx) : std::unique_ptr<SkillCard>
+	+getMortgagedProperties() : std::vector<PropertyTile*> {query}
+	+getProperties() : std::vector<PropertyTile*> {query}
+	-properties_ : std::vector<PropertyTile*>
+	+getSkillCards() : std::vector<SkillCard*> {query}
+	-skillCards_ : std::vector<std::unique_ptr<SkillCard>>
+	+addProperty(PropertyTile* propertyTile) : void
+	+addSkillCards(std::unique_ptr<SkillCard> skillCard) : void
+	+clearProperties() : void
+	+removeProperty(PropertyTile* PropertyTile) : void
+	+removeSkillCard(const SkillCard& skillCard) : void
+}
+
+
+class LassoCard {
+	+LassoCard()
+	+{static} kCardCount : static const int
+	+activate(Player& owner) : void
+}
+
+
+class LiquidationAction {
+	+LiquidationAction()
+	+LiquidationAction(LiquidationActionType type, PropertyTile* property, int value, const std::string& description)
+	-type_ : LiquidationActionType
+	+getProperty() : PropertyTile* {query}
+	-property_ : PropertyTile*
+	+isSameAction(const LiquidationAction& other) : bool {query}
+	+getType() : int {query}
+	+getValue() : int {query}
+	-value_ : int
+	-description_ : std::string
+	+getDescription() : std::string {query}
+}
+
+
+class LiquidationManager {
+	+LiquidationManager(GameViewInterface& view, CommandInterface& command)
+	-command_ : CommandInterface&
+	-view_ : GameViewInterface&
+	+canMortgageProperty(Player& payer, PropertyTile& property) : bool
+	+canSellProperty(Player& payer, PropertyTile& property) : bool
+	+confirmActionWithPrerequisites(Player& payer, const LiquidationAction& action) : bool
+	+confirmFinalSelection() : bool
+	-containsAction(const std::vector<LiquidationAction>& actions, const LiquidationAction& target) : bool {query}
+	-containsSelectedAction(const LiquidationAction& action) : bool {query}
+	+hasAnyBuildingInOwnedColorGroup(Player& payer, const std::string& colorGroup) : bool
+	+hasConflictingSelectedAction(const LiquidationAction& action) : bool {query}
+	+isSelectedValueEnough(int requiredAmount) : bool
+	+runLiquidation(Player& payer, int obligationAmount) : bool
+	+calculateMaxLiquidationValue(Player& payer) : int
+	+calculateMortgageValue(PropertyTile& property) : int
+	+calculateRequiredAmount(Player& payer, int obligationAmount) : int {query}
+	+calculateSelectedValue() : int
+	+calculateSellBuildingValue(StreetTile& street) : int
+	+calculateSellPropertyValue(PropertyTile& property) : int
+	-availableActions_ : std::vector<LiquidationAction>
+	+buildMortgageActions(Player& payer) : std::vector<LiquidationAction>
+	+buildSellBuildingActions(Player& payer) : std::vector<LiquidationAction>
+	+buildSellPropertyActions(Player& payer) : std::vector<LiquidationAction>
+	+findPrerequisitesForAction(Player& payer, LiquidationAction action) : std::vector<LiquidationAction>
+	-selectedActions_ : std::vector<LiquidationAction>
+	+buildRecommendedPlans(Player& payer, int requiredAmount) : std::vector<LiquidationPlan>
+	+addSelectedAction(const LiquidationAction& action) : void
+	+cancelSelectedAction(int index) : void
+	+executeMortgageProperty(Player& payer, PropertyTile& property) : void
+	+executeSelectedActions(Player& payer) : void
+	+executeSellBuildings(Player& payer, StreetTile& street) : void
+	+executeSellBuildingsColorGroup(Player& payer, const std::string& colorGroup) : void
+	+executeSellProperty(Player& payer, PropertyTile& property) : void
+	+rebuildAvailableActions(Player& payer) : void
+	+showAvailableActions(const std::vector<LiquidationAction>& actions) : void
+	+showLiquidationEstimate(Player& payer, int obligationAmount) : void
+	+showRecommendedPlans(const std::vector<LiquidationPlan>& plans) : void
+	+showSelectedActions() : void
+	+sortSelectedActionsByPriority() : void
+}
+
+
+class LiquidationPlan {
+	+LiquidationPlan()
+	+getTotalValue() : int {query}
+	-totalValue_ : int
+	-actions_ : std::vector<LiquidationAction>
+	+getActions() : std::vector<LiquidationAction>& {query}
+	+addAction(const LiquidationAction& action) : void
+}
+
+
+class LoadConfigFailed {
+	+LoadConfigFailed(const std::string& fileName)
+	+~LoadConfigFailed()
+}
+
+
+class LoadingScreen {
+	+LoadingScreen(int width, int height)
+	+~LoadingScreen()
+	-background : Texture2D
+	-loadingBuffer : Texture2D
+	-loadingText : Texture2D
+	-hasBackground : bool
+	-hasLoadingBuffer : bool
+	-hasLoadingText : bool
+	+isFinished() : bool {query}
+	-frames : int
+	+render() : void
+	+update() : void
+}
+
+
+class LuxuryGoodsTaxTile {
+	+LuxuryGoodsTaxTile(int tileID, std::string letterCode, std::string tileName)
+	+~LuxuryGoodsTaxTile()
+	+onLand(Player& p, CommandInterface& command, GameViewInterface& view) : OnLandResult
+	+getPBMFlatCost() : int {query}
+	-{static} flatCost_ : static inline int
+	+{static} setPBMFlatCost(int cost) : void
+}
+
+
+class MenuScreen {
+	+MenuScreen(int width, int height)
+	+~MenuScreen()
+	-loadGameBtn : Button
+	-newGameBtn : Button
+	-settingsBtn : Button
+	-{ : Rectangle pannelMenu
+	-{ : Rectangle pannelMenu
+	-{ : Rectangle pannelMenu
+	-{ : Rectangle pannelMenu
+	-background : Texture2D
+	-title : Texture2D
+	-hasBackground : bool
+	-hasTitle : bool
+	+isLoadGameClicked(Vector2 mouse) : bool {query}
+	+isNewGameClicked(Vector2 mouse) : bool {query}
+	+isSettingsClicked(Vector2 mouse) : bool {query}
+	+render() : void
+}
+
+
+class Monopoly {
+	+Monopoly(std::unique_ptr<GameViewInterface> view, std::unique_ptr<CommandInterface> command)
+	+~Monopoly()
+	+loadState(std::unique_ptr<Board>& board, std::vector<std::unique_ptr<Player>>& players, int& latestTurn) : bool
+	+{static} getMaxTurn() : int
+	-{static} initialBalance_ : static inline int
+	-{static} maxTurn_ : static inline int
+	-loadConfig() : std::unique_ptr<Board>
+	-command_ : std::unique_ptr<CommandInterface>
+	-view_ : std::unique_ptr<GameViewInterface>
+	-registerPlayers(size_t numOfPlayers) : std::vector<std::unique_ptr<Player>>
+	+{static} setInitialBalance(int initialBalance) : void
+	+{static} setMaxTurn(int maxTurn) : void
+	-shufflePlayersTurn(std::vector<std::unique_ptr<Player>>& players_) : void
+	+startGame() : void
+}
+
+
+class MoveCard {
+	+MoveCard()
+	+MoveCard(int steps)
+	+getSteps() : int {query}
+	-steps_ : int
+	+{static} kCardCount : static const int
+	+activate(Player& owner) : void
+}
+
+
+class NewConfigFailed {
+	+NewConfigFailed(const std::string& fileName)
+	+~NewConfigFailed()
+}
+
+
+class PAMTile {
+	+PAMTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock, int purchasePrice, int mortgageValue)
+	+~PAMTile()
+	+onLand(Player& p, CommandInterface& command, GameViewInterface& view) : OnLandResult
+}
+
+
+class PBMPaymentFailed {
+	+PBMPaymentFailed(int amount)
+	+~PBMPaymentFailed()
+}
+
+
+class PLNTile {
+	+PLNTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock, int purchasePrice, int mortgageValue)
+	+~PLNTile()
+	+onLand(Player& p, CommandInterface& command, GameViewInterface& view) : OnLandResult
+}
+
+
+class PPHPaymentFailed {
+	+PPHPaymentFailed(int amount)
+	+~PPHPaymentFailed()
+}
+
+
+class Player {
+	+Player(std::string username, int initialBalance)
+	+~Player()
+	-inventory_ : Inventory
+	+getInventory() : Inventory&
+	-status_ : PlayerStatus
+	+getProperty(std::string code) : PropertyTile&
+	+getSkillCardAt(std::size_t idx) : SkillCard* {query}
+	+hasProperty(std::string tileCode) : bool
+	+isBankrupt() : bool {query}
+	+isDiscounted() : bool {query}
+	+isInJail() : bool {query}
+	+isShielded() : bool {query}
+	+noBuilding() : bool {query}
+	+operator==(const Player& other) : bool {query}
+	+operator>(const Player& other) : bool {query}
+	+ownsProperty(PropertyTile* propertyTile) : bool {query}
+	+safeToGetMoreDouble() : bool {query}
+	+thisTurnAutoFreeFromJail() : bool {query}
+	-balance_ : int
+	-countJail_ : int
+	+countRailroad() : int {query}
+	+countUtilities() : int {query}
+	-discountPercent_ : int
+	-discountTurns_ : int
+	-doubleRollCount_ : int
+	+getBalance() : int {query}
+	+getCardCount() : int {query}
+	+getCountJail() : int {query}
+	+getDiscountPercent() : int {query}
+	+getID() : int {query}
+	+getPosition() : int {query}
+	+getPropertyCount() : int {query}
+	+getStatus() : int {query}
+	+getTotalBuildingValue() : int {query}
+	+getTotalPropertyValue() : int {query}
+	-id_ : int
+	+move(int displacement) : int
+	+notViolatingDoubleRollCount() : int {query}
+	-playerTurn_ : int
+	-position_ : int
+	-shieldTurns_ : int
+	-{static} countPlayer : static inline int
+	+getCompleteColourGroups(std::map<std::string, size_t> countTilesForEachColourBlock) : std::map<std::string , std::vector<PropertyTile*>>
+	+getOwnedPropertiesGroupByColourGroups() : std::map<std::string , std::vector<PropertyTile*>>
+	+getSkillCardCount() : std::size_t {query}
+	+getUsername() : std::string {query}
+	-username_ : std::string
+	+removeSkillCardAt(std::size_t idx) : std::unique_ptr<SkillCard>
+	-allPlayers_ : std::vector<Player*>
+	+getAllPlayers() : std::vector<Player*>& {query}
+	+getMortgagedProperties() : std::vector<PropertyTile*> {query}
+	+getProperties() : std::vector<PropertyTile*>
+	+getSkillCards() : std::vector<SkillCard*>
+	+activateDiscount(int percent, int turns) : void
+	+activateShield(int turns) : void
+	+addMoney(int amount) : void
+	+addProperty(PropertyTile* propertyTile) : void
+	+addSkillCard(std::unique_ptr<SkillCard> skillCard) : void
+	+consumeDiscount() : void
+	+decreaseShieldCardTurn() : void
+	+decrementJailTurn() : void
+	+deductMoney(int amount) : void
+	+incrementDoubleCount() : void
+	+leaveJail() : void
+	+removeProperty(PropertyTile* propertyTile) : void
+	+resetCountDouble() : void
+	+resetJailTurn() : void
+	+setAllPlayersContext(const std::vector<Player*>& players) : void
+	+setJailTurn(int count) : void
+	+setPosition(int pos) : void
+	+setStatus(PlayerStatus status) : void
+	+setTurn(int turn) : void
+}
+
+
+class Popup {
+}
+
+
+class PrisonTile {
+	+PrisonTile(int tileID, std::string letterCode, std::string tileName, int fineCost)
+	+~PrisonTile()
+	+onLand(Player& p, CommandInterface& command, GameViewInterface& view) : OnLandResult
+	-fineCost_ : int
+	+getFineCost() : int {query}
+}
+
+
+class PropertyCoordinator {
+	+PropertyCoordinator(std::vector<std::unique_ptr<Player>>& players, Board& board, Dice& dice, GameViewInterface& view, CommandInterface& command)
+	-board_ : Board&
+	-command_ : CommandInterface&
+	-dice_ : Dice&
+	-view_ : GameViewInterface&
+	-players_ : std::vector<std::unique_ptr<Player>>&
+	+processBankruptcyFlow(Player& payer, Player& owner, int rent) : void
+	+processBankruptcyToPlayer(Player& payer, Player& owner) : void
+	+processBuyBuilding(Player& player) : void
+	+processFestival(Player& player) : void
+	+processMortgage(Player& player) : void
+	+processPayRent(Player& player, Tile& currentTile) : void
+	+processRedeem(Player& player) : void
+	+processTakeChanceCard(Player& player) : void
+	+processTakeCommunityChest(Player& player) : void
+}
+
+
+class PropertyPaymentFailed {
+	+PropertyPaymentFailed(int amount)
+	+~PropertyPaymentFailed()
+}
+
+
+class PropertyTile {
+	+PropertyTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock, int purchasePrice, int mortgageValue)
+	+~PropertyTile()
+	#propertyStatus_ : PropertyStatus
+	+alreadyMaxMultiplier() : bool {query}
+	+festivalActive() : bool
+	+hasBuilding() : bool {query}
+	+isMortgaged() : bool {query}
+	+isOwned() : bool {query}
+	+isOwnedBy(const std::string& username) : bool {query}
+	+isOwnedByBank() : bool {query}
+	+canDoubleFestival() : int {query}
+	+doubleTheMultiplier() : int
+	#festivalDuration_ : int
+	#festivalMultiplier_ : int
+	+getFestivalDuration() : int {query}
+	+getFestivalMultiplier() : int {query}
+	+getLevel() : int {query}
+	+getMortgageValue() : int {query}
+	+getPropertyStatus() : int {query}
+	+getPurchasePrice() : int {query}
+	+getSellingPrice() : int {query}
+	#level_ : int
+	#mortgageValue_ : int
+	#purchasePrice_ : int
+	+resetTurnTo3() : int
+	+sellAllBuildings() : int
+	+buildingLevelToText() : std::string {query}
+	+getColourBlock() : std::string {query}
+	+getOwnerUsername() : std::string {query}
+	#ownerUsername_ : std::string
+	+propertyStatusToText() : std::string {query}
+	+setOwnerUsernameToBank() : std::string
+	+resetAfterBankruptcyToBank() : void
+	+resetFestivalEffect() : void
+	+setFestivalDuration(int duration) : void
+	+setFestivalMultiplier(int multiplier) : void
+	+setLevel(int level) : void
+	+setOwnerUsername(const std::string& ownerUsername) : void
+	+setPropertyStatus(PropertyStatus status) : void
+	+setToMortgaged() : void
+}
+
+
+class RailRoadTile {
+	+RailRoadTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock, int purchasePrice, int mortgageValue)
+	+~RailRoadTile()
+	+onLand(Player& p, CommandInterface& command, GameViewInterface& view) : OnLandResult
+	+calculateRentPrice(int countRailRoad) : int {query}
+	-{static} railRoadRentPrices_ : static inline std::map<int, int>
+	+{static} getRailRoadRentPrices() : std::map<int , int>&
+	+{static} setRailRoadRentPrices(const std::map<int, int>& prices) : void
+}
+
+
+class Reader {
+	+Reader(std::string folderName)
+	+~Reader()
+	+loadBoard() : Board
+	+getGoSalary() : int {query}
+	+getJailFine() : int {query}
+	+getMaxTurn() : int {query}
+	+getStartingBalance() : int {query}
+	-goSalary_ : int
+	-jailFine_ : int
+	-maxTurn_ : int
+	-startingBalance_ : int
+	-actionConfigFileName : std::string
+	-buildPath(const std::string& fileName) : std::string {query}
+	-folderName : std::string
+	-othersConfigFileName : std::string
+	-propertyConfigFileName : std::string
+	-railRoadConfigFileName : std::string
+	-specialTileConfigFileName : std::string
+	-taxConfigFileName : std::string
+	-utilityConfigFileName : std::string
+	+readAction() : std::vector<Tile*>
+	+readProperty() : std::vector<Tile*>
+	+readMisc() : void
+	+readRailRoad() : void
+	+readSpecial() : void
+	+readTax() : void
+	+readUtility() : void
+}
+
+
+class RentPaymentFailed {
+	+RentPaymentFailed(int amount)
+	+~RentPaymentFailed()
+}
+
+
+class SaveConfigFailed {
+	+SaveConfigFailed(const std::string& fileName)
+	+~SaveConfigFailed()
+}
+
+
+abstract class Screen {
+	+Screen(int width, int height)
+	+~Screen()
+	+{static} loadTexture(Texture2D& target, const std::string& path) : bool
+	#height : int
+	#width : int
+	+{static} wrapText(const std::string& text, int fontSize, int maxWidth) : std::vector<std::string>
+	+{static} drawTextureFit(Texture2D texture, Rectangle destination, Color tint) : void
+	+{abstract} render() : void
+	+update() : void
+}
+
+
+class SessionException {
+	+SessionException(int code, const std::string& message)
+	+~SessionException()
+}
+
+
+class ShieldCard {
+	+ShieldCard()
+	+isActive() : bool {query}
+	+getRemainingTurns() : int {query}
+	-remainingTurns_ : int
+	+{static} kCardCount : static const int
+	+activate(Player& owner) : void
+	+consumeTurn() : void
+}
+
+
+abstract class SkillCard {
+	+SkillCard(std::string name, std::string desc)
+	+~SkillCard()
+	#description : std::string
+	+getDescription() : std::string {query}
+	+getName() : std::string {query}
+	#name : std::string
+	+{abstract} activate(Player& owner) : void
+}
+
+
+class SkillCardCoordinator {
+	+SkillCardCoordinator(Deck<SkillCard>& skillCardDeck, GameViewInterface& view, CommandInterface& command)
+	-command_ : CommandInterface&
+	-skillCardDeck_ : Deck<SkillCard>&
+	-view_ : GameViewInterface&
+	+processSkillCardUse(Player& player, bool& hasUsedSkillCardThisTurn) : std::unique_ptr<SkillCard>
+	+processPickAndDropSkillCard(Player& player) : void
+}
+
+
+class SpecialTile {
+	+SpecialTile(int tileID, std::string letterCode, std::string tileName)
+	+~SpecialTile()
+}
+
+
+class StreetTile {
+	+StreetTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock, int purchasePrice, int mortgageValue, std::map<int, int> buildPrice, std::map<int, int> rentPricePerLevel)
+	+~StreetTile()
+	+onLand(Player& p, CommandInterface& command, GameViewInterface& view) : OnLandResult
+	+calculateRentPrice(bool completedColourGroup) : int {query}
+	+getBuildNextBuildingPrice() : int {query}
+	+getLevel() : int {query}
+	+getRentAtLevel(int level) : int {query}
+	+getBuildPrice() : std::map<int , int> {query}
+	-buildPrice_ : std::map<int, int>
+	-rentPricePerLevel_ : std::map<int, int>
+	+setLevel(int level) : void
+	+upgradeBuilding() : void
+}
+
+
+class TaxTile {
+	+TaxTile(int tileID, std::string letterCode, std::string tileName)
+	+~TaxTile()
+}
+
+
+class TeleportCard {
+	+TeleportCard()
+	+{static} kCardCount : static const int
+	+activate(Player& owner) : void
+}
+
+
+abstract class Tile {
+	+Tile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock)
+	+~Tile()
+	+getTileID() : int {query}
+	+{abstract} onLand(Player& p, CommandInterface& command, GameViewInterface& view) : int
+	#tileID_ : int
+	#colourBlock_ : std::string
+	+getColourBlock() : std::string {query}
+	+getLetterCode() : std::string {query}
+	+getTileName() : std::string {query}
+	#letterCode_ : std::string
+	#tileName_ : std::string
+	+getDetail() : void {query}
+}
+
+
+class TransactionLogScreen {
+	+TransactionLogScreen(int width, int height)
+	+~TransactionLogScreen()
+	-closeBtn : Button
+	-background : Texture2D
+	-title : Texture2D
+	-hasBackground : bool
+	-hasCloseBtn : bool
+	-hasTitle : bool
+	+isCloseBtnClicked(Vector2 mouse) : bool {query}
+	-logs : std::vector<std::string>
+	+addLog(std::string log) : void
+	+clearLogs() : void
+	+render() : void
+	+setLogs(std::vector<std::string> newLogs) : void
+}
+
+
+class TransactionLogger {
+	-{static} turn : static inline int
+	-{static} logs : static inline std::vector<std::string>
+	-{static} addNewLog(std::string log) : void
+	+{static} incrementTurn() : void
+	+logAssetTakeover(std::string newOwner, std::string tileName, std::string tileCode, std::string oldOwner) : void
+	+logAuctionBid(std::string username, std::string tileName, std::string tileCode, int money) : void
+	+logAuctionFinalResult(std::string winnerName, std::string tileName, std::string tileCode, int money) : void
+	+logBankruptCondition(std::string username, std::string reason) : void
+	+{static} logBuyBuilding(std::string username, std::string tileName, std::string tileCode, int oldLevel, int newLevel, int money) : void
+	+{static} logBuyProperty(std::string username, int die1, int die2, std::string tileName, std::string tileCode) : void
+	+logChanceCard(std::string username, std::string cardName, std::string effect) : void
+	+logCommunityChest(std::string username, std::string cardName, std::string effect) : void
+	+{static} logDiceRollAndMovement(std::string username, std::string tileName, std::string tileCode, int money) : void
+	+logLoadGame(std::string filename) : void
+	+logMortgageProperty(std::string username, std::string tileName, std::string tileCode, int money) : void
+	+{static} logPayRent(std::string username, std::string tileName, std::string tileCode, int money, std::string penerima) : void
+	+{static} logPayTax(std::string username, std::string tileName, std::string tileCode, int money) : void
+	+logRedeemProperty(std::string username, std::string tileName, std::string tileCode, int money) : void
+	+logSaveGame(std::string filename) : void
+	+logSellBuilding(std::string username, std::string tileName, std::string tileCode, int oldLevel, int newLevel, int money) : void
+	+logSpecialCardUse(std::string username, std::string cardName, std::string effect) : void
+}
+
+
+class UtilityTile {
+	+UtilityTile(int tileID, std::string letterCode, std::string tileName, std::string colourBlock, int purchasePrice, int mortgageValue)
+	+~UtilityTile()
+	+onLand(Player& p, CommandInterface& command, GameViewInterface& view) : OnLandResult
+	+calculateRentPrice(int countUtils, int diceResult) : int
+	-{static} utilityFactor_ : static inline std::map<int, int>
+	+{static} getUtilityFactor() : std::map<int , int>&
+	+{static} setUtilityFactor(const std::map<int, int>& factors) : void
+}
+
+
+enum Auction::AuctionCause {
+	BANKRUPTCY_TO_BANK
+	PROPERTY_CANNOT_AFFORD
+	PROPERTY_DECLINED
+}
+
+
+enum Auction::AuctionState {
+	FINISHED
+	NOT_STARTED
+	WAITING_FOR_ACTION
+}
+
+
+enum ChanceCard::Instruction {
+	GoToJail
+	GoToNearestStation
+	MoveBackThreeTiles
+}
+
+
+enum CommandType {
+	ATUR_DADU
+	BANGUN
+	BAYAR_DENDA
+	CETAK_AKTA
+	CETAK_LOG
+	CETAK_PAPAN
+	CETAK_PROPERTI
+	END_COMMAND
+	GADAI
+	GUNAKAN_KEMAMPUAN
+	INVALID
+	INVENTORY
+	LEMPAR_DADU
+	MUAT
+	POSITION
+	SIMPAN
+	TEBUS
+}
+
+
+enum CommunityChestCard::Instruction {
+	BirthdayCollect100FromEachPlayer
+	DoctorFeePay700
+	ElectionPay200ToEachPlayer
+}
+
+
+enum LiquidationActionType {
+	MORTGAGE_PROPERTY
+	SELL_BUILDINGS
+	SELL_PROPERTY
+}
+
+
+enum OnLandResult {
+	Done
+	Festival
+	TakeChanceCard
+	TakeCommunityChest
+	TriggerAuction
+	TriggerBankruptcyAuction
+	TriggerBankruptcyFlow
+	TriggerCanPayRentUsingCash
+	TriggerMoveToJail
+	TriggerTryToPayRent
+}
+
+
+enum Player::PlayerStatus {
+	ACTIVE
+	BANKRUPT
+	JAILED
+}
+
+
+enum PropertyStatus {
+	BANK
+	MORTGAGED
+	OWNED
+}
+
+
+
+
+
+/' Inheritance relationships '/
+
+ActionTile <|-- CardTile
+
+
+ActionTile <|-- FestivalTile
+
+
+ActionTile <|-- SpecialTile
+
+
+ActionTile <|-- TaxTile
+
+
+CardTile <|-- ChanceTile
+
+
+CardTile <|-- CommunityChestTile
+
+
+CommandInterface <|-- CLICommand
+
+
+ConfigException <|-- LoadConfigFailed
+
+
+ConfigException <|-- NewConfigFailed
+
+
+ConfigException <|-- SaveConfigFailed
+
+
+GameViewInterface <|-- CLIView
+
+
+GeneralException <|-- ConfigException
+
+
+GeneralException <|-- InvariantViolationException
+
+
+GeneralException <|-- SessionException
+
+
+InsufficientFundsException <|-- PBMPaymentFailed
+
+
+InsufficientFundsException <|-- PPHPaymentFailed
+
+
+InsufficientFundsException <|-- PropertyPaymentFailed
+
+
+InsufficientFundsException <|-- RentPaymentFailed
+
+
+InvariantViolationException <|-- CardPaymentFailedException
+
+
+InvariantViolationException <|-- CardSlotFull
+
+
+InvariantViolationException <|-- InsufficientFundsException
+
+
+PropertyTile <|-- RailRoadTile
+
+
+PropertyTile <|-- StreetTile
+
+
+PropertyTile <|-- UtilityTile
+
+
+Screen <|-- ConfigScreen
+
+
+Screen <|-- LoadingScreen
+
+
+Screen <|-- MenuScreen
+
+
+Screen <|-- TransactionLogScreen
+
+
+SessionException <|-- BankruptcyException
+
+
+SessionException <|-- InvalidCommandAction
+
+
+SkillCard <|-- DemolitionCard
+
+
+SkillCard <|-- DiscountCard
+
+
+SkillCard <|-- LassoCard
+
+
+SkillCard <|-- MoveCard
+
+
+SkillCard <|-- ShieldCard
+
+
+SkillCard <|-- TeleportCard
+
+
+SpecialTile <|-- FreeParkingTile
+
+
+SpecialTile <|-- GoTile
+
+
+SpecialTile <|-- GoToJailTile
+
+
+SpecialTile <|-- PrisonTile
+
+
+TaxTile <|-- IncomeTaxTile
+
+
+TaxTile <|-- LuxuryGoodsTaxTile
+
+
+Tile <|-- ActionTile
+
+
+Tile <|-- PropertyTile
+
+
+UtilityTile <|-- PAMTile
+
+
+UtilityTile <|-- PLNTile
+
+
+
+
+
+/' Aggregation relationships '/
+
+Auction *-- GameViewInterface
+
+
+Auction "4" o-- Player
+
+
+Auction o-- PropertyTile
+
+
+AuctionCoordinator *-- CommandInterface
+
+
+AuctionCoordinator *-- GameViewInterface
+
+
+AuctionCoordinator o-- Player
+
+
+Board o-- Tile
+
+
+CLIView o-- Board
+
+
+Command *-- CommandType
+
+
+GameController *-- Auction
+
+
+GameController o-- AuctionCoordinator
+
+
+GameController *-- Board
+
+
+GameController *-- CommandInterface
+
+
+GameController *-- Deck
+
+
+GameController *-- Dice
+
+
+GameController *-- GameViewInterface
+
+
+GameController o-- Player
+
+
+GameController o-- PropertyCoordinator
+
+
+GameController o-- SkillCardCoordinator
+
+
+Inventory o-- PropertyTile
+
+
+Inventory o-- SkillCard
+
+
+LiquidationAction *-- LiquidationActionType
+
+
+LiquidationAction o-- PropertyTile
+
+
+LiquidationManager *-- CommandInterface
+
+
+LiquidationManager *-- GameViewInterface
+
+
+LiquidationManager "2" *-- LiquidationAction
+
+
+LiquidationPlan *-- LiquidationAction
+
+
+MenuScreen "3" *-- Button
+
+
+Monopoly o-- CommandInterface
+
+
+Monopoly o-- GameViewInterface
+
+
+Player *-- Inventory
+
+
+Player o-- Player
+
+
+PropertyCoordinator *-- Board
+
+
+PropertyCoordinator *-- CommandInterface
+
+
+PropertyCoordinator *-- Dice
+
+
+PropertyCoordinator *-- GameViewInterface
+
+
+PropertyCoordinator o-- Player
+
+
+PropertyTile *-- PropertyStatus
+
+
+SkillCardCoordinator *-- CommandInterface
+
+
+SkillCardCoordinator *-- Deck
+
+
+SkillCardCoordinator *-- GameViewInterface
+
+
+TransactionLogScreen *-- Button
+
+
+
+
+
+
+/' Nested objects '/
+
+Auction +-- Auction::AuctionCause
+
+
+Auction +-- Auction::AuctionState
+
+
+ChanceCard +-- ChanceCard::Instruction
+
+
+CommunityChestCard +-- CommunityChestCard::Instruction
+
+
+Player +-- Player::PlayerStatus
+
+
+
+
+@enduml
