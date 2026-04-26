@@ -1,5 +1,5 @@
 #include "controllers/GameController.hpp"
-
+#include "models/exception/SessionException/InvalidCommandAction.hpp"
 #include "controllers/AuctionCoordinator.hpp"
 #include "controllers/PropertyCoordinator.hpp"
 #include "controllers/SkillCardCoordinator.hpp"
@@ -265,12 +265,18 @@ void GameController::processTurn(Player& p) {
     skillCardCoordinator_->processPickAndDropSkillCard(p);
 
     while (isTurnActive && !p.isBankrupt()) {
-        if (p.isInJail()) {
-            isTurnActive = processJailTurn(p, hasUsedSkillCardThisTurn, hasRolledDiceThisTurn, canRollDice);
-        } else {
-            isTurnActive = processNormalTurn(p, hasUsedSkillCardThisTurn, hasRolledDiceThisTurn, canRollDice);
+        try 
+        {
+            if (p.isInJail()) {
+                isTurnActive = processJailTurn(p, hasUsedSkillCardThisTurn, hasRolledDiceThisTurn, canRollDice);
+            } else {
+                isTurnActive = processNormalTurn(p, hasUsedSkillCardThisTurn, hasRolledDiceThisTurn, canRollDice);
+            }
+            } catch (const InvalidCommandAction& e) {
+                view_.showMessage(e.getErrorMessage() + "\n");
+                continue;
+            }
         }
-    }
     
     p.decreaseShieldCardTurn();
 }
@@ -322,6 +328,7 @@ bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
     view_.showMessage("\nGiliran " + p.getUsername() + ". Masukkan perintah: ");
     Command cmd = command_.getCommand();
     while (cmd.getType() == CommandType::INVALID) {
+        throw InvalidCommandAction("aksi di giliran normal");
         view_.showMessage("Perintah tidak valid. Coba lagi: ");
         cmd = command_.getCommand();
     }
@@ -499,6 +506,7 @@ bool GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, 
 
     Command cmd = command_.getCommand();
     while (cmd.getType() == CommandType::INVALID) {
+        throw InvalidCommandAction("aksi saat di penjara");
         view_.showMessage("Perintah tidak valid. Coba lagi: ");
         cmd = command_.getCommand();
     }
