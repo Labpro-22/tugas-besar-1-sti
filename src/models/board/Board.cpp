@@ -54,7 +54,7 @@ int Board::getTileIndexByCode(const std::string& code) const {
     return -1; 
 }
 
-bool Board::has(std::string code) { 
+bool Board::has(std::string code) {
     for (size_t i = 0; i < tiles_.size(); i++) {
         if (tiles_[i]->getLetterCode() == code) {
             return true;

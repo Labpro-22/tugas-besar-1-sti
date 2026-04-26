@@ -31,35 +31,6 @@ class GameController {
         ~GameController();
 
         void playGame(int latesTurn, int maxTurn);
-        void processTurn(Player& p);
-        void processMovement(Player& p, int firstDisplacement);
-        void processSpecialCardUse(Player& p, bool& hasUsedSkillCardThisTurn);
-        void processPickAndDropSpecialCard(Player& p);
-        void processRollDice(Player& p);
-        void processAuction(Player& p, PropertyTile& propertyTile);
-        void processBankruptcyToBank(Player& p);
-        void transferProperty(Player& from, Player& to, PropertyTile& propertyTile);
-        bool processRandomDice(Player& p);
-        bool processCustomDice(Player& p, int x, int y);
-        bool resolveDiceResult(Player& p, int d1, int d2);
-
-        void processPayRent(Player& p, Tile& currentTile);
-        void processBankruptcyFlow(Player& payer, Player& owner, int rent);
-
-        void processMortgage(Player& p);
-        void processBuyBuilding(Player& p);
-        void processRedeem(Player& p);
-        bool processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice);
-        bool processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice);
-        void processFestival(Player& p);
-        void processTakeChanceCard(Player& p);
-        void processTakeCommunityChest(Player& p);
-        bool hasSoleWinner() const;
-        void decideWinner() const;
-        void showInventory(Player& p);
-        void showPosition(Player& p);
-        void processEndTurn(Player& p);
-
     private:
         // Deck<SpecialCard>...
         Deck<SkillCard>& specialCardDeck_;
@@ -73,6 +44,24 @@ class GameController {
         std::unique_ptr<SkillCardCoordinator> skillCardCoordinator_;
         std::unique_ptr<PropertyCoordinator> propertyCoordinator_;
 
+        int goSalary_;
+        int jailFine_;
         
+        void processTurn(Player& p);
+        void processMovement(Player& p, int firstDisplacement);
+        void processRollDice(Player& p);
+        bool processRandomDice(Player& p);
+        bool processCustomDice(Player& p, int x, int y);
+        bool resolveDiceResult(Player& p, int d1, int d2);
+
+        bool processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice);
+        bool processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice);
+        void processEndTurn(Player& p); // perlu dip
+
+        bool hasSoleWinner() const;
+        void decideWinner() const;
+
+        void showInventory(Player& p); // perlu dipindahin si
+        void showPosition(Player& p); // perlu dipindahin si
 };
 

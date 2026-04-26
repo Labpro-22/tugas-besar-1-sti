@@ -1,5 +1,4 @@
 #include "controllers/Auction.hpp"
-#include <sstream>
 
 Auction::Auction(std::vector<std::unique_ptr<Player>>& players,
                 GameViewInterface& view)
@@ -277,28 +276,8 @@ void Auction::processBankruptcyToBank(Player& bankruptPlayer) {
     }
 }
 
-bool Auction::isStarted() const {
-    return state_ != AuctionState::NOT_STARTED;
-}
-
 bool Auction::isFinished() const {
     return finished_;
-}
-
-Auction::AuctionState Auction::getState() const {
-    return state_;
-}
-
-Auction::AuctionCause Auction::getCause() const {
-    return cause_;
-}
-
-PropertyTile* Auction::getProperty() const {
-    return property_;
-}
-
-Player* Auction::getTriggerPlayer() const {
-    return triggerPlayer_;
 }
 
 Player* Auction::getCurrentPlayer() const {
@@ -312,88 +291,6 @@ Player* Auction::getCurrentPlayer() const {
     return participants_[currentParticipantIndex_];
 }
 
-Player* Auction::getHighestBidder() const {
-    return highestBidder_;
-}
-
-int Auction::getHighestBid() const {
-    return highestBid_;
-}
-
-int Auction::getCurrentParticipantIndex() const {
-    return currentParticipantIndex_;
-}
-
-int Auction::getpassesCount() const {
-    return passesCount_;
-}
-
-int Auction::getParticipantSize() const {
-    return static_cast<int>(participants_.size());
-}
-
-const std::vector<Player*>& Auction::getParticipants() const {
-    return participants_;
-}
-
-std::string Auction::getStatusText() const {
-    std::ostringstream oss;
-
-    oss << "=== AUCTION STATUS ===\n";
-
-    if (property_ != nullptr) {
-        oss << "Property   : " << property_->getTileName()
-            << " (" << property_->getLetterCode() << ")\n";
-    } else {
-        oss << "Property   : -\n";
-    }
-
-    if (triggerPlayer_ != nullptr) {
-        oss << "Triggered by: " << triggerPlayer_->getUsername() << "\n";
-    } else {
-        oss << "Triggered by: -\n";
-    }
-
-    oss << "State      : ";
-    if (state_ == AuctionState::NOT_STARTED) {
-        oss << "NOT_STARTED\n";
-    } else if (state_ == AuctionState::WAITING_FOR_ACTION) {
-        oss << "WAITING_FOR_ACTION\n";
-    } else {
-        oss << "FINISHED\n";
-    }
-
-    Player* current = getCurrentPlayer();
-    if (current != nullptr) {
-        oss << "Current turn: " << current->getUsername() << "\n";
-    } else {
-        oss << "Current turn: -\n";
-    }
-
-    if (highestBidder_ != nullptr) {
-        oss << "Highest bid: M" << highestBid_
-            << " by " << highestBidder_->getUsername() << "\n";
-    } else {
-        oss << "Highest bid: belum ada\n";
-    }
-
-    oss << "Participants: ";
-    for (size_t i = 0; i < participants_.size(); i++) {
-        oss << participants_[i]->getUsername();
-        if (i + 1 < participants_.size()) {
-            oss << ", ";
-        }
-    }
-    oss << "\n";
-
-    if (isForcedBidTurn()) {
-        oss << "Forced bid : YES\n";
-    } else {
-        oss << "Forced bid : NO\n";
-    }
-
-    return oss.str();
-}
 
 void Auction::runAuction(Player& triggerPlayer, PropertyTile& propertyTile, AuctionCause cause, CommandInterface& command) {
     start(triggerPlayer, propertyTile, cause);

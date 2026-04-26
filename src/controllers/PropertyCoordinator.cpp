@@ -137,6 +137,44 @@ void PropertyCoordinator::processTakeChanceCard(Player& player) {
     }
 }
 
+void PropertyCoordinator::processTakeCommunityChest(Player& player) {
+    CommunityChestCard card = CommunityChestCard::randomCard();
+    view_.showMessage("[COMMUNITY CHEST] " + card.getDescription() + "\n");
+
+    switch (card.getInstruction()) {
+        case CommunityChestCard::BirthdayCollect100FromEachPlayer:
+            for (auto& otherPtr : players_) {
+                Player* other = otherPtr.get();
+                if (other == nullptr || other == &player || other->isBankrupt()) {
+                    continue;
+                }
+
+                other->deductMoney(100);
+                player.addMoney(100);
+            }
+            break;
+
+        case CommunityChestCard::DoctorFeePay700:
+            player.deductMoney(700);
+            break;
+
+        case CommunityChestCard::ElectionPay200ToEachPlayer:
+            for (auto& otherPtr : players_) {
+                Player* other = otherPtr.get();
+                if (other == nullptr || other == &player || other->isBankrupt()) {
+                    continue;
+                }
+
+                player.deductMoney(200);
+                other->addMoney(200);
+            }
+            break;
+
+        default:
+            break;
+    }
+}
+
 void PropertyCoordinator::processRedeem(Player& player) {
     std::vector<PropertyTile*> mortgagedProperties = player.getMortgagedProperties();
     if (mortgagedProperties.empty()) {

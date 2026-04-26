@@ -2,7 +2,7 @@
 #include "models/player/Player.hpp"
 #include <iostream>
 
-OnLandResult GoTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
+OnLandResult GoTile::onLand(Player& p, CommandInterface&, GameViewInterface& view) {
     view.showMessage("Kamu mendarat di GoTile, kamu mendapatkan uang sebanyak X!\n");
     
     p.addMoney(getSalary());

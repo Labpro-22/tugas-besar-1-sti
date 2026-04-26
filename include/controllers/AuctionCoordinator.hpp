@@ -14,7 +14,6 @@ class AuctionCoordinator {
                         GameViewInterface& view,
                         CommandInterface& command);
 
-        void transferProperty(Player& from, Player& to, PropertyTile& propertyTile);
         void processAuction(Player& triggerPlayer, PropertyTile& propertyTile);
         void processBankruptcyToBank(Player& player);
 

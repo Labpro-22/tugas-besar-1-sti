@@ -38,7 +38,6 @@ void GameController::playGame(int latestTurn, int maxTurn) {
     decideWinner();
 }
 
-
 void GameController::processMovement(Player& p, int firstDisplacement) {
     Tile& nextTile = board_.moveToNextTile(p.move(firstDisplacement));
 
@@ -68,127 +67,39 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
             case OnLandResult::TriggerAuction: {
                 PropertyTile* property = dynamic_cast<PropertyTile*>(&nextTile);
                 if (property != nullptr) {
-                    processAuction(p, *property);
+                    auctionCoordinator_->processAuction(p, *property);
                 } else {
                     view_.showMessage("Auction trigger on non-property tile.\n");
                 }
                 break;
             }
-            case OnLandResult::TriggerBankruptcyAuction: {
-                auction_.runBankruptcyAuction(p, command_);
-                break;
-            }
-            case OnLandResult::TakeChanceCard:
-                processTakeChanceCard(p);
-                break;
-            case OnLandResult::TakeCommunityChest:
-                processTakeCommunityChest(p);
-                break;
-            case OnLandResult::Festival:
-                processFestival(p);
-                break;
-            case OnLandResult::TriggerMoveToJail:
-                p.setPosition(board_.getJailPosition());
-                p.setStatus(Player::PlayerStatus::JAILED);
-                p.resetJailTurn();
-                view_.showMessage("Kamu dipindahkan ke penjara\n");
-                break;
-            case OnLandResult::TriggerTryToPayRent:
-                processPayRent(p, nextTile);
-                break;
-            case OnLandResult::Done:
-                break;
-            default:
-                break;
+		case OnLandResult::TriggerBankruptcyAuction: {
+			auction_.runBankruptcyAuction(p, command_);
+			break;
+		}
+		case OnLandResult::TakeChanceCard:
+			propertyCoordinator_->processTakeChanceCard(p);
+			break;
+		case OnLandResult::TakeCommunityChest:
+			propertyCoordinator_->processTakeCommunityChest(p);
+			break;
+		case OnLandResult::Festival:
+            propertyCoordinator_->processFestival(p);
+			break;
+		case OnLandResult::TriggerMoveToJail:
+            p.setPosition(board_.getJailPosition());
+            p.setStatus(Player::PlayerStatus::JAILED);
+            p.resetJailTurn();
+            view_.showMessage("Kamu dipindahkan ke penjara\n");
+			break;
+		case OnLandResult::TriggerTryToPayRent:
+			propertyCoordinator_->processPayRent(p, nextTile);
+			break;
+		case OnLandResult::Done:
+			break;
+		default:
+			break;
 	}
-}
-
-// SKILL CARD RELATED --
-void GameController::processPickAndDropSpecialCard(Player& p) {
-	skillCardCoordinator_->processPickAndDropSkillCard(p);
-}
-
-void GameController::processSpecialCardUse(Player& p, bool& hasUsedSkillCardThisTurn) {
-	skillCardCoordinator_->processSkillCardUse(p, hasUsedSkillCardThisTurn);
-}
-// PROPERTY RELATED ----
-void GameController::processFestival(Player& p) {
-	propertyCoordinator_->processFestival(p);
-}
-
-void GameController::processTakeChanceCard(Player& p) {
-	propertyCoordinator_->processTakeChanceCard(p);
-}
-
-void GameController::processTakeCommunityChest(Player& p) {
-    CommunityChestCard card = CommunityChestCard::randomCard();
-    view_.showMessage("[COMMUNITY CHEST] " + card.getDescription() + "\n");
-
-    switch (card.getInstruction()) {
-        case CommunityChestCard::BirthdayCollect100FromEachPlayer:
-            for (auto& otherPtr : players_) {
-                Player* other = otherPtr.get();
-                if (other == nullptr || other == &p || other->isBankrupt()) {
-                    continue;
-                }
-
-                other->deductMoney(100);
-                p.addMoney(100);
-            }
-            break;
-
-        case CommunityChestCard::DoctorFeePay700:
-            p.deductMoney(700);
-            break;
-
-        case CommunityChestCard::ElectionPay200ToEachPlayer:
-            for (auto& otherPtr : players_) {
-                Player* other = otherPtr.get();
-                if (other == nullptr || other == &p || other->isBankrupt()) {
-                    continue;
-                }
-
-                p.deductMoney(200);
-                other->addMoney(200);
-            }
-            break;
-
-        default:
-            break;
-    }
-}
-
-void GameController::processRedeem(Player& p) {
-	propertyCoordinator_->processRedeem(p);
-}
-
-void GameController::processPayRent(Player& p, Tile& currentTile) {
-	propertyCoordinator_->processPayRent(p, currentTile);
-}
-
-void GameController::processBuyBuilding(Player& p) {
-	propertyCoordinator_->processBuyBuilding(p);
-}
-
-void GameController::processBankruptcyFlow(Player& payer, Player& owner, int rent) {
-    propertyCoordinator_->processBankruptcyFlow(payer, owner, rent);
-}
-
-void GameController::processMortgage(Player& p) {
-	propertyCoordinator_->processMortgage(p);
-}
-
-// AUCTION RELATED -------
-void GameController::transferProperty(Player& from, Player& to, PropertyTile& propertyTile) {
-	auctionCoordinator_->transferProperty(from, to, propertyTile);
-}
-
-void GameController::processAuction(Player& triggerPlayer, PropertyTile& propertyTile) {
-	auctionCoordinator_->processAuction(triggerPlayer, propertyTile);
-}
-
-void GameController::processBankruptcyToBank(Player& p) {
-	auctionCoordinator_->processBankruptcyToBank(p);
 }
 
 bool GameController::hasSoleWinner() const{
@@ -253,7 +164,7 @@ void GameController::processTurn(Player& p) {
     bool isTurnActive = true;
 
     // Setiap awal giliran, pemain mengambil 1 kartu kemampuan dari deck.
-    processPickAndDropSpecialCard(p);
+    skillCardCoordinator_->processPickAndDropSkillCard(p);
 
     while (isTurnActive && !p.isBankrupt()) {
         if (p.isInJail()) {
@@ -376,22 +287,22 @@ bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
                 return true;
             }
 
-            processSpecialCardUse(p, hasUsedSkillCardThisTurn);
+            skillCardCoordinator_->processSkillCardUse(p, hasUsedSkillCardThisTurn);
             return true;
         }
 
         case CommandType::GADAI: {
-            processMortgage(p);
+            propertyCoordinator_->processMortgage(p);
             return true;
         }
 
         case CommandType::TEBUS: {
-            processRedeem(p);
+            propertyCoordinator_->processRedeem(p);
             return true;
         }
 
         case CommandType::BANGUN: {
-            processBuyBuilding(p);
+            propertyCoordinator_->processBuyBuilding(p);
             return true;
         }
 
@@ -454,7 +365,7 @@ bool GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, 
             if (p.getBalance() < GameConfig::getJailFine()) {
                 if (wajibBayar) {
                     view_.showMessage("Kamu tidak mampu membayar denda wajib.\n");
-                    processBankruptcyToBank(p);
+                    auctionCoordinator_->processBankruptcyToBank(p);
                     return false;
                 }
 
@@ -502,7 +413,7 @@ bool GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, 
                 view_.showMessage("Percobaan terakhir gagal. Kamu wajib membayar denda.\n");
 
                 if (p.getBalance() < GameConfig::getJailFine()) {
-                    processBankruptcyToBank(p);
+                    auctionCoordinator_->processBankruptcyToBank(p);
                     return false;
                 }
 
@@ -563,7 +474,7 @@ bool GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, 
                 view_.showMessage("Percobaan terakhir gagal. Kamu wajib membayar denda.\n");
 
                 if (p.getBalance() < GameConfig::getJailFine()) {
-                    processBankruptcyToBank(p);
+                    auctionCoordinator_->processBankruptcyToBank(p);
                     return false;
                 }
 
@@ -585,7 +496,7 @@ bool GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, 
                 return true;
             }
 
-            processSpecialCardUse(p, hasUsedSkillCardThisTurn);
+            skillCardCoordinator_->processSkillCardUse(p, hasUsedSkillCardThisTurn);
             return true;
         }
 

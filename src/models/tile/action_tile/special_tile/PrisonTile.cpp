@@ -5,7 +5,7 @@
 #include <limits>
 #include <stdexcept>
 
-OnLandResult PrisonTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
+OnLandResult PrisonTile::onLand(Player&, CommandInterface&, GameViewInterface& view) {
     view.showMessage("Kamu mendarat di Penjara. Kamu ditangkap oleh polisi!\n");
     return OnLandResult::TriggerMoveToJail;
 }
