@@ -16,44 +16,11 @@ class GameViewInterface {
 
     public:
         // Joker of all trades oakwoawkaw
-        virtual void showMessage(std::string) = 0;
+        virtual void showMessage(const std::string message) = 0;
+        virtual void setBoardContext(Board* board) = 0;
+        virtual void cetakPapan(Player& pl, int currentTurn) = 0;
+        virtual void cetakAkta(const std::string& kodePetak) = 0;
+        virtual void cetakProperti(Player* player) = 0;
 
-        virtual void setBoardContext(Board*) {}
-
-        // Kasih tunjuk boardnya
-        virtual void cetakPapan(Player& p, int currentTurn) {}
-
-        // Kasih pesan ketika roll dice
-        // Kasih pesan mendaratnya
-        virtual void lemparDadu() {}
-
-        // roll settingan
-        virtual void aturDadu() {}
-
-        virtual void cetakAkta(const std::string& kodePetak) {}
-
-        // cetak properti
-        virtual void cetakProperti(Player* player) {}
-
-        // kasih lihat mo beli
-        virtual bool beliProperti() { return false; }
-        virtual void beliRailroad() {}; //otomatis
-        virtual void beliUtility() {}; //otomatis
-
-        // bayar sewa
-        virtual void bayarSewa() {};
-
-        virtual void bayarPajak() {};
-
-        virtual void gadai() {};
-
-        virtual void tebus() {};
-
-        virtual void bangun() {};
-
-        // TO DO:
-        // lelang???
-        // kebangkrutan???
-        
         virtual ~GameViewInterface() = default;
 };
