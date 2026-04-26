@@ -8,7 +8,7 @@
 #include <string>
 #include <limits>
 
-OnLandResult CommunityChestTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
+OnLandResult CommunityChestTile::onLand(Player&, CommandInterface&, GameViewInterface& view) {
     view.showMessage("Kamu mendarat di Community Chest Tile!\n");
     return OnLandResult::TakeCommunityChest;
 }

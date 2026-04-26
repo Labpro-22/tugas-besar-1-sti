@@ -8,7 +8,7 @@
 #include <string>
 #include <limits>
 
-OnLandResult ChanceTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
+OnLandResult ChanceTile::onLand(Player&, CommandInterface&, GameViewInterface& view) {
     view.showMessage("Kamu mendarat di Petak Kesempatan!\n");
     return OnLandResult::TakeChanceCard;
 }
