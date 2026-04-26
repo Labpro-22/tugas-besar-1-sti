@@ -149,6 +149,7 @@ class CLIView : public GameViewInterface {
                     }
                 }
 
+                // --- 2. BIDAK ---
                 std::string inVis = "", inCol = "";
                 std::string vVis = "", vCol = "";
                 std::string normVis = "", normCol = "";
@@ -156,17 +157,19 @@ class CLIView : public GameViewInterface {
                 for (Player* player : pl.getAllPlayers()) {
                     if (player == nullptr) continue;
                     
+                    // LANGSUNG GUNAKAN POSISI ASLINYA!
                     int pIdx = player->getPosition();
-                    if (pIdx > 0) pIdx--; 
-                    if (player->getPosition() == 0) pIdx = 0; 
 
                     if (pIdx == idx) {
                         int pID = player->getID() + 1;
                         std::string pNum = std::to_string(pID);
                         std::string pColorFull = getPColor(pID) + pNum + "\033[0m";
 
-                        if (idx == 10) {
-                            bool isJailed = player->isInJail(); 
+                        if (idx == 10) { // TILE PENJARA
+                            // ==========================================
+                            // TODO: UBAH `false` SESUAI FUNGSI CEK PENJARA MILIKMU!
+                            // ==========================================
+                            bool isJailed = false; // contoh: player->isInJail();
                             
                             if (isJailed) {
                                 inVis += pNum;
@@ -403,31 +406,125 @@ class CLIView : public GameViewInterface {
             std::cout << "+========================================+\n\n";
         }
 
-        void cetakProperti() override {
+        // Jangan lupa ubah signature di interface base class menjadi (Player* player)
+        void cetakProperti(Player* player) override {
             if (board_ == nullptr) {
                 std::cout << "Board belum tersedia.\n";
                 return;
             }
-
-            const int n = boardSize();
-            if (n == 0) {
-                std::cout << "Board kosong.\n";
+            if (player == nullptr) {
+                std::cout << "Data pemain tidak ditemukan.\n";
                 return;
             }
 
-            std::cout << "===== DAFTAR PROPERTI DAN PEMILIK =====\n";
-            for (int i = 0; i < n; ++i) {
-                Tile& tile = board_->getCurrentTile(i);
-                PropertyTile* property = dynamic_cast<PropertyTile*>(&tile);
-                if (property == nullptr) {
-                    continue;
-                }
+            std::string pName = player->getUsername();
+            int totalKekayaan = 0;
+            bool hasProperty = false;
 
-                std::cout << property->getLetterCode() << " - "
-                          << property->getTileName() << " | "
-                          << propertyKind(*property) << " | "
-                          << "Owner: " << property->getOwnerUsername() << "\n";
+            // 1. SIAPKAN URUTAN KATEGORI AGAR RAPI (Sesuai posisi di papan)
+            std::vector<std::string> urutanKategori = {
+                "COKLAT", "BIRU MUDA", "PINK", "ORANGE", 
+                "MERAH", "KUNING", "HIJAU", "BIRU TUA", 
+                "STASIUN", "UTILITAS"
+            };
+            
+            // Map untuk mengelompokkan properti berdasarkan kategori
+            std::map<std::string, std::vector<PropertyTile*>> groupedProps;
+
+            // 2. KUMPULKAN DAN HITUNG KEKAYAAN
+            for (int i = 0; i < boardSize(); ++i) {
+                Tile& tile = board_->getCurrentTile(i);
+                PropertyTile* prop = dynamic_cast<PropertyTile*>(&tile);
+                
+                // Jika ini adalah properti dan pemiliknya adalah pemain saat ini
+                if (prop != nullptr && prop->getOwnerUsername() == pName) {
+                    hasProperty = true;
+                    std::string kategori = "";
+                    
+                    // Tentukan Kategori
+                    if (dynamic_cast<RailRoadTile*>(prop)) kategori = "STASIUN";
+                    else if (dynamic_cast<UtilityTile*>(prop)) kategori = "UTILITAS";
+                    else {
+                        int idx = i;
+                        if (idx==1||idx==3) kategori = "COKLAT";
+                        else if (idx==6||idx==8||idx==9) kategori = "BIRU MUDA";
+                        else if (idx==11||idx==13||idx==14) kategori = "PINK";
+                        else if (idx==16||idx==18||idx==19) kategori = "ORANGE";
+                        else if (idx==21||idx==23||idx==24) kategori = "MERAH";
+                        else if (idx==26||idx==27||idx==29) kategori = "KUNING";
+                        else if (idx==31||idx==32||idx==34) kategori = "HIJAU";
+                        else if (idx==37||idx==39) kategori = "BIRU TUA";
+                    }
+                    groupedProps[kategori].push_back(prop);
+
+                    // Hitung Total Kekayaan (Harga Beli + Total Biaya Bangunan)
+                    totalKekayaan += prop->getPurchasePrice();
+                    StreetTile* street = dynamic_cast<StreetTile*>(prop);
+                    if (street && street->getLevel() > 0) {
+                        std::map<int, int> buildMap = street->getBuildPrice();
+                        int costPerBuilding = 0;
+                        if (buildMap.count(1)) costPerBuilding = buildMap.at(1);
+                        else if (!buildMap.empty()) costPerBuilding = buildMap.begin()->second;
+                        
+                        totalKekayaan += (street->getLevel() * costPerBuilding);
+                    }
+                }
             }
+
+            // 3. JIKA TIDAK PUNYA PROPERTI SAMA SEKALI
+            if (!hasProperty) {
+                std::cout << "Kamu belum memiliki properti apapun.\n";
+                return;
+            }
+
+            // 4. MENCETAK HASIL YANG SUDAH DIKELOMPOKKAN
+            std::cout << "=== Properti Milik: " << pName << " ===\n";
+
+            // Helper untuk meratakan teks (Padding) agar tabelnya sejajar
+            auto padRight = [](std::string s, int width) {
+                if (s.length() >= width) return s;
+                return s + std::string(width - s.length(), ' ');
+            };
+
+            for (const std::string& kat : urutanKategori) {
+                // Cetak hanya jika kategori tersebut memiliki isi
+                if (groupedProps.find(kat) != groupedProps.end() && !groupedProps[kat].empty()) {
+                    std::cout << "\n[" << kat << "]\n";
+                    
+                    for (PropertyTile* prop : groupedProps[kat]) {
+                        // Kolom 1: Nama & Kode (Lebar: 32)
+                        std::string namaKode = "  - " + prop->getTileName() + " (" + prop->getLetterCode() + ")";
+                        namaKode = padRight(namaKode, 32); 
+
+                        // Kolom 2: Level Bangunan (Lebar: 10)
+                        std::string levelStr = "";
+                        StreetTile* street = dynamic_cast<StreetTile*>(prop);
+                        if (street) {
+                            int lvl = street->getLevel();
+                            if (lvl == 5) levelStr = "Hotel";
+                            else if (lvl > 0) levelStr = std::to_string(lvl) + " rumah";
+                        }
+                        levelStr = padRight(levelStr, 10); 
+
+                        // Kolom 3: Harga Beli (Lebar: 10)
+                        std::string hargaStr = Formatter::formattingMoney(prop->getPurchasePrice());
+                        hargaStr = padRight(hargaStr, 10);
+
+                        // Kolom 4: Status (OWNED / MORTGAGED [M])
+                        std::string statusStr = "OWNED";
+                        // Sesuaikan dengan logic enum/string kalian
+                        if (propertyStatusToString(prop->getPropertyStatus()) == "MORTGAGED") {
+                            statusStr = "MORTGAGED [M]";
+                        }
+
+                        // Cetak Baris
+                        std::cout << namaKode << levelStr << hargaStr << statusStr << "\n";
+                    }
+                }
+            }
+
+            // 5. CETAK TOTAL KEKAYAAN ASET
+            std::cout << "\nTotal kekayaan properti: " << Formatter::formattingMoney(totalKekayaan) << "\n\n";
         }
 };
 

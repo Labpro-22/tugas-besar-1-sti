@@ -33,7 +33,7 @@ class GameViewInterface {
         virtual void cetakAkta(const std::string& kodePetak) {}
 
         // cetak properti
-        virtual void cetakProperti() {}
+        virtual void cetakProperti(Player* player) {}
 
         // kasih lihat mo beli
         virtual bool beliProperti() { return false; }

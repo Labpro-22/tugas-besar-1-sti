@@ -329,7 +329,7 @@ bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
         }
 
         case CommandType::CETAK_PROPERTI: {
-            view_.cetakProperti();
+            view_.cetakProperti(&p);
             return true;
         }
 
