@@ -29,15 +29,7 @@ MoveCard::MoveCard(int steps)
     description = "Bergerak maju " + std::to_string(steps_) + " petak.";
 }
 
-void MoveCard::activate(Player& owner) {
-    // const int boardSize = Board::getActiveBoardSize();
-    // if (boardSize <= 0) {
-    //     owner.setPosition(owner.move(steps_));
-    //     return;
-    // }
-
-    // const int wrappedPos = (owner.getPosition() + steps_) % boardSize;
-    // owner.setPosition(wrappedPos);
+void MoveCard::activate(Player&) {
 }
 
 int MoveCard::getSteps() const {
