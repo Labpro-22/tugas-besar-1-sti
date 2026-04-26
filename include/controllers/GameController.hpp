@@ -15,6 +15,8 @@
 #include "models/card/skillcard/MoveCard.hpp"
 #include "models/card/skillcard/TeleportCard.hpp"
 #include "models/tile/property_tile/RailRoadTile.hpp"
+#include "models/io/Writer.hpp"
+#include "models/exception/SessionException/SessionException.hpp"
 
 #include <memory>
 #include <vector>
@@ -27,7 +29,8 @@ class GameController {
     public:
         GameController(std::vector<std::unique_ptr<Player>> players, 
             Board& board, Dice& dice, GameViewInterface& view, 
-            CommandInterface& command, Deck<SkillCard>& specialCardDeck_);
+            CommandInterface& command, Deck<SkillCard>& specialCardDeck_,
+            const std::string& saveFolder);
         ~GameController();
 
         void setCurrentTurn(int latestTurn);
@@ -45,6 +48,7 @@ class GameController {
         std::unique_ptr<AuctionCoordinator> auctionCoordinator_;
         std::unique_ptr<SkillCardCoordinator> skillCardCoordinator_;
         std::unique_ptr<PropertyCoordinator> propertyCoordinator_;
+        std::unique_ptr<Writer> writer_;
 
         int currentTurn_;
         int goSalary_;
@@ -74,5 +78,8 @@ class GameController {
 
         void addTransactionLog(const std::string& username, const std::string& action, const std::string& detail);
         void printTransactionLog(int lastN = -1);
+        
+        void saveGameState(const std::string& filename);
+        void initializeWriter(const std::string& saveFolder);
 };
 

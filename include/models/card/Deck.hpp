@@ -7,14 +7,17 @@
 #include <memory>
 #include <random>
 #include <utility>
+#include <string>
 
 template <typename T>
 class Deck {
 	private:
 		std::stack<std::unique_ptr<T>> drawPile_;
 		std::vector<std::unique_ptr<T>> discardPile_;
+		std::vector<std::string> drawableCardNamesForSave_;
 		int capacity_;
-
+		
+		void rebuildDrawableCardNames();
 	public:
 		Deck(int capacity = 0);
 
@@ -32,5 +35,7 @@ class Deck {
 
 		int getDrawCount() const;
 		int getDiscardCount() const;
+
+		std::vector<std::string> getDrawableCardNames() const;
 };
 
