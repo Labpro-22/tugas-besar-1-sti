@@ -605,7 +605,26 @@ class CLICommand : public CommandInterface {
             if (cmd == "BANGUN") return Command(CommandType::BANGUN);
             if (cmd == "SIMPAN") return Command(CommandType::SIMPAN);
             if (cmd == "MUAT") return Command(CommandType::MUAT);
-            if (cmd == "CETAK_LOG") return Command(CommandType::CETAK_LOG);
+            if (cmd == "CETAK_LOG") {
+                std::vector<int> args;
+                std::string token;
+                while (iss >> token) {
+                    int value = 0;
+                    if (!parseInt(token, value)) {
+                        return Command(CommandType::INVALID);
+                    }
+                    args.push_back(value);
+                }
+
+                if (args.size() > 1) {
+                    return Command(CommandType::INVALID);
+                }
+
+                if (args.empty()) {
+                    return Command(CommandType::CETAK_LOG);
+                }
+                return Command(CommandType::CETAK_LOG, args);
+            }
             if (cmd == "GUNAKAN_KEMAMPUAN") return Command(CommandType::GUNAKAN_KEMAMPUAN);
             if (cmd == "BAYAR_DENDA") return Command(CommandType::BAYAR_DENDA);
             if (cmd == "END_COMMAND" || cmd == "END_TURN") return Command(CommandType::END_COMMAND);

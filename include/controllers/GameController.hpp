@@ -35,6 +35,7 @@ class GameController {
     private:
         // Deck<SpecialCard>...
         Deck<SkillCard>& specialCardDeck_;
+        std::vector<std::string> transactionLog_;
         Board& board_;
         Dice& dice_;
         GameViewInterface& view_;
@@ -65,5 +66,13 @@ class GameController {
 
         void showInventory(Player& p); // perlu dipindahin si
         void showPosition(Player& p); // perlu dipindahin si
+
+        void handleSkillCardUsage(Player& p, SkillCard& card);
+        void executeMoveCard(Player& p, MoveCard& card);
+        void executeTeleportCard(Player& p);
+        void executeLassoCard(Player& p);
+
+        void addTransactionLog(const std::string& username, const std::string& action, const std::string& detail);
+        void printTransactionLog(int lastN = -1);
 };
 
