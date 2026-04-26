@@ -6,21 +6,16 @@
 
 LiquidationManager::LiquidationManager(GameViewInterface& view, CommandInterface& command) : view_(view), command_(command) {}
 
-std::string LiquidationManager::actionTypeToString(LiquidationActionType type) const {
-    if (type == LiquidationActionType::SELL_PROPERTY) return "Jual Properti";
-    if (type == LiquidationActionType::MORTGAGE_PROPERTY) return "Gadai Properti";
-    return "Jual Bangunan";
-}
-
 bool LiquidationManager::containsSelectedAction(const LiquidationAction& action) const {
-    return containsAction(selectedActions_, action);
+    for (const auto& a : selectedActions_) {
+        if (a.isSameAction(action)) return true;
+    }
+    return false;
 }
 
 bool LiquidationManager::containsAction(const std::vector<LiquidationAction>& actions, const LiquidationAction& target) const {
-    for (size_t i = 0; i < actions.size(); i++) {
-        if (actions[i].isSameAction(target)) {
-            return true;
-        }
+    for (const auto& a : actions) {
+        if (a.isSameAction(target)) return true;
     }
     return false;
 }
@@ -129,28 +124,11 @@ int LiquidationManager::calculateRequiredAmount(Player& payer, int obligationAmo
 int LiquidationManager::calculateSellBuildingValue(StreetTile& street) {
     int level = street.getLevel();
     if (level <= 0) return 0;
-
     std::map<int, int> buildPrice = street.getBuildPrice();
-
-    {
-        std::string dbg = "[DEBUG] calculateSellBuildingValue | tile=" + street.getLetterCode()
-                        + " level=" + std::to_string(level)
-                        + " buildPrice={";
-        for (auto& kv : buildPrice) {
-            dbg += std::to_string(kv.first) + ":" + std::to_string(kv.second) + " ";
-        }
-        dbg += "}\n";
-        view_.showMessage(dbg);
-    }
-
-    if (buildPrice.empty()) {
-        view_.showMessage("[DEBUG] buildPrice KOSONG untuk tile " + street.getLetterCode() + "\n");
-        return 0;
-    }
+    if (buildPrice.empty()) return 0;
 
     int housePrice = 0;
     int hotelPrice = 0;
-
     if (buildPrice.size() == 1) {
         housePrice = buildPrice.begin()->second;
         hotelPrice = housePrice;
@@ -166,33 +144,20 @@ int LiquidationManager::calculateSellBuildingValue(StreetTile& street) {
     } else {
         housePrice = buildPrice.begin()->second;
         hotelPrice = buildPrice.rbegin()->second;
-        view_.showMessage("[DEBUG] Menggunakan fallback: housePrice=" +
-            std::to_string(housePrice) + " (key=" +
-            std::to_string(buildPrice.begin()->first) + "), hotelPrice=" +
-            std::to_string(hotelPrice) + " (key=" +
-            std::to_string(buildPrice.rbegin()->first) + ")\n");
     }
 
-    int totalCost = (level < 5) ? (level * housePrice) : (4 * housePrice + hotelPrice);
-
-    view_.showMessage("[DEBUG] housePrice=" + std::to_string(housePrice)
-        + " hotelPrice=" + std::to_string(hotelPrice)
-        + " totalCost=" + std::to_string(totalCost)
-        + " -> sellValue=" + std::to_string(totalCost / 2) + "\n");
-
+    int totalCost;
+    if (level < 5) {
+        totalCost = level * housePrice;
+    } else {
+        totalCost = 4 * housePrice + hotelPrice;
+    }
     return totalCost / 2;
 }
 
 int LiquidationManager::calculateMaxLiquidationValue(Player& payer) {
     int total = 0;
     std::vector<PropertyTile*> properties = payer.getProperties();
-
-    view_.showMessage("[DEBUG] jumlah properti payer: " + std::to_string(properties.size()) + "\n");
-    for (PropertyTile* p : properties) {
-        if (p) view_.showMessage("[DEBUG] properti: " + p->getLetterCode() + 
-            " status=" + std::to_string(p->getPropertyStatus()) + "\n");
-    }
-
     std::map<std::string, int> groupBuildingValueCache;
     std::set<std::string> groupBuildingCached;
 
@@ -223,13 +188,15 @@ int LiquidationManager::calculateMaxLiquidationValue(Player& payer) {
         StreetTile* street = dynamic_cast<StreetTile*>(property);
 
         if (street == nullptr) {
-            int sellVal     = canSellProperty(payer, *property)     ? calculateSellPropertyValue(*property)  : 0;
-            int mortgageVal = canMortgageProperty(payer, *property) ? calculateMortgageValue(*property)      : 0;
+            int sellVal = 0;
+            if (canSellProperty(payer, *property)) {
+                sellVal = calculateSellPropertyValue(*property);
+            }
+            int mortgageVal = 0;
+            if (canMortgageProperty(payer, *property)) {
+                mortgageVal = calculateMortgageValue(*property);
+            }
             int best = std::max(sellVal, mortgageVal);
-            view_.showMessage("[DEBUG] non-street tile=" + property->getLetterCode()
-                + " sell=" + std::to_string(sellVal)
-                + " mortgage=" + std::to_string(mortgageVal)
-                + " best=" + std::to_string(best) + "\n");
             total += best;
             continue;
         }
@@ -249,7 +216,10 @@ int LiquidationManager::calculateMaxLiquidationValue(Player& payer) {
             }
         }
 
-        int groupBuildVal = groupBuildingValueCache.count(cg) ? groupBuildingValueCache[cg] : 0;
+        int groupBuildVal = 0;
+        if (groupBuildingValueCache.count(cg)) {
+            groupBuildVal = groupBuildingValueCache[cg];
+        }
         bool groupHasBuildings = (groupBuildVal > 0);
 
         int option1 = groupBuildVal;
@@ -275,17 +245,11 @@ int LiquidationManager::calculateMaxLiquidationValue(Player& payer) {
 
         int best = std::max({option1, option2, option4});
 
-        view_.showMessage("[DEBUG] colorGroup=" + cg
-            + " groupBuildVal=" + std::to_string(groupBuildVal)
-            + " option1(sellBldg+mortgageTiles)=" + std::to_string(option1)
-            + " option2(sellAllTiles)=" + std::to_string(option2)
-            + " option4(mortgageAll)=" + std::to_string(option4)
-            + " best=" + std::to_string(best) + "\n");
+        
 
         total += best;
     }
 
-    view_.showMessage("[DEBUG] calculateMaxLiquidationValue TOTAL=" + std::to_string(total) + "\n");
     return total;
 }
 
@@ -316,23 +280,16 @@ std::vector<LiquidationAction> LiquidationManager::buildSellBuildingActions(Play
             groupBuildingValue += tileVal;
 
             if (representative == nullptr) representative = otherStreet;
-            groupDesc += otherStreet->getTileName() + "(" + otherStreet->getLetterCode()
-                       + ") M" + std::to_string(tileVal) + " ";
+            groupDesc += otherStreet->getTileName() + "(" + otherStreet->getLetterCode() + ") M" + std::to_string(tileVal) + " ";
         }
 
         if (representative == nullptr || groupBuildingValue <= 0) continue;
 
         processedGroups.insert(colorGroup);
 
-        std::string desc = "Jual semua bangunan di [" + colorGroup + "]: "
-                         + groupDesc + "-> Total M" + std::to_string(groupBuildingValue);
+        std::string desc = "Jual semua bangunan di [" + colorGroup + "]: " + groupDesc + "-> Total M" + std::to_string(groupBuildingValue);
 
-        actions.push_back(LiquidationAction(
-            LiquidationActionType::SELL_BUILDINGS,
-            representative,   
-            groupBuildingValue,
-            desc
-        ));
+        actions.push_back(LiquidationAction(LiquidationActionType::SELL_BUILDINGS, representative, groupBuildingValue, desc));
     }
     return actions;
 }
@@ -392,15 +349,8 @@ std::vector<LiquidationAction> LiquidationManager::buildSellPropertyActions(Play
         if (property == nullptr) continue;
         if (!canSellProperty(payer, *property)) continue;
         int value = calculateSellPropertyValue(*property);
-        std::string desc = "Jual " + property->getTileName() + " (" +
-            property->getLetterCode() + ") [" + property->getColourBlock() +
-            "] -> M" + std::to_string(value);
-        actions.push_back(LiquidationAction(
-            LiquidationActionType::SELL_PROPERTY,
-            property,
-            value,
-            desc
-        ));
+        std::string desc = "Jual " + property->getTileName() + " (" + property->getLetterCode() + ") [" + property->getColourBlock() + "] -> M" + std::to_string(value);
+        actions.push_back(LiquidationAction(LiquidationActionType::SELL_PROPERTY, property, value, desc));
     }
     return actions;
 }
@@ -444,11 +394,7 @@ std::vector<LiquidationAction> LiquidationManager::findPrerequisitesForAction(Pl
                                 prerequisites.push_back(avail);
                             }
                             break;
-                        }
-                    }
-                }
-            }
-        }
+                        }}}}}
         return prerequisites;
     }
     if (action.getType() == LiquidationActionType::SELL_PROPERTY) {
@@ -475,13 +421,7 @@ std::vector<LiquidationAction> LiquidationManager::findPrerequisitesForAction(Pl
                                 prerequisites.push_back(avail);
                             }
                             break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
+                        }}}}}}
     return prerequisites;
 }
 
@@ -676,15 +616,14 @@ void LiquidationManager::executeSellBuildingsColorGroup(Player& payer, const std
 }
 
 void LiquidationManager::sortSelectedActionsByPriority() {
+    auto priority = [](LiquidationActionType t) {
+        if (t == LiquidationActionType::SELL_BUILDINGS) return 0;
+        if (t == LiquidationActionType::SELL_PROPERTY) return 1;
+        return 2;
+    };
     std::sort(selectedActions_.begin(), selectedActions_.end(),
-        [](const LiquidationAction& a, const LiquidationAction& b) {
-            if (a.getType() == LiquidationActionType::SELL_BUILDINGS &&
-                b.getType() != LiquidationActionType::SELL_BUILDINGS)
-                return true;
-            if (b.getType() == LiquidationActionType::SELL_BUILDINGS &&
-                a.getType() != LiquidationActionType::SELL_BUILDINGS)
-                return false;
-            return false;
+        [&](const LiquidationAction& a, const LiquidationAction& b) {
+            return priority(a.getType()) < priority(b.getType());
         });
 }
 
