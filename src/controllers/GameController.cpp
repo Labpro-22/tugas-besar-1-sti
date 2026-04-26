@@ -287,7 +287,7 @@ bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
                 return true;
             }
 
-            processSpecialCardUse(p, hasUsedSkillCardThisTurn);
+            skillCardCoordinator_->processSkillCardUse(p, hasUsedSkillCardThisTurn);
             return true;
         }
 
@@ -496,7 +496,7 @@ bool GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, 
                 return true;
             }
 
-            processSpecialCardUse(p, hasUsedSkillCardThisTurn);
+            skillCardCoordinator_->processSkillCardUse(p, hasUsedSkillCardThisTurn);
             return true;
         }
 
