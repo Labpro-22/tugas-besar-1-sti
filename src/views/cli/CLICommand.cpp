@@ -133,12 +133,12 @@ int CLICommand::askNumOfPlayer() {
     return getInt(2, 4);
 }
 
-std::string CLICommand::askPlayerUsername() {
-    std::cout << "Masukkan username pemain: ";
+std::string CLICommand::askPlayerUsername(int i) {
+    std::cout << "Masukkan username P" + std::to_string(i+1) + ": ";
     std::string username;
     std::getline(std::cin, username);
     if (username.empty()) {
-        return "Player";
+        return "Player" + std::to_string(i+1);
     }
     return username;
 }

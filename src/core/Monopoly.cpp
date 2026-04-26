@@ -32,7 +32,26 @@ int Monopoly::getMaxTurn() {
 
 void Monopoly::startGame() {
     while (true) {
-        view_->showMessage("Selamat datang!\nPutra-putri terbaik bangsa!");
+        view_->showMessage(
+            "\n"
+            "================================================================================\n"
+            "\n"
+            " __        __   _                            _____    \n"
+            " \\ \\      / /__| | ___  ___  _ __ ___   ___ |_   _|__ \n"
+            "  \\ \\ /\\ / / _ \\ |/ _ \\/ _ \\| '_ ` _ \\ / _ \\  | |/ _ \\\n"
+            "   \\ V  V /  __/ | (_| (_) | | | | | |  __/  | | (_) |\n"
+            "    \\_/\\_/ \\___|_|\\___\\___/|_| |_| |_|\\___|  |_|\\___/ \n"
+            "\n"
+            "  _   _ ___ __  __  ___  _   _ ____  ____   ___  _     ___ \n"
+            " | \\ | |_ _|  \\/  |/ _ \\| \\ | / ___||  _ \\ / _ \\| |   |_ _|\n"
+            " |  \\| || || |\\/| | | | |  \\| \\___ \\| |_) | | | | |    | | \n"
+            " | |\\  || || |  | | |_| | |\\  |___) |  __/| |_| | |___ | | \n"
+            " |_| \\_|___|_|  |_|\\___/|_| \\_|____/|_|    \\___/|_____|___|\n"
+            "                                                              \n"
+            "================================================================================\n"
+            "Selamat datang, Kapitalis Muda! Bersiaplah untuk memonopoli segalanya!\n"
+            "\n"
+        );
         // minta folder yang mau di-load
         std::unique_ptr<Board> board = loadConfig();
 
@@ -110,7 +129,7 @@ std::vector<std::unique_ptr<Player>> Monopoly::registerPlayers(size_t numOfPlaye
     std::vector<std::unique_ptr<Player>> players_;
     for (size_t i = 0; i < numOfPlayers; i++) {
         while (true) {
-            std::string usn = command_->askPlayerUsername();
+            std::string usn = command_->askPlayerUsername(i);
             bool exists = false;
 
             for (const auto& player : players_) {

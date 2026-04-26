@@ -62,7 +62,7 @@ class CLICommand : public CommandInterface {
 
         int askNumOfPlayer() override;
 
-        std::string askPlayerUsername() override;
+        std::string askPlayerUsername(int i) override;
 
         bool askWantToLoadState() override;
 
