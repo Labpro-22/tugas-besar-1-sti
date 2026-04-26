@@ -26,6 +26,11 @@ std::unique_ptr<T> Deck<T>::drawDeck() {
 
 	std::unique_ptr<T> card = std::move(drawPile_.top());
 	drawPile_.pop();
+
+	if (!drawableCardNamesForSave_.empty()) {
+        drawableCardNamesForSave_.erase(drawableCardNamesForSave_.begin());
+    }
+
 	return card;
 }
 
@@ -47,6 +52,8 @@ void Deck<T>::shuffleDeck() {
 
 	std::shuffle(discardPile_.begin(), discardPile_.end(), g);
 
+	rebuildDrawableCardNames();
+
 	for (auto& card : discardPile_)
     {
 		drawPile_.push(std::move(card));
@@ -66,3 +73,24 @@ int Deck<T>::getDiscardCount() const {
 
 #include "models/card/skillcard/SkillCard.hpp"
 template class Deck<SkillCard>;
+
+template <typename T>
+void Deck<T>::rebuildDrawableCardNames() {
+    drawableCardNamesForSave_.clear();
+
+    std::vector<std::string> names;
+    for (const auto& card : discardPile_) {
+        if (card) {
+            names.push_back(card->getName());
+        }
+    }
+
+    for (int i = static_cast<int>(names.size()) - 1; i >= 0; --i) {
+        drawableCardNamesForSave_.push_back(names[i]);
+    }
+}
+
+template <typename T>
+std::vector<std::string> Deck<T>::getDrawableCardNames() const {
+    return drawableCardNamesForSave_;
+}
