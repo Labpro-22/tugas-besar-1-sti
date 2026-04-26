@@ -30,7 +30,7 @@ class GameViewInterface {
         // roll settingan
         virtual void aturDadu() {}
 
-        virtual void cetakAkta(const std::string& kodePetak) {}
+        virtual void cetakAkta(const std::string& kodePetak, bool showStatus = true) {}
 
         // cetak properti
         virtual void cetakProperti(Player* player) {}

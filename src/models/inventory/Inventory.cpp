@@ -181,32 +181,27 @@ int Inventory::countCard() const {
     return static_cast<int>(skillCards_.size());
 }
 
-std::map<std::string, std::vector<PropertyTile*>> Inventory::getCompleteColourGroups(std::map<std::string, size_t> countTilesForEachColourBlock) {
-    // 1 Pembangunan rumah harus dilakukan 
-        // secara merata di
-        // seluruh petak dalam satu color group.
-        // selisih antar properti level di satu color group selalu <= 1
-        // dynamic cast ke street tile
-        // * ga memenuhi syarat ga bakal ditampilin
+std::map<std::string, std::vector<PropertyTile*>> Inventory::getCompleteColourGroups(const std::map<std::string, size_t>& countTilesForEachColourBlock) {
     std::map<std::string, std::vector<PropertyTile*>> colourBlockToPropertyTile;
 
-    // Masukin aja dulu semuanya (grouping)
     for (size_t i = 0; i < properties_.size(); i++) {
         colourBlockToPropertyTile[properties_.at(i)->getColourBlock()].push_back(properties_.at(i));
     }
 
-    // cek colour group yang valid, valid artinya udh dimiliki
-    for (auto it = colourBlockToPropertyTile.begin(); it != colourBlockToPropertyTile.end(); ++it) {
+    for (auto it = colourBlockToPropertyTile.begin(); it != colourBlockToPropertyTile.end(); /* KOSONG */ ) {
         const std::string& colour = it->first;
         const std::vector<PropertyTile*>& tiles = it->second;
 
-        if (tiles.size() != countTilesForEachColourBlock[colour]) {
+        auto targetCountIt = countTilesForEachColourBlock.find(colour);
+        size_t targetCount = (targetCountIt != countTilesForEachColourBlock.end()) ? targetCountIt->second : 0;
+
+        if (tiles.size() != targetCount || targetCount == 0) {
             it = colourBlockToPropertyTile.erase(it);
         } else {
             ++it;
         }
-
     }
+
     return colourBlockToPropertyTile;
 }
 

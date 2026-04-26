@@ -1,4 +1,6 @@
 #include "models/board/Board.hpp"
+#include "models/tile/property_tile/RailRoadTile.hpp"
+#include "models/tile/property_tile/UtilityTile.hpp"
 
 Board::Board(int size) : size_(size) {}
 
@@ -6,6 +8,26 @@ Board::~Board() = default;
 
 void Board::addTile(std::unique_ptr<Tile> tile) {
     tiles_.push_back(std::move(tile));
+}
+
+void Board::initColourGroupCounts() {
+    countTilesForEachColourBlock_.clear(); 
+
+    for (int i = 0; i < size_; i++) {
+        Tile& t = getCurrentTile(i); 
+        PropertyTile* pt = dynamic_cast<PropertyTile*>(&t);
+
+        if (pt) {
+            if (dynamic_cast<RailRoadTile*>(pt) || dynamic_cast<UtilityTile*>(pt)) {
+                continue;
+            }
+
+            std::string color = pt->getColourBlock();
+            if (!color.empty()) {
+                countTilesForEachColourBlock_[color]++;
+            }
+        }
+    }
 }
 
 Tile& Board::moveToNextTile(int distance) {

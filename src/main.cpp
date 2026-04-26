@@ -149,7 +149,6 @@ class CLIView : public GameViewInterface {
                     }
                 }
 
-                // --- 2. BIDAK ---
                 std::string inVis = "", inCol = "";
                 std::string vVis = "", vCol = "";
                 std::string normVis = "", normCol = "";
@@ -157,7 +156,6 @@ class CLIView : public GameViewInterface {
                 for (Player* player : pl.getAllPlayers()) {
                     if (player == nullptr) continue;
                     
-                    // LANGSUNG GUNAKAN POSISI ASLINYA!
                     int pIdx = player->getPosition();
 
                     if (pIdx == idx) {
@@ -165,11 +163,8 @@ class CLIView : public GameViewInterface {
                         std::string pNum = std::to_string(pID);
                         std::string pColorFull = getPColor(pID) + pNum + "\033[0m";
 
-                        if (idx == 10) { // TILE PENJARA
-                            // ==========================================
-                            // TODO: UBAH `false` SESUAI FUNGSI CEK PENJARA MILIKMU!
-                            // ==========================================
-                            bool isJailed = false; // contoh: player->isInJail();
+                        if (idx == 10) {
+                            bool isJailed = player->isInJail(); 
                             
                             if (isJailed) {
                                 inVis += pNum;
@@ -289,7 +284,7 @@ class CLIView : public GameViewInterface {
             printFullHLine();
         }
 
-        void cetakAkta(const std::string& kodePetak) override {
+        void cetakAkta(const std::string& kodePetak, bool showStatus = true) override {
             if (board_ == nullptr) {
                 std::cout << "Board belum tersedia.\n";
                 return;
@@ -349,8 +344,13 @@ class CLIView : public GameViewInterface {
             std::string statusStr = propertyStatusToString(property->getPropertyStatus());
             std::string ownerStr = property->getOwnerUsername();
             std::string fullStatus = statusStr;
-            if (statusStr == "OWNED" || ownerStr != "BANK") {
-                fullStatus += " (" + ownerStr + ")";
+
+            if (statusStr == "OWNED" || (!ownerStr.empty() && ownerStr != "BANK")) {
+                std::string ownerDisplay = ownerStr;
+                if (ownerDisplay.length() > 12) {
+                    ownerDisplay = ownerDisplay.substr(0, 10) + "..";
+                }
+                fullStatus += " (" + ownerDisplay + ")";
             }
 
             std::cout << "\n+========================================+\n";
@@ -402,8 +402,12 @@ class CLIView : public GameViewInterface {
             }
 
             std::cout << "+========================================+\n";
-            printLR("Status", ": " + fullStatus);
-            std::cout << "+========================================+\n\n";
+            
+            if (showStatus) {
+                printLR("Status", ": " + fullStatus);
+                std::cout << "+========================================+\n";
+            }
+            std::cout << "\n";
         }
 
         // Jangan lupa ubah signature di interface base class menjadi (Player* player)

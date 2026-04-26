@@ -25,7 +25,7 @@ OnLandResult RailRoadTile::onLand(Player& p, CommandInterface&, GameViewInterfac
         setPropertyStatus(OWNED);
         p.addProperty(this);
 
-        view.showMessage("Stasiun ini kini menjadi milikmu!\n");
+        view.showMessage("Belum ada yang menginjaknya duluan, stasiun ini kini menjadi milikmu!\n");
         return OnLandResult::Done;
     }
 
@@ -40,6 +40,7 @@ OnLandResult RailRoadTile::onLand(Player& p, CommandInterface&, GameViewInterfac
         view.showMessage("Ini milikmu sendiri.\n");
         return OnLandResult::Done;
     }
+    
     return OnLandResult::TriggerTryToPayRent;
 }
 

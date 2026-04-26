@@ -130,9 +130,10 @@ int PropertyTile::resetTurnTo3() {
     return festivalDuration_;
 }
 
-int PropertyTile::sellAllBuildings() const {
-    const StreetTile* street = dynamic_cast<const StreetTile*>(this);
-    if (street == nullptr || level_ <= 0) {
+int PropertyTile::sellAllBuildings() { 
+    StreetTile* street = dynamic_cast<StreetTile*>(this); 
+    
+    if (street == nullptr || level_ <= 0) { 
         return 0;
     }
 
@@ -144,5 +145,8 @@ int PropertyTile::sellAllBuildings() const {
             total += it->second / 2;
         }
     }
+    
+    level_ = 0;
+    
     return total;
 }

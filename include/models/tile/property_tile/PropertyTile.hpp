@@ -70,5 +70,5 @@ class PropertyTile : public Tile {
 
         int getSellingPrice() const;
 
-        int sellAllBuildings() const;
+        int sellAllBuildings();
 };

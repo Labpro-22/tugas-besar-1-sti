@@ -25,7 +25,7 @@ OnLandResult UtilityTile::onLand(Player& p, CommandInterface& command, GameViewI
         setPropertyStatus(OWNED);
         p.addProperty(this);
 
-        view.showMessage(getTileName() + " kini menjadi milikmu!\n");
+        view.showMessage("Belum ada yang menginjaknya duluan, " + getTileName() + " kini menjadi milikmu!\n");
         return OnLandResult::Done;
     }
 
