@@ -19,6 +19,7 @@ enum class CommandType {
     END_COMMAND, // untuk menyelesaikan turn pemain saat ini
     INVENTORY, // tampilkan inventory lengkap
     POSITION, // tampilkan posisi saat ini
+    INVALID,
 
 
 };

@@ -31,6 +31,7 @@ OnLandResult StreetTile::onLand(Player& p, CommandInterface& command, GameViewIn
             view.showMessage("Properti ini sedang digadaikan [M]. Tidak ada sewa yang dikenakan.\n");
             return OnLandResult::Done;
         }
+        // artinya player lain
         return OnLandResult::TriggerTryToPayRent;
     }
 

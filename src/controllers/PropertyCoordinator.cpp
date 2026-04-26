@@ -156,21 +156,41 @@ void PropertyCoordinator::processTakeCommunityChest(Player& player) {
             break;
 
         case CommunityChestCard::DoctorFeePay700:
-            player.deductMoney(700);
+            try {
+                player.deductMoney(700);
+            }
+            catch(const InsufficientFundsException& e) {
+                throw CardPaymentFailedException(101, "Gagal memakai Kartu DoctorFeePay700 karena saldo tidak mencukupi\n");
+            }
+        
             break;
 
-        case CommunityChestCard::ElectionPay200ToEachPlayer:
-            for (auto& otherPtr : players_) {
-                Player* other = otherPtr.get();
-                if (other == nullptr || other == &player || other->isBankrupt()) {
-                    continue;
+        case CommunityChestCard::ElectionPay200ToEachPlayer : {
+                int sumMoney = 0;
+                for (auto& otherPtr : players_) {
+                    Player* other = otherPtr.get();
+                    if (other == nullptr || other == &player || other->isBankrupt()) {
+                        continue;
+                    }
+                    sumMoney += 200;
                 }
 
-                player.deductMoney(200);
-                other->addMoney(200);
+                if (player.getBalance() < sumMoney) {
+                    throw CardPaymentFailedException(101, "Gagal memakai kartu ElectionPay200ToEachPlayer\n");
+                }
+
+                // harusnya udh aman di sini
+                for (auto& otherPtr : players_) {
+                    Player* other = otherPtr.get();
+                    if (other == nullptr || other == &player || other->isBankrupt()) {
+                        continue;
+                    }
+                    player.deductMoney(200);
+                    other->addMoney(200);
+                }
             }
             break;
-
+        
         default:
             break;
     }

@@ -84,7 +84,14 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
 			propertyCoordinator_->processTakeChanceCard(p);
 			break;
 		case OnLandResult::TakeCommunityChest:
-			propertyCoordinator_->processTakeCommunityChest(p);
+            try {
+			    propertyCoordinator_->processTakeCommunityChest(p);
+            }
+            catch(const CardPaymentFailedException& e) {
+                view_.showMessage(e.getErrorMessage());
+                // proses kebangkrutannya
+                auction_.processBankruptcyToBank(p);
+            }
 			break;
 		case OnLandResult::Festival:
             propertyCoordinator_->processFestival(p);
@@ -217,6 +224,11 @@ bool GameController::resolveDiceResult(Player& p, int d1, int d2){
 bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice) {
     view_.showMessage("\nGiliran " + p.getUsername() + ". Masukkan perintah: ");
     Command cmd = command_.getCommand();
+    while (cmd.getType() == CommandType::INVALID) {
+        view_.showMessage("Perintah tidak valid. Coba lagi: ");
+        cmd = command_.getCommand();
+    }
+    
 
     switch (cmd.getType()) {
         case CommandType::LEMPAR_DADU: {
@@ -369,6 +381,10 @@ bool GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, 
     view_.showMessage("Command valid: BAYAR_DENDA, LEMPAR_DADU, ATUR_DADU X Y, GUNAKAN_KEMAMPUAN, INVENTORY, POSITION, END_COMMAND\n");
 
     Command cmd = command_.getCommand();
+    while (cmd.getType() == CommandType::INVALID) {
+        view_.showMessage("Perintah tidak valid. Coba lagi: ");
+        cmd = command_.getCommand();
+    }
 
     switch (cmd.getType()) {
         case CommandType::BAYAR_DENDA: {
@@ -562,19 +578,6 @@ void GameController::showPosition(Player& p) {
     }
 }
 
-static std::string propertyStatusText(PropertyStatus status) {
-    if (status == BANK) {return "BANK";}
-    if (status == OWNED) {return "OWNED";}
-    if (status == MORTGAGED) {return "MORTGAGED";}
-    return "UNKNOWN";
-}
-
-static std::string buildingText(int level) {
-    if (level <= 0) {return "-";}
-    if (level >= 5) {return "Hotel";}
-    return std::to_string(level) + " rumah";
-}
-
 void GameController::showInventory(Player& p) {
     view_.showMessage("\n================ INVENTORY ================\n");
     view_.showMessage("Pemain  : " + p.getUsername() + "\n");
@@ -644,7 +647,7 @@ void GameController::showInventory(Player& p) {
                 }
             }
 
-            view_.showMessage(property->getLetterCode() + " | " + property->getTileName() + " | " + type + " | " + propertyStatusText(property->getPropertyStatus()) + " | " + buildingText(property->getLevel()) + " | " + "M" + std::to_string(property->getPurchasePrice()) + " | " + "M" + std::to_string(property->getMortgageValue()) + " | " + upgrade + " | " + rent + "\n");
+            view_.showMessage(property->getLetterCode() + " | " + property->getTileName() + " | " + type + " | " + property->propertyStatusToText() + " | " + property->buildingLevelToText() + " | " + "M" + std::to_string(property->getPurchasePrice()) + " | " + "M" + std::to_string(property->getMortgageValue()) + " | " + upgrade + " | " + rent + "\n");
         }
     }
 

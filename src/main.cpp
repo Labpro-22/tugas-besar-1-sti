@@ -574,7 +574,7 @@ class CLICommand : public CommandInterface {
             iss >> rawCmd;
 
             if (rawCmd.empty()) {
-                return Command(CommandType::END_COMMAND);
+                return Command(CommandType::INVALID);
             }
 
             std::string cmd = toUpper(rawCmd);
@@ -584,11 +584,17 @@ class CLICommand : public CommandInterface {
             if (cmd == "ATUR_DADU") {
                 std::vector<int> args;
                 std::string token;
+
                 while (iss >> token) {
                     int value = 0;
-                    if (parseInt(token, value)) {
-                        args.push_back(value);
+                    if (!parseInt(token, value)) {
+                        return Command(CommandType::INVALID); //
                     }
+                    args.push_back(value);
+                }
+
+                if (args.size() != 2) {
+                    return Command(CommandType::INVALID); //
                 }
                 return Command(CommandType::ATUR_DADU, args);
             }
@@ -606,7 +612,7 @@ class CLICommand : public CommandInterface {
             if (cmd == "INVENTORY") return Command(CommandType::INVENTORY);
             if (cmd == "POSITION") return Command(CommandType::POSITION);
 
-            return Command(CommandType::END_COMMAND);
+            return Command(CommandType::INVALID);
         }
 
         int getInt(int lowerBound, int upperBound) override {

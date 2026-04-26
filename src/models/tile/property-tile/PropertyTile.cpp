@@ -150,3 +150,15 @@ int PropertyTile::sellAllBuildings() {
     
     return total;
 }
+std::string PropertyTile::propertyStatusToText() const{
+    if (propertyStatus_ == BANK) {return "BANK";}
+    if (propertyStatus_== OWNED) {return "OWNED";}
+    if (propertyStatus_ == MORTGAGED) {return "MORTGAGED";}
+    return "UNKNOWN";
+}
+
+std::string PropertyTile::buildingLevelToText() const {
+    if (level_ <= 0) {return "-";}
+    if (level_ >= 5) {return "Hotel";}
+    return std::to_string(level_) + " rumah";
+}
