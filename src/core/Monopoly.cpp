@@ -7,6 +7,7 @@
 #include "models/card/skillcard/ShieldCard.hpp"
 #include "models/card/skillcard/TeleportCard.hpp"
 #include "models/card/skillcard/DemolitionCard.hpp"
+#include "models/exception/SessionException/SessionException.hpp"
 #include <fstream>
 #include <memory>
 #include <sstream>
@@ -94,9 +95,18 @@ void Monopoly::startGame() {
         (void)loadedFromState;
 
         // tar
-        GameController gameController(std::move(players), *board, dice, *view_, *command_, decks); // tar lg pusing command sm si view bedanya apa
+        GameController gameController(std::move(players), *board, dice, *view_, *command_, decks, configFolder_);
         gameController.setCurrentTurn(latestTurn);
-        gameController.playGame(latestTurn, maxTurn_);
+        
+        try {
+            gameController.playGame(latestTurn, maxTurn_);
+        } catch (const SessionException& e) {
+            if (e.getErrorCode() == 200) {
+                continue;
+            } else {
+                throw;
+            }
+        }
 
         // clean log
     }
@@ -149,9 +159,9 @@ void Monopoly::shufflePlayersTurn(std::vector<std::unique_ptr<Player>>& players)
 }
 
 std::unique_ptr<Board> Monopoly::loadConfig() {
-    std::string folder = command_->askFolderForConfig();
+    configFolder_ = command_->askFolderForConfig();
     try {
-        Reader reader(folder);
+        Reader reader(configFolder_);
         auto boardData = reader.loadBoard();
 
         try {
@@ -305,12 +315,22 @@ bool Monopoly::loadState(std::unique_ptr<Board>& board, std::vector<std::unique_
                 // Jika properti dimiliki oleh pemain, tambahkan ke inventory pemain
                 // PLIS JANGAN DI HAPUS - DEMI LIQUIDATION PLIS 
                 if (pemilik != "BANK") {
+                    bool ownerFound = false;
+
                     for (auto& pl : players) {
                         if (pl->getUsername() == pemilik) {
+                            propTile->setOwnerUsername(pemilik);   // tetap simpan username
                             pl->addProperty(propTile);
+                            ownerFound = true;
                             break;
                         }
                     }
+
+                    if (!ownerFound) {
+                        throw std::runtime_error("Owner properti tidak ditemukan: " + pemilik);
+                    }
+                } else {
+                    propTile->setOwnerUsername("BANK");
                 }
             }
         }

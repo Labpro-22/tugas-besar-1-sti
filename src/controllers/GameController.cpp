@@ -16,12 +16,14 @@
 
 GameController::GameController(std::vector<std::unique_ptr<Player>> players,
     Board& board, Dice& dice, GameViewInterface& view,
-    CommandInterface& command, Deck<SkillCard>& specialCardDeck)
+    CommandInterface& command, Deck<SkillCard>& specialCardDeck,
+    const std::string& saveFolder)
     : specialCardDeck_(specialCardDeck), board_(board), dice_(dice),
     view_(view), command_(command), players_(std::move(players)), auction_(players_, view_),
     auctionCoordinator_(std::make_unique<AuctionCoordinator>(players_, view_, command_)),
     skillCardCoordinator_(std::make_unique<SkillCardCoordinator>(specialCardDeck_, view_, command_)),
-    propertyCoordinator_(std::make_unique<PropertyCoordinator>(players_, board_, dice_, view_, command_)) {}
+    propertyCoordinator_(std::make_unique<PropertyCoordinator>(players_, board_, dice_, view_, command_)),
+    writer_(std::make_unique<Writer>(saveFolder)) {}
 
 GameController::~GameController() = default;
 
@@ -34,15 +36,24 @@ void GameController::playGame(int latestTurn, int maxTurn) {
     currentTurn_ = latestTurn;
     transactionLog_.clear();
     view_.showMessage("Permainan dimulai!\n");
-    while ((currentTurn_ <= maxTurn || maxTurn == -1) && !hasSoleWinner()) {
-        for (auto& player : players_) {
-            if (!player->isBankrupt()) {
-                processTurn(*player);
+    try {
+        while ((currentTurn_ <= maxTurn || maxTurn == -1) && !hasSoleWinner()) {
+            for (auto& player : players_) {
+                if (!player->isBankrupt()) {
+                    processTurn(*player);
+                }
             }
+            currentTurn_++;
         }
-        currentTurn_++;
+        decideWinner();
+    } catch (const SessionException& e) {
+        if (e.getErrorCode() == 200) {
+            view_.showMessage(e.what() + std::string("\n"));
+            throw;
+        } else {
+            throw;
+        }
     }
-    decideWinner();
 }
 
 void GameController::processMovement(Player& p, int firstDisplacement) {
@@ -474,12 +485,36 @@ bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
         }
 
         case CommandType::SIMPAN: {
-            if (hasRolledDiceThisTurn) {
-                view_.showMessage("Tidak bisa SIMPAN setelah melempar dadu.\n");
-            } else {
-                view_.showMessage("Permainan berhasil disimpan.\n");
+            // SIMPAN hanya boleh di awal turn, belum ada action apapun
+            if (hasRolledDiceThisTurn || hasUsedSkillCardThisTurn) {
+                view_.showMessage("Tidak bisa SIMPAN setelah menggunakan action. Gunakan SIMPAN di awal giliran.\n");
+                return true;
             }
-            return true;
+
+            // Minta nama file untuk disimpan
+            view_.showMessage("Masukkan nama file untuk disimpan (tanpa ekstensi): ");
+            std::string filename;
+            std::getline(std::cin, filename);
+            
+            // Tambahkan ekstensi .txt jika belum ada
+            if (filename.find(".txt") == std::string::npos) {
+                filename += ".txt";
+            }
+
+            try {
+                saveGameState(filename);
+                view_.showMessage("Kembali ke menu utama...\n");
+                // Throw exception untuk keluar dari game loop
+                throw SessionException(200, "Game disimpan: " + filename);
+            } catch (const SessionException& e) {
+                if (e.getErrorCode() == 200) {
+                    // Re-throw untuk ditangani di playGame()
+                    throw;
+                } else {
+                    view_.showMessage("Gagal menyimpan game: " + std::string(e.what()) + "\n");
+                    return true;
+                }
+            }
         }
 
         case CommandType::END_COMMAND: {
@@ -674,6 +709,39 @@ bool GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, 
             return true;
         }
 
+        case CommandType::SIMPAN: {
+            // SIMPAN hanya boleh di awal turn, belum ada action apapun
+            if (hasRolledDiceThisTurn) {
+                view_.showMessage("Tidak bisa SIMPAN setelah mencoba dadu. Gunakan SIMPAN di awal giliran.\n");
+                return true;
+            }
+
+            // Minta nama file untuk disimpan
+            view_.showMessage("Masukkan nama file untuk disimpan (tanpa ekstensi): ");
+            std::string filename;
+            std::getline(std::cin, filename);
+            
+            // Tambahkan ekstensi .txt jika belum ada
+            if (filename.find(".txt") == std::string::npos) {
+                filename += ".txt";
+            }
+
+            try {
+                saveGameState(filename);
+                view_.showMessage("Kembali ke menu utama...\n");
+                // Throw exception untuk keluar dari game loop
+                throw SessionException(200, "Game disimpan: " + filename);
+            } catch (const SessionException& e) {
+                if (e.getErrorCode() == 200) {
+                    // Re-throw untuk ditangani di playGame()
+                    throw;
+                } else {
+                    view_.showMessage("Gagal menyimpan game: " + std::string(e.what()) + "\n");
+                    return true;
+                }
+            }
+        }
+
         case CommandType::END_COMMAND: {
             if (p.isInJail()) {
                 p.incrementJailTurn();
@@ -842,3 +910,21 @@ void GameController::printTransactionLog(int lastN) {
     view_.showMessage("\n");
 }
 
+void GameController::initializeWriter(const std::string& saveFolder) {
+    writer_ = std::make_unique<Writer>(saveFolder);
+}
+
+void GameController::saveGameState(const std::string& filename) {
+    if (!writer_) {
+        throw SessionException(500, "Writer tidak diinisialisasi");
+    }
+
+    try {
+        writer_->saveGameState(currentTurn_, GameConfig::getMaxTurn(), players_, board_, 
+                             specialCardDeck_, transactionLog_, filename);
+        view_.showMessage("Game berhasil disimpan ke: " + filename + "\n");
+    } catch (const SessionException& e) {
+        view_.showMessage("Gagal menyimpan game: " + std::string(e.what()) + "\n");
+        throw;
+    }
+}
