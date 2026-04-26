@@ -370,9 +370,9 @@ Board Reader::loadBoard()
 
         std::string letterCode = allTiles[i]->getLetterCode();
         if (letterCode == "GO") {
-            board.setStartPosition(expectedId);
+            board.setStartPosition(expectedId - 1);
         } else if (letterCode == "PEN") {
-            board.setJailPosition(expectedId);
+            board.setJailPosition(expectedId - 1);
         }
     }
 
