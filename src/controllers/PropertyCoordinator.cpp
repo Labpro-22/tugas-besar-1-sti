@@ -186,11 +186,11 @@ void PropertyCoordinator::processPayRent(Player& player, Tile& currentTile) {
                 rent = streetTile->calculateRentPrice(cg);
             }
             else if (RailRoadTile* railRoadTile = dynamic_cast<RailRoadTile*>(propertyTile)) {
-                int count = board_.countOwnedRailRoadTile(owner->getUsername());
+                int count = owner->countRailroad(); // Count railroad punya owner
                 rent = railRoadTile->calculateRentPrice(count);
             }
             else if (UtilityTile* utilityTile = dynamic_cast<UtilityTile*>(propertyTile)) {
-                int count = board_.countOwnedUtilityTile(owner->getUsername());
+                int count = owner->countUtilities(); // count utilities punya owner
                 int dice = dice_.getRollResult();
                 rent = utilityTile->calculateRentPrice(count, dice);
             }
@@ -314,7 +314,7 @@ void PropertyCoordinator::processMortgage(Player& player) {
     std::vector<PropertyTile*> linearOrdered;
 
     view_.showMessage("Daftar properti yang dapat digadaikan:\n");
-    int count = 0;
+    size_t count = 0;
 
     for (auto& keyValue : ownedProperty) {
         std::vector<PropertyTile*>& vec = keyValue.second;

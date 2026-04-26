@@ -8,8 +8,9 @@ StreetTile::StreetTile(int tileID, std::string letterCode,
     std::map<int, int> buildPrice)
         : PropertyTile(tileID, letterCode, tileName,
             colourBlock, purchasePrice, mortgageValue),
-            rentPricePerLevel_(rentPricePerLevel),
-            buildPrice_(buildPrice) {}
+            buildPrice_(buildPrice),
+            rentPricePerLevel_(rentPricePerLevel)
+            {}
 
 StreetTile::~StreetTile() = default;
 

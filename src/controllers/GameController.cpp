@@ -57,7 +57,6 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
     }
 
     p.setPosition(board_.getTileIndexByCode(nextTile.getLetterCode()));
-    p.setLastDiceTotal(firstDisplacement);
     OnLandResult result = nextTile.onLand(p, command_, view_);
 
         switch (result) {

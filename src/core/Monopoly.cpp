@@ -42,7 +42,7 @@ void Monopoly::startGame() {
         // tanyain apakah mulai game baru atau yang udah ada
             // if udah ada artinya minta game state-nya
 
-        int numOfPlayers;
+        size_t numOfPlayers = 0;
         int latestTurn = 0;
         bool loadedFromState = false;
         std::vector<std::unique_ptr<Player>> players;
@@ -97,7 +97,7 @@ void Monopoly::startGame() {
     }
 }
 
-std::vector<std::unique_ptr<Player>> Monopoly::registerPlayers(int numOfPlayers) {
+std::vector<std::unique_ptr<Player>> Monopoly::registerPlayers(size_t numOfPlayers) {
     // register minta nama dll
     if (numOfPlayers < 2) {
         // throw exception

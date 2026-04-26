@@ -181,7 +181,7 @@ int Inventory::countCard() const {
     return static_cast<int>(skillCards_.size());
 }
 
-std::map<std::string, std::vector<PropertyTile*>> Inventory::getCompleteColourGroups(std::map<std::string, int> countTilesForEachColourBlock) {
+std::map<std::string, std::vector<PropertyTile*>> Inventory::getCompleteColourGroups(std::map<std::string, size_t> countTilesForEachColourBlock) {
     // 1 Pembangunan rumah harus dilakukan 
         // secara merata di
         // seluruh petak dalam satu color group.
