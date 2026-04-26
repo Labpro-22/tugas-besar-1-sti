@@ -17,6 +17,8 @@ enum class CommandType {
     GUNAKAN_KEMAMPUAN, //
     BAYAR_DENDA, // tambahan buat lgsg bayar waktu mau keluar penjara
     END_COMMAND, // untuk menyelesaikan turn pemain saat ini
+    INVENTORY, // tampilkan inventory lengkap
+    POSITION, // tampilkan posisi saat ini
 
 
 };

@@ -3,8 +3,13 @@
 #include "controllers/AuctionCoordinator.hpp"
 #include "controllers/PropertyCoordinator.hpp"
 #include "controllers/SkillCardCoordinator.hpp"
+#include "controllers/GameConfig.hpp"
 #include "models/tile/action_tile/special_tile/GoTile.hpp"
+#include "models/tile/property_tile/StreetTile.hpp"
+#include "models/tile/property_tile/RailRoadTile.hpp"
+#include "models/tile/property_tile/UtilityTile.hpp"
 
+#include <map>
 #include <utility>
 
 GameController::GameController(std::vector<std::unique_ptr<Player>> players,
@@ -154,22 +159,19 @@ void GameController::decideWinner() const {
 void GameController::processTurn(Player& p) {
     view_.showMessage("\n--- Giliran " + p.getUsername() + " ---");
     bool hasUsedSkillCardThisTurn = false;
+    bool hasRolledDiceThisTurn = false;
+    bool canRollDice = true;
+    bool isTurnActive = true;
 
     // Setiap awal giliran, pemain mengambil 1 kartu kemampuan dari deck.
     skillCardCoordinator_->processPickAndDropSkillCard(p);
 
-    if (p.isInJail()) {
-        if (p.thisTurnAutoFreeFromJail()) {
-            view_.showMessage("Sudah 3 turn di penjara. Kamu wajib bayar denda!\n");
-            p.deductMoney(jailFine_);
-            p.leaveJail();
-            processNormalTurn(p, hasUsedSkillCardThisTurn);
+    while (isTurnActive && !p.isBankrupt()) {
+        if (p.isInJail()) {
+            isTurnActive = processJailTurn(p, hasUsedSkillCardThisTurn, hasRolledDiceThisTurn, canRollDice);
         } else {
-            processJailTurn(p, hasUsedSkillCardThisTurn);
-            p.incrementJailTurn();
+            isTurnActive = processNormalTurn(p, hasUsedSkillCardThisTurn, hasRolledDiceThisTurn, canRollDice);
         }
-    } else {
-        processNormalTurn(p, hasUsedSkillCardThisTurn);
     }
     
     p.decreaseShieldCardTurn();
@@ -212,203 +214,447 @@ bool GameController::resolveDiceResult(Player& p, int d1, int d2){
 	return false;
 }
 
-void GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn) {
-    bool hasRolledThisTurn = false;
-    bool isTurnActive = true;
-    bool canSave = true;
+bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice) {
+    view_.showMessage("\nGiliran " + p.getUsername() + ". Masukkan perintah: ");
+    Command cmd = command_.getCommand();
 
-    while (isTurnActive && !p.isBankrupt() && !p.isInJail()) {
-        view_.showMessage("\nGiliran " + p.getUsername() + ". Masukkan perintah: ");
-        Command cmd = command_.getCommand();
-        if (cmd.getType() != CommandType::SIMPAN &&
-            cmd.getType() != CommandType::CETAK_PAPAN &&
-            cmd.getType() != CommandType::CETAK_AKTA &&
-            cmd.getType() != CommandType::CETAK_PROPERTI) {
-            canSave = false;
-        }
-        switch (cmd.getType()) {
-            case CommandType::LEMPAR_DADU:
-                if (hasRolledThisTurn) {
-                    view_.showMessage("Kamu sudah melempar dadu!\n");
-                } else {
-                    bool isDouble = processRandomDice(p);
-                    hasRolledThisTurn = true;
-                    
-                    if (isDouble && !p.isInJail() && !p.isBankrupt()) {
-                        view_.showMessage("DOUBLE! Kamu dapat kesempatan lempar lagi.\n");
-                        hasRolledThisTurn = false; 
-                    } else {
-                        isTurnActive = false; 
-                    }
-                }
-                break;
-            case CommandType::ATUR_DADU: {
-                if (cmd.getArgCount() < 2) {
-                    view_.showMessage("Format salah. Gunakan: ATUR_DADU X Y\n");
-                    break;
-                }
-                if (hasRolledThisTurn) {
-                    view_.showMessage("Kamu sudah melempar dadu!\n");
-                } else {
-                    int x = cmd.getArg(0);
-                    int y = cmd.getArg(1);
-                    bool isDouble = processCustomDice(p, x, y);
-                    hasRolledThisTurn = true;
-
-                    if (isDouble && !p.isInJail() && !p.isBankrupt()) {
-                        view_.showMessage("DOUBLE! Kamu dapat kesempatan lempar lagi.\n");
-                        hasRolledThisTurn = false;
-                    } else {
-                        isTurnActive = false;
-                    }
-                }
-                break;
+    switch (cmd.getType()) {
+        case CommandType::LEMPAR_DADU: {
+            if (!canRollDice) {
+                view_.showMessage("Kamu sudah melempar dadu. Gunakan END_TURN untuk mengakhiri giliran.\n");
+                return true;
             }
-            case CommandType::GUNAKAN_KEMAMPUAN:
-                if (!hasRolledThisTurn) {
-                    skillCardCoordinator_->processSkillCardUse(p, hasUsedSkillCardThisTurn);
-                } else {
-                    view_.showMessage("Kemampuan hanya bisa digunakan sebelum lempar dadu.\n");
-                }
-                break;
-            case CommandType::SIMPAN:
-                if (canSave) {
-                    // processSave();
-                    view_.showMessage("Permainan berhasil disimpan.\n");
-                } else {
-                    view_.showMessage("Tidak bisa SIMPAN. Kamu sudah melakukan aksi/pergerakan.\n");
-                }
-                break;
-            case CommandType::CETAK_PAPAN: view_.cetakPapan(); break;
-            case CommandType::CETAK_AKTA: view_.cetakAkta(); break;
-            case CommandType::CETAK_PROPERTI: view_.cetakProperti(); break;
-            case CommandType::GADAI: propertyCoordinator_->processMortgage(p); break;
-            case CommandType::TEBUS: propertyCoordinator_->processRedeem(p); break;
-            case CommandType::BANGUN: propertyCoordinator_->processBuyBuilding(p); break;
-            default:
-                view_.showMessage("Perintah tidak dikenal.\n");
-                break;
+
+            bool isDouble = processRandomDice(p);
+            hasRolledDiceThisTurn = true;
+
+            if (p.isBankrupt()) {
+                return false;
+            }
+
+            if (p.isInJail()) {
+                return true;
+            }
+
+            if (isDouble) {
+                view_.showMessage("DOUBLE! Kamu boleh melempar dadu lagi kapan saja sebelum END_TURN.\n");
+                canRollDice = true;
+            } else {
+                canRollDice = false;
+            }
+
+            return true;
+        }
+
+        case CommandType::ATUR_DADU: {
+            if (!canRollDice) {
+                view_.showMessage("Kamu sudah melempar dadu. Gunakan END_TURN untuk mengakhiri giliran.\n");
+                return true;
+            }
+
+            if (cmd.getArgCount() < 2) {
+                view_.showMessage("Format salah. Gunakan: ATUR_DADU X Y\n");
+                return true;
+            }
+
+            int x = cmd.getArg(0);
+            int y = cmd.getArg(1);
+
+            bool isDouble = processCustomDice(p, x, y);
+            hasRolledDiceThisTurn = true;
+
+            if (p.isBankrupt()) {
+                return false;
+            }
+
+            if (p.isInJail()) {
+                return true;
+            }
+
+            if (isDouble) {
+                view_.showMessage("DOUBLE! Kamu boleh melempar dadu lagi kapan saja sebelum END_TURN.\n");
+                canRollDice = true;
+            } else {
+                canRollDice = false;
+            }
+
+            return true;
+        }
+
+        case CommandType::GUNAKAN_KEMAMPUAN: {
+            if (hasRolledDiceThisTurn) {
+                view_.showMessage("Kemampuan hanya bisa digunakan sebelum lempar dadu pertama pada turn ini.\n");
+                return true;
+            }
+
+            processSpecialCardUse(p, hasUsedSkillCardThisTurn);
+            return true;
+        }
+
+        case CommandType::GADAI: {
+            propertyCoordinator_->processMortgage(p);
+            return true;
+        }
+
+        case CommandType::TEBUS: {
+            propertyCoordinator_->processRedeem(p);
+            return true;
+        }
+
+        case CommandType::BANGUN: {
+            propertyCoordinator_->processBuyBuilding(p);
+            return true;
+        }
+
+        case CommandType::CETAK_PAPAN: {
+            view_.cetakPapan();
+            return true;
+        }
+
+        case CommandType::CETAK_AKTA: {
+            view_.cetakAkta();
+            return true;
+        }
+
+        case CommandType::CETAK_PROPERTI: {
+            view_.cetakProperti();
+            return true;
+        }
+
+        case CommandType::INVENTORY: {
+            showInventory(p);
+            return true;
+        }
+
+        case CommandType::POSITION: {
+            showPosition(p);
+            return true;
+        }
+
+        case CommandType::SIMPAN: {
+            if (hasRolledDiceThisTurn) {
+                view_.showMessage("Tidak bisa SIMPAN setelah melempar dadu.\n");
+            } else {
+                view_.showMessage("Permainan berhasil disimpan.\n");
+            }
+            return true;
+        }
+
+        case CommandType::END_COMMAND: {
+            processEndTurn(p);
+            return false;
+        }
+
+        default: {
+            view_.showMessage("Perintah tidak dikenal.\n");
+            return true;
         }
     }
 }
 
-void GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn) {
-	bool isJailTurnActive = true;
-    bool hasTriedDice = false;
+bool GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice) {
+    view_.showMessage("\nAnda sedang berada di penjara.\n");
+    view_.showMessage("Command valid: BAYAR_DENDA, LEMPAR_DADU, ATUR_DADU X Y, GUNAKAN_KEMAMPUAN, INVENTORY, POSITION, END_COMMAND\n");
 
-	view_.showMessage("Anda sedang berada di penjara!\n");
-    view_.showMessage("Pilih aksi: BAYAR_DENDA, LEMPAR_DADU, ATUR_DADU X Y, GUNAKAN_KEMAMPUAN\n");
-	while (isJailTurnActive && p.isInJail() && !p.isBankrupt()) {
-        view_.showMessage("\nMasukkan perintah: ");
-        Command cmd = command_.getCommand();
-        switch (cmd.getType()) {
-            case CommandType::BAYAR_DENDA: {
-                bool wajibBayar = p.thisTurnAutoFreeFromJail();
+    Command cmd = command_.getCommand();
 
-                if (p.getBalance() < jailFine_) {
-                    if (wajibBayar) {
-                        view_.showMessage("Kamu tidak mampu membayar denda wajib!\n");
-                        auctionCoordinator_->processBankruptcyToBank(p);
-                        return;
-                    }
+    switch (cmd.getType()) {
+        case CommandType::BAYAR_DENDA: {
+            bool wajibBayar = p.thisTurnAutoFreeFromJail();
 
-                    view_.showMessage("Uang tidak cukup. Kamu tetap di penjara.\n");
-                    return;
+            if (p.getBalance() < GameConfig::getJailFine()) {
+                if (wajibBayar) {
+                    view_.showMessage("Kamu tidak mampu membayar denda wajib.\n");
+                    auctionCoordinator_->processBankruptcyToBank(p);
+                    return false;
                 }
 
-                p.deductMoney(jailFine_);
+                view_.showMessage("Uang tidak cukup. Kamu tetap berada di penjara.\n");
+                return true;
+            }
+
+            p.deductMoney(GameConfig::getJailFine());
+            p.leaveJail();
+            p.resetJailTurn();
+
+            view_.showMessage("Denda dibayar. Kamu keluar dari penjara.\n");
+            return true;
+        }
+
+        case CommandType::LEMPAR_DADU: {
+            if (!canRollDice) {
+                view_.showMessage("Kamu sudah mencoba dadu pada turn penjara ini.\n");
+                return true;
+            }
+
+            dice_.roll();
+
+            int d1 = dice_.getDie1();
+            int d2 = dice_.getDie2();
+            int total = d1 + d2;
+
+            view_.showMessage("Hasil: " + std::to_string(d1) + " + " + std::to_string(d2) + " = " + std::to_string(total) + "\n");
+
+            hasRolledDiceThisTurn = true;
+            canRollDice = false;
+
+            if (d1 == d2) {
+                view_.showMessage("DOUBLE! Kamu keluar dari penjara dan bergerak.\n");
+
+                p.leaveJail();
+                p.resetJailTurn();
+                p.resetCountDouble();
+
+                processMovement(p, total);
+                return true;
+            }
+
+            if (p.thisTurnAutoFreeFromJail()) {
+                view_.showMessage("Percobaan terakhir gagal. Kamu wajib membayar denda.\n");
+
+                if (p.getBalance() < GameConfig::getJailFine()) {
+                    auctionCoordinator_->processBankruptcyToBank(p);
+                    return false;
+                }
+
+                p.deductMoney(GameConfig::getJailFine());
                 p.leaveJail();
                 p.resetJailTurn();
 
                 view_.showMessage("Denda dibayar. Kamu keluar dari penjara.\n");
-                processNormalTurn(p, hasUsedSkillCardThisTurn);
-                return;
+                return true;
             }
-            case CommandType::LEMPAR_DADU: {
-                if (hasTriedDice) {
-                    view_.showMessage("Kamu sudah mencoba melempar dadu untuk keluar dari penjara.\n");
-                    break;
-                }
 
-                view_.showMessage("Mencoba keluar dari penjara dengan lempar dadu...\n");
-                dice_.roll();
+            view_.showMessage("Tidak double. Kamu tetap di penjara.\n");
+            return true;
+        }
 
-                int d1 = dice_.getDie1();
-                int d2 = dice_.getDie2();
-                int total = d1 + d2;
-
-                view_.showMessage("Hasil: " + std::to_string(d1) + " + " + std::to_string(d2) + " = " + std::to_string(total) + "\n");
-
-                hasTriedDice = true;
-
-                if (d1 == d2) {
-                    view_.showMessage("DOUBLE! Kamu keluar dari penjara dan bergerak.\n");
-
-                    p.leaveJail();
-                    p.resetJailTurn();
-                    p.resetCountDouble();
-
-                    processMovement(p, total);
-                } else {
-                    view_.showMessage("Tidak double. Kamu tetap di penjara dan tidak bergerak.\n");
-                }
-
-                isJailTurnActive = false;
-                break;
+        case CommandType::ATUR_DADU: {
+            if (!canRollDice) {
+                view_.showMessage("Kamu sudah mencoba dadu pada turn penjara ini.\n");
+                return true;
             }
-            case CommandType::ATUR_DADU: {
-                if (hasTriedDice) {
-                    view_.showMessage("Kamu sudah mencoba melempar dadu untuk keluar dari penjara.\n");
-                    break;
-                }
 
-                if (cmd.getArgCount() < 2) {
-                    view_.showMessage("Format salah. Gunakan: ATUR_DADU X Y\n");
-                    break;
-                }
-
-                int x = cmd.getArg(0);
-                int y = cmd.getArg(1);
-
-                if (x < 1 || x > 6 || y < 1 || y > 6) {
-                    view_.showMessage("Nilai dadu harus antara 1 sampai 6.\n");
-                    break;
-                }
-
-                dice_.rollSettingan(x, y);
-
-                int d1 = dice_.getDie1();
-                int d2 = dice_.getDie2();
-                int total = d1 + d2;
-
-                view_.showMessage("Dadu diatur secara manual.\n");
-                view_.showMessage("Hasil: " + std::to_string(d1) + " + " +
-                                  std::to_string(d2) + " = " + std::to_string(total) + "\n");
-
-                hasTriedDice = true;
-
-                if (d1 == d2) {
-                    view_.showMessage("DOUBLE! Kamu keluar dari penjara dan bergerak.\n");
-
-                    p.leaveJail();
-                    p.resetJailTurn();
-                    p.resetCountDouble();
-
-                    processMovement(p, total);
-                } else {
-                    view_.showMessage("Tidak double. Kamu tetap di penjara dan tidak bergerak.\n");
-                }
-
-                isJailTurnActive = false;
-                break;
+            if (cmd.getArgCount() < 2) {
+                view_.showMessage("Format salah. Gunakan: ATUR_DADU X Y\n");
+                return true;
             }
-            case CommandType::GUNAKAN_KEMAMPUAN:
-                skillCardCoordinator_->processSkillCardUse(p, hasUsedSkillCardThisTurn);
-                break;
 
-            default:
-                view_.showMessage("Perintah tidak valid saat berada di penjara.\n");
-                break;
+            int x = cmd.getArg(0);
+            int y = cmd.getArg(1);
+
+            if (x < 1 || x > 6 || y < 1 || y > 6) {
+                view_.showMessage("Nilai dadu harus antara 1 sampai 6.\n");
+                return true;
+            }
+
+            dice_.rollSettingan(x, y);
+
+            int d1 = dice_.getDie1();
+            int d2 = dice_.getDie2();
+            int total = d1 + d2;
+
+            view_.showMessage("Hasil: " + std::to_string(d1) + " + " + std::to_string(d2) + " = " + std::to_string(total) + "\n");
+
+            hasRolledDiceThisTurn = true;
+            canRollDice = false;
+
+            if (d1 == d2) {
+                view_.showMessage("DOUBLE! Kamu keluar dari penjara dan bergerak.\n");
+
+                p.leaveJail();
+                p.resetJailTurn();
+                p.resetCountDouble();
+
+                processMovement(p, total);
+                return true;
+            }
+
+            if (p.thisTurnAutoFreeFromJail()) {
+                view_.showMessage("Percobaan terakhir gagal. Kamu wajib membayar denda.\n");
+
+                if (p.getBalance() < GameConfig::getJailFine()) {
+                    auctionCoordinator_->processBankruptcyToBank(p);
+                    return false;
+                }
+
+                p.deductMoney(GameConfig::getJailFine());
+                p.leaveJail();
+                p.resetJailTurn();
+
+                view_.showMessage("Denda dibayar. Kamu keluar dari penjara.\n");
+                return true;
+            }
+
+            view_.showMessage("Tidak double. Kamu tetap di penjara.\n");
+            return true;
+        }
+
+        case CommandType::GUNAKAN_KEMAMPUAN: {
+            if (hasRolledDiceThisTurn) {
+                view_.showMessage("Kemampuan hanya bisa digunakan sebelum mencoba dadu.\n");
+                return true;
+            }
+
+            processSpecialCardUse(p, hasUsedSkillCardThisTurn);
+            return true;
+        }
+
+        case CommandType::INVENTORY: {
+            showInventory(p);
+            return true;
+        }
+
+        case CommandType::POSITION: {
+            showPosition(p);
+            return true;
+        }
+
+        case CommandType::END_COMMAND: {
+            if (p.isInJail()) {
+                p.incrementJailTurn();
+            }
+
+            processEndTurn(p);
+            return false;
+        }
+
+        default: {
+            view_.showMessage("Perintah tidak valid saat berada di penjara.\n");
+            return true;
         }
     }
 }
+
+void GameController::showPosition(Player& p) {
+    Tile& tile = board_.getCurrentTile(p.getPosition());
+
+    view_.showMessage("\n=== POSISI PEMAIN ===\n");
+    view_.showMessage("Pemain : " + p.getUsername() + "\n");
+    view_.showMessage("Index  : " + std::to_string(p.getPosition()) + "\n");
+    view_.showMessage("Kode   : " + tile.getLetterCode() + "\n");
+    view_.showMessage("Nama   : " + tile.getTileName() + "\n");
+    view_.showMessage("Warna  : " + tile.getColourBlock() + "\n");
+
+    PropertyTile* property = dynamic_cast<PropertyTile*>(&tile);
+    if (property != nullptr) {
+        view_.showMessage("Owner  : " + property->getOwnerUsername() + "\n");
+
+        if (property->getPropertyStatus() == BANK) {
+            view_.showMessage("Status : BANK\n");
+        } else if (property->getPropertyStatus() == OWNED) {
+            view_.showMessage("Status : OWNED\n");
+        } else if (property->getPropertyStatus() == MORTGAGED) {
+            view_.showMessage("Status : MORTGAGED\n");
+        }
+    }
+}
+
+static std::string propertyStatusText(PropertyStatus status) {
+    if (status == BANK) {return "BANK";}
+    if (status == OWNED) {return "OWNED";}
+    if (status == MORTGAGED) {return "MORTGAGED";}
+    return "UNKNOWN";
+}
+
+static std::string buildingText(int level) {
+    if (level <= 0) {return "-";}
+    if (level >= 5) {return "Hotel";}
+    return std::to_string(level) + " rumah";
+}
+
+void GameController::showInventory(Player& p) {
+    view_.showMessage("\n================ INVENTORY ================\n");
+    view_.showMessage("Pemain  : " + p.getUsername() + "\n");
+    view_.showMessage("Balance : M" + std::to_string(p.getBalance()) + "\n");
+
+    view_.showMessage("\n=== PROPERTY ===\n");
+
+    std::vector<PropertyTile*> properties = p.getProperties();
+
+    if (properties.empty()) {
+        view_.showMessage("Tidak ada property.\n");
+    } else {
+        view_.showMessage("Kode | Nama | Tipe | Status | Bangunan | Harga Beli | Gadai | Upgrade | Rent\n");
+        view_.showMessage("-------------------------------------------------------------------------------\n");
+
+        for (size_t i = 0; i < properties.size(); i++) {
+            PropertyTile* property = properties[i];
+
+            if (property == nullptr) {
+                continue;
+            }
+
+            std::string type = "Property";
+            std::string upgrade = "-";
+            std::string rent = "-";
+
+            StreetTile* street = dynamic_cast<StreetTile*>(property);
+            RailRoadTile* rail = dynamic_cast<RailRoadTile*>(property);
+            UtilityTile* utility = dynamic_cast<UtilityTile*>(property);
+
+            if (street != nullptr) {
+                type = "Street";
+
+                std::map<int, int> buildPrice = street->getBuildPrice();
+                int nextLevel = street->getLevel() + 1;
+
+                if (street->getLevel() >= 5) {
+                    upgrade = "MAX";
+                } else {
+                    if (buildPrice.count(nextLevel) > 0) {
+                        upgrade = "M" + std::to_string(buildPrice[nextLevel]);
+                    } else {
+                        upgrade = "-";
+                    }
+                }
+
+                bool completedColourGroup = board_.isCompletedColourGroup(
+                    p.getUsername(),
+                    property->getColourBlock()
+                );
+
+                rent = "M" + std::to_string(street->calculateRentPrice(completedColourGroup));
+            } else if (rail != nullptr) {
+                type = "RailRoad";
+
+                int countRail = p.countRailroad();
+                rent = "M" + std::to_string(rail->calculateRentPrice(countRail));
+            } else if (utility != nullptr) {
+                type = "Utility";
+
+                int diceTotal = dice_.getRollResult();
+                if (diceTotal <= 0) {
+                    rent = "Total dadu x faktor utility";
+                } else {
+                    int countUtility = p.countUtilities();
+                    rent = "M" + std::to_string(utility->calculateRentPrice(countUtility, diceTotal));
+                }
+            }
+
+            view_.showMessage(property->getLetterCode() + " | " + property->getTileName() + " | " + type + " | " + propertyStatusText(property->getPropertyStatus()) + " | " + buildingText(property->getLevel()) + " | " + "M" + std::to_string(property->getPurchasePrice()) + " | " + "M" + std::to_string(property->getMortgageValue()) + " | " + upgrade + " | " + rent + "\n");
+        }
+    }
+
+    view_.showMessage("\n=== SKILL CARD ===\n");
+
+    std::vector<SkillCard*> cards = p.getSkillCards();
+
+    if (cards.empty()) {
+        view_.showMessage("Tidak ada kartu.\n");
+    } else {
+        for (size_t i = 0; i < cards.size(); i++) {
+            if (cards[i] == nullptr) {
+                continue;
+            }
+            view_.showMessage(std::to_string(i + 1) + ". " + cards[i]->getName() + " - " + cards[i]->getDescription() + "\n");
+        }
+    }
+    view_.showMessage("===========================================\n");
+}
+
+void GameController::processEndTurn(Player& p) {
+    p.resetCountDouble();
+    view_.showMessage("Turn " + p.getUsername() + " selesai.\n");
+}
+

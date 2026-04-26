@@ -31,7 +31,6 @@ class GameController {
         ~GameController();
 
         void playGame(int latesTurn, int maxTurn);
-
     private:
         // Deck<SpecialCard>...
         Deck<SkillCard>& specialCardDeck_;
@@ -55,9 +54,14 @@ class GameController {
         bool processCustomDice(Player& p, int x, int y);
         bool resolveDiceResult(Player& p, int d1, int d2);
 
-        void processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn);
-        void processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn);
+        bool processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice);
+        bool processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice);
+        void processEndTurn(Player& p); // perlu dip
+
         bool hasSoleWinner() const;
         void decideWinner() const;
+
+        void showInventory(Player& p); // perlu dipindahin si
+        void showPosition(Player& p); // perlu dipindahin si
 };
 
