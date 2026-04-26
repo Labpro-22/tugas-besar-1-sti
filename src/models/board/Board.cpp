@@ -1,6 +1,10 @@
 #include "models/board/Board.hpp"
 
-Board::Board(int size) : size_(size) {}
+int Board::activeBoardSize_ = 0;
+
+Board::Board(int size) : size_(size) {
+    activeBoardSize_ = size;
+}
 
 Board::~Board() = default;
 
@@ -18,6 +22,10 @@ Tile& Board::getCurrentTile(int id) {
 
 int Board::getSize() const {
     return size_;
+}
+
+int Board::getActiveBoardSize() {
+    return activeBoardSize_;
 }
 
 int Board::getJailPosition() const {
