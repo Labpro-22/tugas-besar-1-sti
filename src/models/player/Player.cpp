@@ -1,5 +1,6 @@
 #include "models/player/Player.hpp"
 #include "models/card/skillcard/SkillCard.hpp"
+#include "models/exception/InvariantViolationException/InsufficientFundsException/InsufficientFundsException.hpp"
 #include "models/exception/InvariantViolationException/InvariantViolationException.hpp"
 
 namespace {

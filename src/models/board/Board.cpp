@@ -1,4 +1,5 @@
 #include "models/board/Board.hpp"
+#include "models/exception/InvariantViolationException/InvariantViolationException.hpp"
 
 int Board::activeBoardSize_ = 0;
 
