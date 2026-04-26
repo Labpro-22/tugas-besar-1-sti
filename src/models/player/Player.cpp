@@ -34,6 +34,10 @@ Player::~Player()
     }
 }
 
+int Player::getID() const {
+    return id_;
+}
+
 std::string Player::getUsername() const {
     return username_;
 }

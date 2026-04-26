@@ -39,7 +39,6 @@ class Board
         void setStartPosition(int pos);
         std::map<std::string, size_t> getCountTilesForEachColourBlock() const;
         void addCountTilesForEachColourBlock();
-
 };
 
 

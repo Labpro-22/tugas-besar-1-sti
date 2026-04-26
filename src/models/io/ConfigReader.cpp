@@ -346,6 +346,7 @@ std::vector<Tile*> Reader::readAction()
 
 Board Reader::loadBoard()
 {
+    readMisc();
     readSpecial();
     readTax();
     readRailRoad();

@@ -30,6 +30,7 @@ class GameController {
             CommandInterface& command, Deck<SkillCard>& specialCardDeck_);
         ~GameController();
 
+        void setCurrentTurn(int latestTurn);
         void playGame(int latesTurn, int maxTurn);
     private:
         // Deck<SpecialCard>...
@@ -44,6 +45,7 @@ class GameController {
         std::unique_ptr<SkillCardCoordinator> skillCardCoordinator_;
         std::unique_ptr<PropertyCoordinator> propertyCoordinator_;
 
+        int currentTurn_;
         int goSalary_;
         int jailFine_;
         

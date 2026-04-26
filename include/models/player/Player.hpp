@@ -25,6 +25,9 @@ class Player {
         Player(std::string username, int initialBalance);
         ~Player();
 
+        // GETTER ID
+        int getID() const;
+
         // GETTER USERNAME
         std::string getUsername() const;
 
