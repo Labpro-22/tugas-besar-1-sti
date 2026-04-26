@@ -30,14 +30,14 @@ MoveCard::MoveCard(int steps)
 }
 
 void MoveCard::activate(Player& owner) {
-    const int boardSize = Board::getActiveBoardSize();
-    if (boardSize <= 0) {
-        owner.setPosition(owner.move(steps_));
-        return;
-    }
+    // const int boardSize = Board::getActiveBoardSize();
+    // if (boardSize <= 0) {
+    //     owner.setPosition(owner.move(steps_));
+    //     return;
+    // }
 
-    const int wrappedPos = (owner.getPosition() + steps_) % boardSize;
-    owner.setPosition(wrappedPos);
+    // const int wrappedPos = (owner.getPosition() + steps_) % boardSize;
+    // owner.setPosition(wrappedPos);
 }
 
 int MoveCard::getSteps() const {

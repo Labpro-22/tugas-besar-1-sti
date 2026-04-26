@@ -49,15 +49,15 @@ void SkillCardCoordinator::processPickAndDropSkillCard(Player& player) {
     view_.showMessage("Kartu berhasil ditambahkan ke inventory.\n");
 }
 
-void SkillCardCoordinator::processSkillCardUse(Player& player, bool& hasUsedSkillCardThisTurn) {
+std::unique_ptr<SkillCard> SkillCardCoordinator::processSkillCardUse(Player& player, bool& hasUsedSkillCardThisTurn) {
     if (hasUsedSkillCardThisTurn) {
         view_.showMessage("Kartu kemampuan hanya boleh dipakai maksimal 1 kali per giliran.\n");
-        return;
+        return nullptr;
     }
 
     if (player.getSkillCardCount() == 0) {
         view_.showMessage("Kamu tidak punya kartu kemampuan untuk digunakan.\n");
-        return;
+        return nullptr;
     }
 
     view_.showMessage("Daftar kartu kemampuan milikmu:\n");
@@ -76,40 +76,29 @@ void SkillCardCoordinator::processSkillCardUse(Player& player, bool& hasUsedSkil
     int selected = command_.getInt(0, static_cast<int>(player.getSkillCardCount()));
     if (selected == 0) {
         view_.showMessage("Penggunaan kartu dibatalkan.\n");
-        return;
+        return nullptr;
     }
 
     std::size_t selectedIndex = static_cast<std::size_t>(selected - 1);
     const SkillCard* selectedCard = player.getSkillCardAt(selectedIndex);
 
-    if (selectedCard == nullptr) {
-        view_.showMessage("Kartu yang dipilih tidak valid.\n");
-        return;
-    }
-
+    // Cek validasi penjara
     if (player.isInJail()) {
-        if (dynamic_cast<const MoveCard*>(selectedCard) != nullptr ||
-            dynamic_cast<const TeleportCard*>(selectedCard) != nullptr ||
-            dynamic_cast<const LassoCard*>(selectedCard) != nullptr) {
-            view_.showMessage("Saat di penjara, kartu Move/Teleport tidak dapat digunakan.\n");
-            return;
+        if (dynamic_cast<const MoveCard*>(selectedCard) ||
+            dynamic_cast<const TeleportCard*>(selectedCard) ||
+            dynamic_cast<const LassoCard*>(selectedCard)) {
+            view_.showMessage("Saat di penjara, kartu Move/Teleport/Lasso tidak dapat digunakan.\n");
+            return nullptr;
         }
     }
 
-    int balanceBefore = player.getBalance();
-    int positionBefore = player.getPosition();
-
+    // Ambil kartu dari inventory dan kembalikan ke GameController
     std::unique_ptr<SkillCard> usedCard = player.removeSkillCardAt(selectedIndex);
-    if (!usedCard) {
-        view_.showMessage("Gagal mengambil kartu dari inventory.\n");
-        return;
+    
+    if (usedCard) {
+        hasUsedSkillCardThisTurn = true;
+        return usedCard; 
     }
 
-    usedCard->activate(player);
-    view_.showMessage("Kartu " + usedCard->getName() + " telah dipakai.\n");
-    view_.showMessage("Efek diterapkan | Posisi: " + std::to_string(positionBefore) + " -> " + std::to_string(player.getPosition()) +
-                    " | Balance: " + std::to_string(balanceBefore) + " -> " + std::to_string(player.getBalance()) + "\n");
-
-    skillCardDeck_.pushToDiscard(std::move(usedCard));
-    hasUsedSkillCardThisTurn = true;
+    return nullptr;
 }

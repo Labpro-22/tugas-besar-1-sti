@@ -16,7 +16,7 @@ class SkillCardCoordinator {
                             CommandInterface& command);
 
         void processPickAndDropSkillCard(Player& player);
-        void processSkillCardUse(Player& player, bool& hasUsedSkillCardThisTurn);
+        std::unique_ptr<SkillCard> processSkillCardUse(Player& player, bool& hasUsedSkillCardThisTurn);
 
     private:
         Deck<SkillCard>& skillCardDeck_;
