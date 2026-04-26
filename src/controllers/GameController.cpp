@@ -347,7 +347,7 @@ bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
             }
 
             if (p.isInJail()) {
-                return true;
+                return false;
             }
 
             if (isDouble) {
@@ -382,7 +382,7 @@ bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
             }
 
             if (p.isInJail()) {
-                return true;
+                return false;
             }
 
             if (isDouble) {
@@ -407,6 +407,9 @@ bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
                 addTransactionLog(p.getUsername(), "KARTU", "Menggunakan kartu: " + kartu->getName());
                 this->handleSkillCardUsage(p, *kartu);
                 specialCardDeck_.pushToDiscard(std::move(kartu));
+            }
+            if (p.isInJail()) {
+                return false;
             }
             return true;
         }
