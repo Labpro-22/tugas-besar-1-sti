@@ -4,6 +4,7 @@
 #include "models/tile/property_tile/RailRoadTile.hpp"
 #include "models/tile/property_tile/StreetTile.hpp"
 #include "models/tile/property_tile/UtilityTile.hpp"
+#include "utils/Formatter.hpp"
 #include "controllers/GameConfig.hpp"
 #include "models/player/Player.hpp"
 
@@ -70,7 +71,7 @@ class CLIView : public GameViewInterface {
             board_ = board;
         }
 
-        void cetakPapan() override {
+        void cetakPapan(Player& pl, int currentTurn) override {
             if (board_ == nullptr) {
                 std::cout << "Board belum tersedia.\n";
                 return;
@@ -124,7 +125,7 @@ class CLIView : public GameViewInterface {
                 if (p) {
                     std::string owner = p->getOwnerUsername();
                     if (owner != "BANK" && !owner.empty()) {
-                        for (Player* player : Player::getAllPlayersStatic()) {
+                        for (Player* player : pl.getAllPlayers()) {
                             if (player != nullptr && player->getUsername() == owner) {
                                 ownerNum = player->getID() + 1; 
                                 break;
@@ -138,7 +139,8 @@ class CLIView : public GameViewInterface {
                             if (level == 1) ownVis += " ^";
                             else if (level == 2) ownVis += " ^^";
                             else if (level == 3) ownVis += " ^^^";
-                            else if (level == 4) ownVis += " *"; 
+                            else if (level == 4) ownVis += " ^^^^";
+                            else if (level == 5) ownVis += " *"; 
                         }
                         
                         visStr += ownVis;
@@ -151,7 +153,7 @@ class CLIView : public GameViewInterface {
                 std::string vVis = "", vCol = "";
                 std::string normVis = "", normCol = "";
 
-                for (Player* player : Player::getAllPlayersStatic()) {
+                for (Player* player : pl.getAllPlayers()) {
                     if (player == nullptr) continue;
                     
                     int pIdx = player->getPosition();
@@ -230,8 +232,7 @@ class CLIView : public GameViewInterface {
             setMid(2, "||              NIMONSPOLI              ||");
             setMid(3, "==========================================");
             
-            // TODO: Gimana caranya buat Turn yah
-            std::string turnInfo = "TURN 15 / " + std::to_string(Monopoly::getMaxTurn());
+            std::string turnInfo = "TURN " + std::to_string(currentTurn) + " / " + std::to_string(Monopoly::getMaxTurn());
             setMid(5, turnInfo); 
 
             setMid(8, "-----------------------------------------");
@@ -240,15 +241,16 @@ class CLIView : public GameViewInterface {
             setMid(11, "^     : Rumah Level 1                    ");
             setMid(12, "^^    : Rumah Level 2                    ");
             setMid(13, "^^^   : Rumah Level 3                    ");
-            setMid(14, "* : Hotel (Maksimal)                     ");
-            setMid(15, "(1)-(4): Bidak (IN=Tahanan, V=Mampir)    ");
-            setMid(16, "-----------------------------------------");
-            setMid(17, "KODE WARNA:                              ");
-            setMid(18, "[CK]=Coklat    [MR]=Merah                ");
-            setMid(19, "[BM]=Biru Muda [KN]=Kuning               ");
-            setMid(20, "[PK]=Pink      [HJ]=Hijau                ");
-            setMid(21, "[OR]=Orange    [BT]=Biru Tua             ");
-            setMid(22, "[DF]=Aksi      [AB]=Utilitas             ");
+            setMid(14, "^^^^  : Rumah Level 4                    ");
+            setMid(15, "* : Hotel (Maksimal)                     ");
+            setMid(16, "(1)-(4): Bidak (IN=Tahanan, V=Mampir)    ");
+            setMid(17, "-----------------------------------------");
+            setMid(18, "KODE WARNA:                              ");
+            setMid(19, "[CK]=Coklat    [MR]=Merah                ");
+            setMid(20, "[BM]=Biru Muda [KN]=Kuning               ");
+            setMid(21, "[PK]=Pink      [HJ]=Hijau                ");
+            setMid(22, "[OR]=Orange    [BT]=Biru Tua             ");
+            setMid(23, "[DF]=Aksi      [AB]=Utilitas             ");
 
             auto printFullHLine = [&]() {
                 std::cout << "+";
@@ -284,36 +286,121 @@ class CLIView : public GameViewInterface {
             printFullHLine();
         }
 
-        void cetakAkta() override {
+        void cetakAkta(const std::string& kodePetak) override {
             if (board_ == nullptr) {
                 std::cout << "Board belum tersedia.\n";
                 return;
             }
 
-            const int n = boardSize();
-            if (n == 0) {
-                std::cout << "Board kosong.\n";
+            if (!board_->has(kodePetak)) {
+                std::cout << "\nPetak \"" << kodePetak << "\" tidak ditemukan.\n";
                 return;
             }
 
-            std::cout << "===== AKTA PROPERTI =====\n";
-            for (int i = 0; i < n; ++i) {
-                Tile& tile = board_->getCurrentTile(i);
-                PropertyTile* property = dynamic_cast<PropertyTile*>(&tile);
-                if (property == nullptr) {
-                    continue;
-                }
+            Tile& foundTile = board_->getTileByCode(kodePetak);
+            int tileIndex = board_->getTileIndexByCode(kodePetak);
 
-                std::cout << property->getLetterCode() << " | "
-                          << property->getTileName() << " | "
-                          << propertyKind(*property) << " | "
-                          << "Harga beli: " << property->getPurchasePrice() << " | "
-                          << "Nilai gadai: " << property->getMortgageValue() << " | "
-                          << "Level: " << property->getLevel() << " | "
-                          << "Owner: " << property->getOwnerUsername() << " | "
-                          << "Status: " << propertyStatusToString(property->getPropertyStatus())
-                          << "\n";
+            PropertyTile* property = dynamic_cast<PropertyTile*>(&foundTile);
+            if (property == nullptr) {
+                std::cout << "\nPetak \"" << kodePetak << "\" bukan merupakan properti.\n";
+                return;
             }
+
+            const int BOX_W = 40;
+            auto printCenter = [&](std::string text) {
+                int len = text.length();
+                if (len >= BOX_W) {
+                    std::cout << "|" << text.substr(0, BOX_W) << "|\n";
+                } else {
+                    int padLeft = (BOX_W - len) / 2;
+                    int padRight = BOX_W - len - padLeft;
+                    std::cout << "|" << std::string(padLeft, ' ') << text << std::string(padRight, ' ') << "|\n";
+                }
+            };
+            auto printLR = [&](std::string left, std::string right) {
+                int spaces = BOX_W - left.length() - right.length();
+                if (spaces < 0) spaces = 0;
+                std::cout << "| " << left << std::string(spaces > 2 ? spaces - 2 : 0, ' ') << right << " |\n";
+            };
+
+            StreetTile* street = dynamic_cast<StreetTile*>(property);
+            RailRoadTile* railroad = dynamic_cast<RailRoadTile*>(property);
+            UtilityTile* utility = dynamic_cast<UtilityTile*>(property);
+
+            std::string warna = "";
+            int idx = tileIndex;
+            if (idx==1||idx==3) warna = "COKLAT";
+            else if (idx==6||idx==8||idx==9) warna = "BIRU MUDA";
+            else if (idx==11||idx==13||idx==14) warna = "PINK";
+            else if (idx==16||idx==18||idx==19) warna = "ORANGE";
+            else if (idx==21||idx==23||idx==24) warna = "MERAH";
+            else if (idx==26||idx==27||idx==29) warna = "KUNING";
+            else if (idx==31||idx==32||idx==34) warna = "HIJAU";
+            else if (idx==37||idx==39) warna = "BIRU TUA";
+            else {
+                if (railroad) warna = "STASIUN";
+                else if (utility) warna = "UTILITAS";
+                else warna = "PROPERTI"; 
+            }
+
+            std::string statusStr = propertyStatusToString(property->getPropertyStatus());
+            std::string ownerStr = property->getOwnerUsername();
+            std::string fullStatus = statusStr;
+            if (statusStr == "OWNED" || ownerStr != "BANK") {
+                fullStatus += " (" + ownerStr + ")";
+            }
+
+            std::cout << "\n+========================================+\n";
+            printCenter("AKTA KEPEMILIKAN");
+            printCenter("[" + warna + "] " + property->getTileName() + " (" + property->getLetterCode() + ")");
+            std::cout << "+========================================+\n";
+            printLR("Harga Beli", ": " + Formatter::formattingMoney(property->getPurchasePrice()));
+            printLR("Nilai Gadai", ": " + Formatter::formattingMoney(property->getMortgageValue()));
+            std::cout << "+----------------------------------------+\n";
+
+            if (street) {
+                printLR("Sewa (unimproved)", ": " + Formatter::formattingMoney(street->getRentAtLevel(0)));
+                printLR("Sewa (1 rumah)",    ": " + Formatter::formattingMoney(street->getRentAtLevel(1)));
+                printLR("Sewa (2 rumah)",    ": " + Formatter::formattingMoney(street->getRentAtLevel(2)));
+                printLR("Sewa (3 rumah)",    ": " + Formatter::formattingMoney(street->getRentAtLevel(3)));
+                printLR("Sewa (4 rumah)",    ": " + Formatter::formattingMoney(street->getRentAtLevel(4)));
+                printLR("Sewa (hotel)",      ": " + Formatter::formattingMoney(street->getRentAtLevel(5)));
+                std::cout << "+----------------------------------------+\n";
+                
+                std::map<int, int> buildMap = street->getBuildPrice();
+                int hargaRumah = 0;
+                int hargaHotel = 0;
+
+                if (buildMap.count(1)) hargaRumah = buildMap.at(1);
+                if (buildMap.count(5)) hargaHotel = buildMap.at(5);
+                
+                if (hargaRumah == 0 && !buildMap.empty()) hargaRumah = buildMap.begin()->second;
+                if (hargaHotel == 0 && !buildMap.empty()) hargaHotel = buildMap.begin()->second;
+
+                printLR("Harga Rumah", ": " + Formatter::formattingMoney(hargaRumah));
+                printLR("Harga Hotel", ": " + Formatter::formattingMoney(hargaHotel));
+            } else if (railroad) {
+                std::map<int, int> rrPrices = RailRoadTile::getRailRoadRentPrices();
+                
+                for (const auto& pair : rrPrices) {
+                    std::string label = "Sewa (" + std::to_string(pair.first) + " stasiun)";
+                    printLR(label, ": " + Formatter::formattingMoney(pair.second));
+                }
+                if (rrPrices.empty()) printCenter("Data sewa stasiun kosong.");
+            } else if (utility) {
+                std::map<int, int> utilFactors = UtilityTile::getUtilityFactor();
+                
+                for (const auto& pair : utilFactors) {
+                    std::string label = "Sewa (" + std::to_string(pair.first) + " utilitas)";
+                    std::string value = std::to_string(pair.second) + "x Dadu";
+                    printLR(label, ": " + value);
+                }
+                if (utilFactors.empty()) printCenter("Data pengali utilitas kosong.");
+            }
+
+            std::cout << "+========================================+\n";
+            printLR("Status", ": " + fullStatus);
+            std::cout << "+========================================+\n\n";
         }
 
         void cetakProperti() override {
@@ -523,9 +610,6 @@ class CLICommand : public CommandInterface {
 int main() {
     std::unique_ptr<GameViewInterface> view = std::make_unique<CLIView>();
     std::unique_ptr<CommandInterface> command = std::make_unique<CLICommand>();
-
-    Monopoly::setInitialBalance(1500);
-    Monopoly::setMaxTurn(4);
 
     Monopoly game(std::move(view), std::move(command));
     game.startGame();

@@ -47,7 +47,7 @@ void Monopoly::startGame() {
             // if udah ada artinya minta game state-nya
 
         size_t numOfPlayers = 0;
-        int latestTurn = 0;
+        int latestTurn = 1;
         bool loadedFromState = false;
         std::vector<std::unique_ptr<Player>> players;
         if (command_->askWantToLoadState()) {
@@ -95,6 +95,7 @@ void Monopoly::startGame() {
 
         // tar
         GameController gameController(std::move(players), *board, dice, *view_, *command_, decks); // tar lg pusing command sm si view bedanya apa
+        gameController.setCurrentTurn(latestTurn);
         gameController.playGame(latestTurn, maxTurn_);
 
         // clean log
@@ -146,6 +147,8 @@ std::unique_ptr<Board> Monopoly::loadConfig() {
     std::string folder = command_->askFolderForConfig();
     try {
         Reader reader(folder);
+        auto boardData = reader.loadBoard();
+
         try {
             Monopoly::setInitialBalance(reader.getStartingBalance());
             Monopoly::setMaxTurn(reader.getMaxTurn());
@@ -160,7 +163,7 @@ std::unique_ptr<Board> Monopoly::loadConfig() {
         } catch (...) {
         }
 
-        return std::make_unique<Board>(reader.loadBoard());
+        return std::make_unique<Board>(std::move(boardData));
     } catch (const std::exception& e) {
         std::cout << "\nConfigReader gagal karena: " << e.what() << "\n";
         return nullptr;
@@ -237,16 +240,20 @@ bool Monopoly::loadState(std::unique_ptr<Board>& board, std::vector<std::unique_
 
                 int value = 0, duration = 0;
                 
-                // TODO: Sesuaikan dengan nama class spesifik dari SkillCard kalian
                 if (cardType == "MoveCard") {
                     issC >> value;
-                    // player->addSkillCard(std::make_unique<MoveCard>(value));
+                    player->addSkillCard(std::make_unique<MoveCard>(value));
                 } else if (cardType == "DiscountCard") {
                     issC >> value >> duration;
-                    // player->addSkillCard(std::make_unique<DiscountCard>(value, duration));
-                } else {
-                    // ShieldCard / TeleportCard
-                    // player->addSkillCard(std::make_unique<ShieldCard>());
+                    player->addSkillCard(std::make_unique<DiscountCard>(value, duration));
+                } else if (cardType == "ShieldCard") {
+                    player->addSkillCard(std::make_unique<ShieldCard>());
+                } else if (cardType == "TeleportCard") {
+                    player->addSkillCard(std::make_unique<TeleportCard>());
+                } else if (cardType == "LassoCard") {
+                    player->addSkillCard(std::make_unique<LassoCard>());
+                } else if (cardType == "DemolitionCard") {
+                    player->addSkillCard(std::make_unique<DemolitionCard>());
                 }
             }
             players.push_back(std::move(player));

@@ -269,10 +269,6 @@ const std::vector<Player*>& Player::getAllPlayers() const {
     return allPlayers_;
 }
 
-const std::vector<Player*>& Player::getAllPlayersStatic() {
-    return g_allPlayers;
-}
-
 int Player::countRailroad() const {
     return inventory_.countRailRoads();
 }

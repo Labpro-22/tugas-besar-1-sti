@@ -98,7 +98,6 @@ class Player {
 
         void setAllPlayersContext(const std::vector<Player*>& players);
         const std::vector<Player*>& getAllPlayers() const;
-        static const std::vector<Player*>& getAllPlayersStatic();
 
         int countRailroad() const;
         int countUtilities() const;

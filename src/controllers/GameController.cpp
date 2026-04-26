@@ -15,25 +15,32 @@ GameController::GameController(std::vector<std::unique_ptr<Player>> players,
     view_(view), command_(command), players_(std::move(players)), auction_(players_, view_),
     auctionCoordinator_(std::make_unique<AuctionCoordinator>(players_, view_, command_)),
     skillCardCoordinator_(std::make_unique<SkillCardCoordinator>(specialCardDeck_, view_, command_)),
-    propertyCoordinator_(std::make_unique<PropertyCoordinator>(players_, board_, dice_, view_, command_)){}
+    propertyCoordinator_(std::make_unique<PropertyCoordinator>(players_, board_, dice_, view_, command_)) {}
 
 GameController::~GameController() = default;
 
 
 // TERKAIT LOGIC GAME SECARA UMUM =========================================================================================================
 void GameController::playGame(int latestTurn, int maxTurn) {
-    int i = latestTurn;
-    while ((i < maxTurn || maxTurn == -1) && !hasSoleWinner()) {
+    currentTurn_ = latestTurn;
+    while ((currentTurn_ <= maxTurn || maxTurn == -1) && !hasSoleWinner()) {
         for (auto& player : players_) {
             if (!player->isBankrupt()) {
                 processTurn(*player);
             }
         }
-        i++;
+        currentTurn_++;
     }
     decideWinner();
 }
 
+int GameController::getCurrentTurn() const {
+    return currentTurn_;
+}
+
+void GameController::setCurrentTurn(int currentTurn) {
+    currentTurn_ = currentTurn;
+}
 
 void GameController::processMovement(Player& p, int firstDisplacement) {
     Tile& nextTile = board_.moveToNextTile(p.move(firstDisplacement));
@@ -279,10 +286,6 @@ bool GameController::processRandomDice(Player& p){
 }
 
 bool GameController::processCustomDice(Player& p, int x, int y){
-	if (x < 1 || x > 6 || y < 1 || y > 6) {
-		view_.showMessage("Nilai dadu harus antara 1 sampai 6.\n");
-		return false;
-	}
 	view_.showMessage("Dadu diatur secara manual.\n");
 	dice_.rollSettingan(x, y);
 	return resolveDiceResult(p, dice_.getDie1(), dice_.getDie2());
@@ -291,6 +294,7 @@ bool GameController::processCustomDice(Player& p, int x, int y){
 bool GameController::resolveDiceResult(Player& p, int d1, int d2){
 	int total = d1 + d2;
 	view_.showMessage("Hasil: " + std::to_string(d1) + " + " + std::to_string(d2) + " = " + std::to_string(total) + "\n");
+	view_.showMessage("Memajukan Bidak " + p.getUsername() + " sebanyak " + std::to_string(total) +" petakk...\n");
 	if (d1 == d2) {
 		p.incrementDoubleCount();
 		if (!p.notViolatingDoubleRollCount()) {
@@ -349,6 +353,12 @@ void GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
                 } else {
                     int x = cmd.getArg(0);
                     int y = cmd.getArg(1);
+
+                    if (x < 1 || x > 6 || y < 1 || y > 6) {
+                        view_.showMessage("Nilai dadu harus antara 1 sampai 6.\n");
+                        break;
+                    }
+
                     bool isDouble = processCustomDice(p, x, y);
                     hasRolledThisTurn = true;
 
@@ -376,8 +386,23 @@ void GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
                     view_.showMessage("Tidak bisa SIMPAN. Kamu sudah melakukan aksi/pergerakan.\n");
                 }
                 break;
-            case CommandType::CETAK_PAPAN: view_.cetakPapan(); break;
-            case CommandType::CETAK_AKTA: view_.cetakAkta(); break;
+            case CommandType::CETAK_PAPAN: view_.cetakPapan(p, currentTurn_); break;
+            case CommandType::CETAK_AKTA: {
+                view_.showMessage("\nMasukkan kode petak: ");
+                std::string kodePetak;
+                // TODO: inputnya enaknya gimana yah???
+                std::cin >> kodePetak;
+
+                std::cin.ignore(10000, '\n');
+
+                for (char &c : kodePetak) {
+                    c = toupper(c);
+                }
+
+                view_.cetakAkta(kodePetak);
+
+                break;
+            }
             case CommandType::CETAK_PROPERTI: view_.cetakProperti(); break;
             case CommandType::GADAI: processMortgage(p); break;
             case CommandType::TEBUS: processRedeem(p); break;

@@ -15,7 +15,7 @@ StreetTile::StreetTile(int tileID, std::string letterCode,
 StreetTile::~StreetTile() = default;
 
 OnLandResult StreetTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
-    view.showMessage("Halo kamu ada di street tile\n");
+    view.showMessage("Kamu mendarat di " + getTileName() + " (" + getLetterCode() + ")!\n");
 
     // milik sendiri
     if (getOwnerUsername() == p.getUsername()) {
@@ -93,4 +93,11 @@ int StreetTile::getLevel() const {
 
 void StreetTile::setLevel(int level) {
     PropertyTile::setLevel(level);
+}
+
+int StreetTile::getRentAtLevel(int level) const {
+    if (rentPricePerLevel_.count(level)) {
+        return rentPricePerLevel_.at(level);
+    }
+    return -1;
 }

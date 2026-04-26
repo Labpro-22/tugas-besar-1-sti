@@ -29,4 +29,5 @@ class StreetTile : public PropertyTile {
 
         int getLevel() const;
         void setLevel(int level);
+        int getRentAtLevel(int level) const;
 };

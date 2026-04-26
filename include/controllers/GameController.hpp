@@ -30,7 +30,9 @@ class GameController {
             CommandInterface& command, Deck<SkillCard>& specialCardDeck_);
         ~GameController();
 
-        void playGame(int latesTurn, int maxTurn);
+        void playGame(int latestTurn, int maxTurn);
+        int getCurrentTurn() const;
+        void setCurrentTurn(int currentTurn);
         void processTurn(Player& p);
         void processMovement(Player& p, int firstDisplacement);
         void processSpecialCardUse(Player& p, bool& hasUsedSkillCardThisTurn);
@@ -70,6 +72,6 @@ class GameController {
         std::unique_ptr<SkillCardCoordinator> skillCardCoordinator_;
         std::unique_ptr<PropertyCoordinator> propertyCoordinator_;
 
-        
+        int currentTurn_;
 };
 
