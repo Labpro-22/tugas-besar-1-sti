@@ -71,4 +71,8 @@ class PropertyTile : public Tile {
         int getSellingPrice() const;
 
         int sellAllBuildings() const;
+
+        std::string propertyStatusToText() const;
+
+        std::string buildingLevelToText() const;
 };

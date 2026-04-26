@@ -550,19 +550,6 @@ void GameController::showPosition(Player& p) {
     }
 }
 
-static std::string propertyStatusText(PropertyStatus status) {
-    if (status == BANK) {return "BANK";}
-    if (status == OWNED) {return "OWNED";}
-    if (status == MORTGAGED) {return "MORTGAGED";}
-    return "UNKNOWN";
-}
-
-static std::string buildingText(int level) {
-    if (level <= 0) {return "-";}
-    if (level >= 5) {return "Hotel";}
-    return std::to_string(level) + " rumah";
-}
-
 void GameController::showInventory(Player& p) {
     view_.showMessage("\n================ INVENTORY ================\n");
     view_.showMessage("Pemain  : " + p.getUsername() + "\n");
@@ -632,7 +619,7 @@ void GameController::showInventory(Player& p) {
                 }
             }
 
-            view_.showMessage(property->getLetterCode() + " | " + property->getTileName() + " | " + type + " | " + propertyStatusText(property->getPropertyStatus()) + " | " + buildingText(property->getLevel()) + " | " + "M" + std::to_string(property->getPurchasePrice()) + " | " + "M" + std::to_string(property->getMortgageValue()) + " | " + upgrade + " | " + rent + "\n");
+            view_.showMessage(property->getLetterCode() + " | " + property->getTileName() + " | " + type + " | " + property->propertyStatusToText() + " | " + property->buildingLevelToText() + " | " + "M" + std::to_string(property->getPurchasePrice()) + " | " + "M" + std::to_string(property->getMortgageValue()) + " | " + upgrade + " | " + rent + "\n");
         }
     }
 
