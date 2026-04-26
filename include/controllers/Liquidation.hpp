@@ -68,7 +68,7 @@ private:
     std::vector<LiquidationAction> availableActions_;
     std::vector<LiquidationAction> selectedActions_;
 
-    std::string actionTypeToString(LiquidationActionType type) const;
+    
     bool containsSelectedAction(const LiquidationAction& action) const;
     bool containsAction(const std::vector<LiquidationAction>& actions, const LiquidationAction& target) const;
 
@@ -125,4 +125,10 @@ public:
     void executeSellBuildings(Player& payer, StreetTile& street);
 
     void sortSelectedActionsByPriority();
+
+    bool hasConflictingSelectedAction(const LiquidationAction& action) const;
+
+    void executeSellBuildingsColorGroup(Player& payer, const std::string& colorGroup);
+
+    void rebuildAvailableActions(Player& payer);
 };

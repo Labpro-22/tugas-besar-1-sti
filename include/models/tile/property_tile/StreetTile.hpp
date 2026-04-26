@@ -16,8 +16,9 @@ class StreetTile : public PropertyTile {
                 std::string tileName, std::string colourBlock, 
                 int purchasePrice, int mortgageValue,
                 // khusus street
-                std::map<int, int> rentPricePerLevel, // Key : Level, Value : Rent Price
-                std::map<int, int> buildPrice);
+                std::map<int, int> buildPrice,
+                std::map<int, int> rentPricePerLevel // Key : Level, Value : Rent Price
+                );
         ~StreetTile();
         OnLandResult onLand(Player& p, CommandInterface& command, GameViewInterface& view) override;
 

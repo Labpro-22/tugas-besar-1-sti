@@ -8,16 +8,18 @@ StreetTile::StreetTile(int tileID, std::string letterCode,
     std::map<int, int> buildPrice)
         : PropertyTile(tileID, letterCode, tileName,
             colourBlock, purchasePrice, mortgageValue),
-            rentPricePerLevel_(rentPricePerLevel),
-            buildPrice_(buildPrice) {}
+            buildPrice_(buildPrice),
+            rentPricePerLevel_(rentPricePerLevel)
+            {}
 
 StreetTile::~StreetTile() = default;
 
 OnLandResult StreetTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
-    view.showMessage("Halo kamu ada di street tile");
+    view.showMessage("Halo kamu ada di street tile\n");
 
     // milik sendiri
     if (getOwnerUsername() == p.getUsername()) {
+        view.showMessage("Kamu memiliki properti ini.\n");
         return OnLandResult::Done;
     }
     

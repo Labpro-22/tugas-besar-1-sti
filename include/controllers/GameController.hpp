@@ -49,13 +49,16 @@ class GameController {
         void processMortgage(Player& p);
         void processBuyBuilding(Player& p);
         void processRedeem(Player& p);
-        void processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn);
-        void processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn);
+        bool processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice);
+        bool processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice);
         void processFestival(Player& p);
         void processTakeChanceCard(Player& p);
         void processTakeCommunityChest(Player& p);
         bool hasSoleWinner() const;
         void decideWinner() const;
+        void showInventory(Player& p);
+        void showPosition(Player& p);
+        void processEndTurn(Player& p);
 
     private:
         // Deck<SpecialCard>...
@@ -70,7 +73,6 @@ class GameController {
         std::unique_ptr<SkillCardCoordinator> skillCardCoordinator_;
         std::unique_ptr<PropertyCoordinator> propertyCoordinator_;
 
-        int goSalary_;
-        int jailFine_;
+        
 };
 
