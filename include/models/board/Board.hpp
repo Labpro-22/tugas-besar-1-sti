@@ -26,6 +26,7 @@ class Board
         Tile& getCurrentTile(int id);
         Tile& getTileByCode(const std::string& code);
         int getTileIndexByCode(const std::string& code) const;
+        int getSize() const;
         bool has(std::string code);
 
 

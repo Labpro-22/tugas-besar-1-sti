@@ -17,6 +17,10 @@ Tile& Board::getCurrentTile(int id) {
     return *tiles_.at(id);
 }
 
+int Board::getSize() const {
+    return size_;
+}
+
 int Board::getJailPosition() const {
     return jailPosition_;
 }

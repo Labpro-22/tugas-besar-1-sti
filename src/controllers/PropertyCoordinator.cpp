@@ -144,23 +144,31 @@ void PropertyCoordinator::processRedeem(Player& player) {
         return;
     }
 
-    view_.showMessage("Berikut ini properti yang sedang digadaikan!\n");
+    view_.showMessage("Berikut ini properti yang sedang digadaikan:\n");
+    for (size_t i = 0; i < mortgagedProperties.size(); ++i) {
+        PropertyTile* t = mortgagedProperties.at(i);
+        view_.showMessage(std::to_string(i + 1) + ". " + t->getLetterCode() + " - " + t->getTileName() + " | Harga beli: M" + std::to_string(t->getPurchasePrice()) + " | Harga gadai: M" + std::to_string(t->getSellingPrice()) + "\n");
+    }
+
+    view_.showMessage("Pilih nomor properti untuk ditebus (0 untuk batal): ");
     int toBeRedeemed = command_.getInt(0, mortgagedProperties.size());
 
     if (toBeRedeemed == 0) {
-        view_.showMessage("Cancels");
+        view_.showMessage("Batal tebus.\n");
         return;
     }
 
-    if (player.getBalance() < mortgagedProperties.at(toBeRedeemed - 1)->getPurchasePrice()) {
-        view_.showMessage("Gagals");
+    PropertyTile* chosen = mortgagedProperties.at(toBeRedeemed - 1);
+    int price = chosen->getPurchasePrice();
+    if (player.getBalance() < price) {
+        view_.showMessage("Saldo tidak cukup untuk menebus properti ini.\n");
         return;
     }
 
-    player.deductMoney(mortgagedProperties.at(toBeRedeemed - 1)->getPurchasePrice());
-    mortgagedProperties.at(toBeRedeemed - 1)->setPropertyStatus(PropertyStatus::OWNED);
+    player.deductMoney(price);
+    chosen->setPropertyStatus(PropertyStatus::OWNED);
 
-    view_.showMessage("Yip yip show message sisa uangnya sama prop yg bs ditebus juga!\n");
+    view_.showMessage("Properti berhasil ditebus. Sisa saldo: M" + std::to_string(player.getBalance()) + "\n");
 }
 
 void PropertyCoordinator::processPayRent(Player& player, Tile& currentTile) {
@@ -193,7 +201,7 @@ void PropertyCoordinator::processPayRent(Player& player, Tile& currentTile) {
             owner->addMoney(rent);
             player.deductMoney(rent);
 
-            view_.showMessage("Atur-atur mo tampilannya gimana :VVVVVVVVVVVVVVVVVV");
+            view_.showMessage("Kamu telah membayar sewa sebesar M" + std::to_string(rent) + " kepada " + owner->getUsername() + "\n");
             return;
         }
     }
@@ -227,7 +235,7 @@ void PropertyCoordinator::processBuyBuilding(Player& player) {
 
     if (chosenPropTile != nullptr) {
         int price = chosenPropTile->getBuildNextBuildingPrice();
-        if (price < player.getBalance()) {
+        if (player.getBalance() < price) {
             view_.showMessage("Anda tidak berhasil bangun, silahkan tidur lagi!\n");
             return;
         }
@@ -305,20 +313,27 @@ void PropertyCoordinator::processMortgage(Player& player) {
 
     std::vector<PropertyTile*> linearOrdered;
 
-    view_.showMessage("Hayo milih dulu\n");
+    view_.showMessage("Daftar properti yang dapat digadaikan:\n");
     int count = 0;
 
     for (auto& keyValue : ownedProperty) {
         std::vector<PropertyTile*>& vec = keyValue.second;
         for (auto& val : vec) {
             linearOrdered.push_back(val);
-            count++;
+            ++count;
+            view_.showMessage("" + std::to_string(count) + ". " + val->getLetterCode() + " - " + val->getTileName() + " | Harga gadai: M" + std::to_string(val->getSellingPrice()) + "\n");
         }
     }
 
+    if (count == 0) {
+        view_.showMessage("Tidak ada properti yang dapat digadaikan.\n");
+        return;
+    }
+
+    view_.showMessage("Pilih nomor properti untuk digadaikan (0 untuk batal): ");
     int selected = command_.getInt(0, count);
     if (selected == 0) {
-        view_.showMessage("ga jadi gadai\n");
+        view_.showMessage("Batal gadai.\n");
         return;
     }
 

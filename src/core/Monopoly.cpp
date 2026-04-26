@@ -1,4 +1,5 @@
 #include "core/Monopoly.hpp"
+#include "controllers/GameConfig.hpp"
 #include "models/io/ConfigReader.hpp"
 #include "models/card/skillcard/MoveCard.hpp"
 #include "models/card/skillcard/DiscountCard.hpp"
@@ -141,6 +142,20 @@ std::unique_ptr<Board> Monopoly::loadConfig() {
     std::string folder = command_->askFolderForConfig();
     try {
         Reader reader(folder);
+        try {
+            Monopoly::setInitialBalance(reader.getStartingBalance());
+            Monopoly::setMaxTurn(reader.getMaxTurn());
+        } catch (...) {
+        }
+
+        try {
+            GameConfig::setStartingBalance(reader.getStartingBalance());
+            GameConfig::setMaxTurn(reader.getMaxTurn());
+            GameConfig::setGoSalary(reader.getGoSalary());
+            GameConfig::setJailFine(reader.getJailFine());
+        } catch (...) {
+        }
+
         return std::make_unique<Board>(reader.loadBoard());
     } catch (const std::exception& e) {
         std::cout << "\n[TERTANGKAP BASAH] ConfigReader gagal karena: " << e.what() << "\n";
@@ -185,9 +200,27 @@ bool Monopoly::loadState(std::unique_ptr<Board>& board, std::vector<std::unique_
             auto player = std::make_unique<Player>(username, balance);
             player->setPosition(board->getTileIndexByCode(posCode));
 
-            if (statusStr == "BANKRUPT") player->setStatus(Player::PlayerStatus::BANKRUPT);
-            else if (statusStr == "JAILED") player->setStatus(Player::PlayerStatus::JAILED);
-            else player->setStatus(Player::PlayerStatus::ACTIVE);
+            if (statusStr == "BANKRUPT") {
+                player->setStatus(Player::PlayerStatus::BANKRUPT);
+            } else if (statusStr.rfind("JAILED", 0) == 0) {
+                // status may be "JAILED" or "JAILED_X" where X is jail turn count
+                player->setStatus(Player::PlayerStatus::JAILED);
+                // parse optional _X
+                size_t pos = statusStr.find('_');
+                player->resetJailTurn();
+                if (pos != std::string::npos) {
+                    try {
+                        int count = std::stoi(statusStr.substr(pos + 1));
+                        for (int k = 0; k < count; ++k) {
+                            player->incrementJailTurn();
+                        }
+                    } catch (...) {
+                        // ignore malformed suffix
+                    }
+                }
+            } else {
+                player->setStatus(Player::PlayerStatus::ACTIVE);
+            }
 
             std::getline(file, line);
             int cardCount = std::stoi(line);

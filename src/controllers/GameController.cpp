@@ -3,6 +3,7 @@
 #include "controllers/AuctionCoordinator.hpp"
 #include "controllers/PropertyCoordinator.hpp"
 #include "controllers/SkillCardCoordinator.hpp"
+#include "models/tile/action_tile/special_tile/GoTile.hpp"
 
 #include <utility>
 
@@ -32,12 +33,32 @@ void GameController::playGame(int latestTurn, int maxTurn) {
     decideWinner();
 }
 
-void GameController::processMovement(Player& p, int firstDisplacement) {
-	Tile& nextTile = board_.moveToNextTile(p.move(firstDisplacement));
 
-	p.setPosition(nextTile.getTileID());
-	p.setLastDiceTotal(firstDisplacement);
-	OnLandResult result = nextTile.onLand(p, command_, view_);
+void GameController::processMovement(Player& p, int firstDisplacement) {
+    Tile& nextTile = board_.moveToNextTile(p.move(firstDisplacement));
+
+    int oldIndex = p.getPosition();
+    int distance = oldIndex + firstDisplacement;
+    bool passedStart = distance >= board_.getSize();
+
+    if (passedStart) {
+        int nextIndex = board_.getTileIndexByCode(nextTile.getLetterCode());
+        if (nextIndex != board_.getStartPosition()) {
+            try {
+                Tile& goTileRaw = board_.getTileByCode("GO");
+                GoTile* goTile = dynamic_cast<GoTile*>(&goTileRaw);
+                if (goTile != nullptr) {
+                    p.addMoney(goTile->getSalary());
+                    view_.showMessage("Melewati GO: menerima salary sebesar " + std::to_string(goTile->getSalary()) + "\n");
+                }
+            } catch (...) {
+            }
+        }
+    }
+
+    p.setPosition(board_.getTileIndexByCode(nextTile.getLetterCode()));
+    p.setLastDiceTotal(firstDisplacement);
+    OnLandResult result = nextTile.onLand(p, command_, view_);
 
         switch (result) {
             case OnLandResult::TriggerAuction: {
@@ -63,8 +84,10 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
 			processFestival(p);
 			break;
 		case OnLandResult::TriggerMoveToJail:
-			p.setPosition(board_.getJailPosition());
-			view_.showMessage("Kamu dipindahkan ke penjara");
+            p.setPosition(board_.getJailPosition());
+            p.setStatus(Player::PlayerStatus::JAILED);
+            p.resetJailTurn();
+            view_.showMessage("Kamu dipindahkan ke penjara\n");
 			break;
 		case OnLandResult::TriggerTryToPayRent:
 			processPayRent(p, nextTile);
@@ -171,7 +194,7 @@ bool GameController::hasSoleWinner() const{
             countNotBankrupt++;
         }
     }
-    return countNotBankrupt == players_.size() - 1;
+    return countNotBankrupt == 1;
 }
 
 
@@ -233,6 +256,7 @@ void GameController::processTurn(Player& p) {
             processNormalTurn(p, hasUsedSkillCardThisTurn);
         } else {
             processJailTurn(p, hasUsedSkillCardThisTurn);
+            p.incrementJailTurn();
         }
     } else {
         processNormalTurn(p, hasUsedSkillCardThisTurn);
@@ -359,28 +383,122 @@ void GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
 }
 
 void GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn) {
-	// udah pasti either bayar / atur" dadud
-	view_.showMessage("Anda sedang berada di penjara!\n");
-	Command cmd = command_.getCommand();
+	bool isJailTurnActive = true;
+    bool hasTriedDice = false;
 
-	switch (cmd.getType()) {
-		case CommandType::GUNAKAN_KEMAMPUAN:
-			// ingat restriksi ketika dia di dalam penjara
-			processSpecialCardUse(p, hasUsedSkillCardThisTurn);
-			break;
-		case CommandType::LEMPAR_DADU:
-			// lempar dadu trs kalo double baru keluar
-			break;
-		case CommandType::ATUR_DADU:
-			// set dadu trs kalo double baru keluar
-			break;
-		case CommandType::BAYAR_DENDA:
-			// bayar terus lgsg keluar ke normal turn
-			p.deductMoney(jailFine_);
-			p.leaveJail();
-			processNormalTurn(p, hasUsedSkillCardThisTurn);
-			break;
-		default:
-			break;
-	}
+	view_.showMessage("Anda sedang berada di penjara!\n");
+    view_.showMessage("Pilih aksi: BAYAR_DENDA, LEMPAR_DADU, ATUR_DADU X Y, GUNAKAN_KEMAMPUAN\n");
+	while (isJailTurnActive && p.isInJail() && !p.isBankrupt()) {
+        view_.showMessage("\nMasukkan perintah: ");
+        Command cmd = command_.getCommand();
+        switch (cmd.getType()) {
+            case CommandType::BAYAR_DENDA: {
+                bool wajibBayar = p.thisTurnAutoFreeFromJail();
+
+                if (p.getBalance() < jailFine_) {
+                    if (wajibBayar) {
+                        view_.showMessage("Kamu tidak mampu membayar denda wajib!\n");
+                        processBankruptcyToBank(p);
+                        return;
+                    }
+
+                    view_.showMessage("Uang tidak cukup. Kamu tetap di penjara.\n");
+                    return;
+                }
+
+                p.deductMoney(jailFine_);
+                p.leaveJail();
+                p.resetJailTurn();
+
+                view_.showMessage("Denda dibayar. Kamu keluar dari penjara.\n");
+                processNormalTurn(p, hasUsedSkillCardThisTurn);
+                return;
+            }
+            case CommandType::LEMPAR_DADU: {
+                if (hasTriedDice) {
+                    view_.showMessage("Kamu sudah mencoba melempar dadu untuk keluar dari penjara.\n");
+                    break;
+                }
+
+                view_.showMessage("Mencoba keluar dari penjara dengan lempar dadu...\n");
+                dice_.roll();
+
+                int d1 = dice_.getDie1();
+                int d2 = dice_.getDie2();
+                int total = d1 + d2;
+
+                view_.showMessage("Hasil: " + std::to_string(d1) + " + " + std::to_string(d2) + " = " + std::to_string(total) + "\n");
+
+                hasTriedDice = true;
+
+                if (d1 == d2) {
+                    view_.showMessage("DOUBLE! Kamu keluar dari penjara dan bergerak.\n");
+
+                    p.leaveJail();
+                    p.resetJailTurn();
+                    p.resetCountDouble();
+
+                    processMovement(p, total);
+                } else {
+                    view_.showMessage("Tidak double. Kamu tetap di penjara dan tidak bergerak.\n");
+                }
+
+                isJailTurnActive = false;
+                break;
+            }
+            case CommandType::ATUR_DADU: {
+                if (hasTriedDice) {
+                    view_.showMessage("Kamu sudah mencoba melempar dadu untuk keluar dari penjara.\n");
+                    break;
+                }
+
+                if (cmd.getArgCount() < 2) {
+                    view_.showMessage("Format salah. Gunakan: ATUR_DADU X Y\n");
+                    break;
+                }
+
+                int x = cmd.getArg(0);
+                int y = cmd.getArg(1);
+
+                if (x < 1 || x > 6 || y < 1 || y > 6) {
+                    view_.showMessage("Nilai dadu harus antara 1 sampai 6.\n");
+                    break;
+                }
+
+                dice_.rollSettingan(x, y);
+
+                int d1 = dice_.getDie1();
+                int d2 = dice_.getDie2();
+                int total = d1 + d2;
+
+                view_.showMessage("Dadu diatur secara manual.\n");
+                view_.showMessage("Hasil: " + std::to_string(d1) + " + " +
+                                  std::to_string(d2) + " = " + std::to_string(total) + "\n");
+
+                hasTriedDice = true;
+
+                if (d1 == d2) {
+                    view_.showMessage("DOUBLE! Kamu keluar dari penjara dan bergerak.\n");
+
+                    p.leaveJail();
+                    p.resetJailTurn();
+                    p.resetCountDouble();
+
+                    processMovement(p, total);
+                } else {
+                    view_.showMessage("Tidak double. Kamu tetap di penjara dan tidak bergerak.\n");
+                }
+
+                isJailTurnActive = false;
+                break;
+            }
+            case CommandType::GUNAKAN_KEMAMPUAN:
+                processSpecialCardUse(p, hasUsedSkillCardThisTurn);
+                break;
+
+            default:
+                view_.showMessage("Perintah tidak valid saat berada di penjara.\n");
+                break;
+        }
+    }
 }

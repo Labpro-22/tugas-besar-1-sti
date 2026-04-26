@@ -2,6 +2,7 @@
 #include <map>
 #include "models/tile/property_tile/PropertyTile.hpp"
 #include "models/tile/property_tile/StreetTile.hpp"
+#include "models/tile/property_tile/UtilityTile.hpp"
 #include "models/tile/property_tile/RailRoadTile.hpp"
 #include "models/card/skillcard/SkillCard.hpp"
 #include "models/exception/InvariantViolationException/CardSlotFull.hpp"
@@ -32,7 +33,7 @@ void Inventory::addProperty(PropertyTile *propertyTile) {
         if (dynamic_cast<RailRoadTile*>(propertyTile) != nullptr) {
             countRailRoads_++;
         }
-        if (dynamic_cast<PropertyTile*>(propertyTile) != nullptr) {
+        if (dynamic_cast<UtilityTile*>(propertyTile) != nullptr) {
             countUtilities_++;
         }
     }
@@ -116,9 +117,14 @@ int Inventory::countAllBuildingsBasedOnPurchasePrice() const {
         StreetTile* s = dynamic_cast<StreetTile*>(property);
         if (s) {
             int level = property->getLevel();
+            if (level <= 0) continue;
             std::map<int, int> buildingPrice = s->getBuildPrice();
-            for (int lev = 0; lev <= level; lev++) {
-                sum += buildingPrice.at(lev);
+            int housePrice = buildingPrice.count(1) ? buildingPrice.at(1) : 0;
+            int hotelPrice = buildingPrice.count(5) ? buildingPrice.at(5) : housePrice;
+            if (level < 5) {
+                sum += level * housePrice;
+            } else {
+                sum += 4 * housePrice + hotelPrice;
             }
         }
     }
