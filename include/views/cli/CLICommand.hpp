@@ -73,4 +73,6 @@ class CLICommand : public CommandInterface {
         bool askWantToBuyProperty() override;
 
         bool getBool(std::string message) override;
+
+        std::string getString() override;
 };

@@ -162,6 +162,18 @@ bool CLICommand::getBool(std::string message) {
     return askYesNo(message);
 }
 
+std::string CLICommand::getString() {
+    std::string input;
+    std::cin >> input;
+    
+    if (std::cin.fail()) {
+        std::cin.clear();
+    }
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
+    
+    return input;
+}
+
 std::string CLICommand::askStateFilename() {
     std::cout << "Masukkan path save file: ";
     std::string path;
