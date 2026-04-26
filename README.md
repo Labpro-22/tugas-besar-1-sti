@@ -19,3 +19,9 @@
 | 13524074 | Bernhard Aprillio Pramana |
 | 13524096 | Moreno Syawali Ganda Sugita |
 | 13524110 | Jennifer Khang |
+
+## Cara Membuka Class Diagram
+1. Download file extension PlantUML
+2. Open Class Diagram.puml
+3. Press Alt + D, there will be a preview
+4. You can explore The Class Diagram :D
