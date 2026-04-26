@@ -16,19 +16,19 @@ StreetTile::~StreetTile() = default;
 
 OnLandResult StreetTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
     view.showMessage("Halo kamu ada di street tile\n");
+    if (isMortgaged()) {
+        view.showMessage("Properti sedang di Mortgaged, tidak ada sewa\n");
+        return OnLandResult::Done;
+    }
 
     // milik sendiri
     if (getOwnerUsername() == p.getUsername()) {
-        view.showMessage("Kamu memiliki properti ini.\n");
+        view.showMessage("Kamu mendarat di properti milikmu.\n");
         return OnLandResult::Done;
     }
     
     if (!isOwnedByBank()) {
         // artinya player lain
-        if (isMortgaged()) {
-            view.showMessage("Properti ini sedang digadaikan skippo!\n");
-            return OnLandResult::Done;
-        }
         return OnLandResult::TriggerTryToPayRent;
     }
 
