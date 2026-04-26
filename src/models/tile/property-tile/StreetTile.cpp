@@ -15,7 +15,7 @@ StreetTile::StreetTile(int tileID, std::string letterCode,
 StreetTile::~StreetTile() = default;
 
 OnLandResult StreetTile::onLand(Player& p, CommandInterface& command, GameViewInterface& view) {
-    view.showMessage("Halo kamu ada di street tile\n");
+    view.showMessage("Halo kamu ada di street tile " + getTileName() + "!\n");
     if (isMortgaged()) {
         view.showMessage("Properti sedang di Mortgaged, tidak ada sewa\n");
         return OnLandResult::Done;
@@ -36,6 +36,8 @@ OnLandResult StreetTile::onLand(Player& p, CommandInterface& command, GameViewIn
         return OnLandResult::TriggerAuction;
     }
 
+    view.showMessage("Warna properti ini adalah " + getColourBlock() + ".\n");
+    view.showMessage("Harga beli properti ini adalah M" + std::to_string(getPurchasePrice()) + ".\n");
     bool wantToBuy = command.askWantToBuyProperty();
     if (!wantToBuy) {
         return OnLandResult::TriggerAuction;
