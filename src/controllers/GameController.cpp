@@ -224,6 +224,11 @@ bool GameController::resolveDiceResult(Player& p, int d1, int d2){
 bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn, bool& hasRolledDiceThisTurn, bool& canRollDice) {
     view_.showMessage("\nGiliran " + p.getUsername() + ". Masukkan perintah: ");
     Command cmd = command_.getCommand();
+    while (cmd.getType() == CommandType::INVALID) {
+        view_.showMessage("Perintah tidak valid. Coba lagi: ");
+        cmd = command_.getCommand();
+    }
+    
 
     switch (cmd.getType()) {
         case CommandType::LEMPAR_DADU: {
@@ -364,6 +369,10 @@ bool GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, 
     view_.showMessage("Command valid: BAYAR_DENDA, LEMPAR_DADU, ATUR_DADU X Y, GUNAKAN_KEMAMPUAN, INVENTORY, POSITION, END_COMMAND\n");
 
     Command cmd = command_.getCommand();
+    while (cmd.getType() == CommandType::INVALID) {
+        view_.showMessage("Perintah tidak valid. Coba lagi: ");
+        cmd = command_.getCommand();
+    }
 
     switch (cmd.getType()) {
         case CommandType::BAYAR_DENDA: {
