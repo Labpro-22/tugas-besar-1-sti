@@ -10,7 +10,7 @@ Player::Player(std::string username, int initialBalance) :
     id_(countPlayer++), username_(username),
     balance_(initialBalance), position_(0),
     status_(PlayerStatus::ACTIVE), doubleRollCount_(0),
-    countJail_(0), playerTurn_(0), lastDiceTotal_(0), shieldTurns_(0),
+    countJail_(0), playerTurn_(0), shieldTurns_(0),
     discountPercent_(0), discountTurns_(0)
 {
     g_allPlayers.push_back(this);
@@ -244,13 +244,6 @@ Inventory& Player::getInventory() {
     return inventory_;
 }
 
-int Player::getLastDiceTotal() const {
-    return lastDiceTotal_;
-}
-
-void Player::setLastDiceTotal(int diceTotal) {
-    lastDiceTotal_ = diceTotal;
-}
 void Player::addSkillCard(std::unique_ptr<SkillCard> skillCard) {
     inventory_.addSkillCards(std::move(skillCard));
 }
@@ -300,7 +293,7 @@ int Player::getCardCount() const {
     return inventory_.countCard();
 }
 
-std::map<std::string, std::vector<PropertyTile*>> Player::getCompleteColourGroups(std::map<std::string, int> countTilesForEachColourBlock) {
+std::map<std::string, std::vector<PropertyTile*>> Player::getCompleteColourGroups(std::map<std::string, size_t> countTilesForEachColourBlock) {
     return inventory_.getCompleteColourGroups(countTilesForEachColourBlock);
 }
 

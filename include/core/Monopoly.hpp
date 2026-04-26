@@ -17,7 +17,7 @@ class Monopoly {
         static inline int maxTurn_;
         static inline int initialBalance_;
 
-        std::vector<std::unique_ptr<Player>> registerPlayers(int numOfPlayers);
+        std::vector<std::unique_ptr<Player>> registerPlayers(size_t numOfPlayers);
         void shufflePlayersTurn(std::vector<std::unique_ptr<Player>>& players_);
         std::unique_ptr<Board> loadConfig();
         

@@ -70,7 +70,6 @@ class GameController {
         std::unique_ptr<SkillCardCoordinator> skillCardCoordinator_;
         std::unique_ptr<PropertyCoordinator> propertyCoordinator_;
 
-        int goSalary_;
-        int jailFine_;
+        
 };
 

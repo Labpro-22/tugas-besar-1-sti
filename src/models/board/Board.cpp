@@ -1,5 +1,4 @@
 #include "models/board/Board.hpp"
-#include "models/exception/InvariantViolationException/InvariantViolationException.hpp"
 
 Board::Board(int size) : size_(size) {}
 
@@ -15,6 +14,10 @@ Tile& Board::moveToNextTile(int distance) {
 
 Tile& Board::getCurrentTile(int id) {
     return *tiles_.at(id);
+}
+
+int Board::getSize() const {
+    return size_;
 }
 
 int Board::getJailPosition() const {
@@ -51,8 +54,26 @@ int Board::getTileIndexByCode(const std::string& code) const {
     return -1; 
 }
 
-bool Board::has(std::string code) { return false; }
-bool Board::isCompletedColourGroup(std::string ownerName, std::string colourBlock) { return false; }
-int Board::countOwnedUtilityTile(std::string username) { return 0; }
-int Board::countOwnedRailRoadTile(std::string username) { return 0; }
-std::map<std::string, int> Board::getCountTilesForEachColourBlock() const { return {}; }
+bool Board::has(std::string code) { 
+    for (size_t i = 0; i < tiles_.size(); i++) {
+        if (tiles_[i]->getLetterCode() == code) {
+            return true;
+        }
+    }
+    return false;
+}
+bool Board::isCompletedColourGroup(std::string ownerName, std::string colourBlock) {
+    for (size_t i = 0; i < tiles_.size(); i++) {
+        if (PropertyTile* propTile = dynamic_cast<PropertyTile*>(tiles_.at(i).get())) {
+            if (propTile->getColourBlock() == colourBlock && (!propTile->isOwnedBy(ownerName) || propTile->isOwnedByBank())) {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}
+
+std::map<std::string, size_t> Board::getCountTilesForEachColourBlock() const {
+    return countTilesForEachColourBlock_;
+}

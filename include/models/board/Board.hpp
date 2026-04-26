@@ -4,7 +4,8 @@
 #include <vector>
 #include <utility>
 #include <map>
-
+#include "models/exception/InvariantViolationException/InvariantViolationException.hpp"
+#include "models/tile/property_tile/PropertyTile.hpp"
 class Board
 {
     private:
@@ -13,7 +14,7 @@ class Board
         int jailPosition_;
         int startPosition_;
         std::vector<std::unique_ptr<Tile>> tiles_;
-        std::map<std::string, int> countTilesForEachColourBlock_;
+        std::map<std::string, size_t> countTilesForEachColourBlock_;
     public:
         Board(int size);
         ~Board();
@@ -26,19 +27,17 @@ class Board
         Tile& getCurrentTile(int id);
         Tile& getTileByCode(const std::string& code);
         int getTileIndexByCode(const std::string& code) const;
+        int getSize() const;
         bool has(std::string code);
 
 
         bool isCompletedColourGroup(std::string ownerName, std::string colourBlock);
-        int countOwnedUtilityTile(std::string username);
-        int countOwnedRailRoadTile(std::string username);
         
-
         int getJailPosition() const;
         void setJailPosition(int pos);
         int getStartPosition() const;
         void setStartPosition(int pos);
-        std::map<std::string, int> getCountTilesForEachColourBlock() const;
+        std::map<std::string, size_t> getCountTilesForEachColourBlock() const;
         void addCountTilesForEachColourBlock();
 
 };

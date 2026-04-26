@@ -1,5 +1,7 @@
 #include "models/io/ConfigReader.hpp"
 
+#include "controllers/GameConfig.hpp"
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -370,9 +372,9 @@ Board Reader::loadBoard()
 
         std::string letterCode = allTiles[i]->getLetterCode();
         if (letterCode == "GO") {
-            board.setStartPosition(expectedId);
+            board.setStartPosition(expectedId - 1);
         } else if (letterCode == "PEN") {
-            board.setJailPosition(expectedId);
+            board.setJailPosition(expectedId - 1);
         }
     }
 
@@ -415,6 +417,10 @@ void Reader::readSpecial()
 
     goSalary_ = salary;
     jailFine_ = fine;
+
+    // propagate to global game config
+    GameConfig::setGoSalary(goSalary_);
+    GameConfig::setJailFine(jailFine_);
 }
 
 void Reader::readMisc()
@@ -454,4 +460,8 @@ void Reader::readMisc()
     // maxTurn boleh negatif -> permainan berakhir dengan salah satu pemain tidak bankrut 
     maxTurn_ = maxTurn;
     startingBalance_ = saldoAwal;
+
+    // propagate to global game config
+    GameConfig::setMaxTurn(maxTurn_);
+    GameConfig::setStartingBalance(startingBalance_);
 }

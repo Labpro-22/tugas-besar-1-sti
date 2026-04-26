@@ -76,8 +76,6 @@ class Player {
 
         Inventory& getInventory();
 
-        int getLastDiceTotal() const;
-        void setLastDiceTotal(int diceTotal);
         bool hasProperty(std::string tileCode);
         PropertyTile& getProperty(std::string code);
         std::vector<PropertyTile*> getMortgagedProperties() const;
@@ -104,7 +102,7 @@ class Player {
 
         int countRailroad() const;
         int countUtilities() const;
-        std::map<std::string, std::vector<PropertyTile*>> getCompleteColourGroups(std::map<std::string, int> countTilesForEachColourBlock);
+        std::map<std::string, std::vector<PropertyTile*>> getCompleteColourGroups(std::map<std::string, size_t> countTilesForEachColourBlock);
         std::map<std::string, std::vector<PropertyTile*>> getOwnedPropertiesGroupByColourGroups();
         bool noBuilding() const; // level bangunna
 
@@ -131,6 +129,5 @@ class Player {
         int discountTurns_; // discount turn
         Inventory inventory_; // belom ada kelasnya wait ye
         static inline int countPlayer = 0;
-        int lastDiceTotal_;
         std::vector<Player*> allPlayers_ = {};
 };
