@@ -12,6 +12,7 @@
 #include "views/GameViewInterface.hpp"
 #include "controllers/Liquidation.hpp"
 #include "models/card/CommunityChestCard.hpp"
+#include "exception/InvariantViolationException/InsufficientFundsException/CardPaymentFailed.hpp"
 #include <memory>
 #include <vector>
 

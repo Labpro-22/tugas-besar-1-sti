@@ -52,6 +52,9 @@ void Player::addMoney(int amount) {
 }
 
 void Player::deductMoney(int amount) {
+    if (balance_ - amount < 0) {
+        throw InsufficientFundsException(101, "Saldo tidak cukup!\n");
+    }
     if (amount > 0 && isShielded()) {
         return;
     }

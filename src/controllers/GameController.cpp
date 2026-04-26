@@ -81,7 +81,14 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
 			propertyCoordinator_->processTakeChanceCard(p);
 			break;
 		case OnLandResult::TakeCommunityChest:
-			propertyCoordinator_->processTakeCommunityChest(p);
+            try {
+			    propertyCoordinator_->processTakeCommunityChest(p);
+            }
+            catch(const CardPaymentFailedException& e) {
+                view_.showMessage(e.getErrorMessage());
+                // proses kebangkrutannya
+                auction_.processBankruptcyToBank(p);
+            }
 			break;
 		case OnLandResult::Festival:
             propertyCoordinator_->processFestival(p);
