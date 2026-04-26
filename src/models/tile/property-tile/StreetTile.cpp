@@ -94,3 +94,10 @@ int StreetTile::getLevel() const {
 void StreetTile::setLevel(int level) {
     PropertyTile::setLevel(level);
 }
+
+int StreetTile::getRentAtLevel(int level) const {
+    if (rentPricePerLevel_.count(level)) {
+        return rentPricePerLevel_.at(level);
+    }
+    return -1;
+}

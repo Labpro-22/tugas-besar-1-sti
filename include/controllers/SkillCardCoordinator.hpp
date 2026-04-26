@@ -5,6 +5,9 @@
 #include "models/card/skillcard/MoveCard.hpp"
 #include "models/card/skillcard/SkillCard.hpp"
 #include "models/card/skillcard/TeleportCard.hpp"
+#include "models/card/skillcard/ShieldCard.hpp"
+#include "models/card/skillcard/DemolitionCard.hpp"
+#include "models/card/skillcard/DiscountCard.hpp"
 #include "models/player/Player.hpp"
 #include "views/CommandInterface.hpp"
 #include "views/GameViewInterface.hpp"
@@ -16,7 +19,7 @@ class SkillCardCoordinator {
                             CommandInterface& command);
 
         void processPickAndDropSkillCard(Player& player);
-        void processSkillCardUse(Player& player, bool& hasUsedSkillCardThisTurn);
+        std::unique_ptr<SkillCard> processSkillCardUse(Player& player, bool& hasUsedSkillCardThisTurn);
 
     private:
         Deck<SkillCard>& skillCardDeck_;

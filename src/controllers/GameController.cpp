@@ -10,6 +10,8 @@
 #include "models/tile/property_tile/UtilityTile.hpp"
 
 #include <map>
+#include <iomanip>
+#include <sstream>
 #include <utility>
 
 GameController::GameController(std::vector<std::unique_ptr<Player>> players,
@@ -19,21 +21,25 @@ GameController::GameController(std::vector<std::unique_ptr<Player>> players,
     view_(view), command_(command), players_(std::move(players)), auction_(players_, view_),
     auctionCoordinator_(std::make_unique<AuctionCoordinator>(players_, view_, command_)),
     skillCardCoordinator_(std::make_unique<SkillCardCoordinator>(specialCardDeck_, view_, command_)),
-    propertyCoordinator_(std::make_unique<PropertyCoordinator>(players_, board_, dice_, view_, command_)){}
+    propertyCoordinator_(std::make_unique<PropertyCoordinator>(players_, board_, dice_, view_, command_)) {}
 
 GameController::~GameController() = default;
 
+void GameController::setCurrentTurn(int latestTurn) {
+    currentTurn_ = latestTurn;
+}
 
 // TERKAIT LOGIC GAME SECARA UMUM =========================================================================================================
 void GameController::playGame(int latestTurn, int maxTurn) {
-    int i = latestTurn;
-    while ((i < maxTurn || maxTurn == -1) && !hasSoleWinner()) {
+    currentTurn_ = latestTurn;
+    transactionLog_.clear();
+    while ((currentTurn_ <= maxTurn || maxTurn == -1) && !hasSoleWinner()) {
         for (auto& player : players_) {
             if (!player->isBankrupt()) {
                 processTurn(*player);
             }
         }
-        i++;
+        currentTurn_++;
     }
     decideWinner();
 }
@@ -54,6 +60,7 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
                 if (goTile != nullptr) {
                     p.addMoney(goTile->getSalary());
                     view_.showMessage("Melewati GO: menerima salary sebesar " + std::to_string(goTile->getSalary()) + "\n");
+                    addTransactionLog(p.getUsername(), "GO", "Melewati START dan menerima M" + std::to_string(goTile->getSalary()));
                 }
             } catch (...) {
             }
@@ -61,6 +68,7 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
     }
 
     p.setPosition(board_.getTileIndexByCode(nextTile.getLetterCode()));
+    addTransactionLog(p.getUsername(), "PINDAH", "Mendarat di " + nextTile.getTileName() + " (" + nextTile.getLetterCode() + ")");
     OnLandResult result = nextTile.onLand(p, command_, view_);
 
         switch (result) {
@@ -107,6 +115,88 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
 		default:
 			break;
 	}
+}
+
+void GameController::handleSkillCardUsage(Player& p, SkillCard& card) {
+    if (auto* moveCard = dynamic_cast<MoveCard*>(&card)) {
+        executeMoveCard(p, *moveCard);
+    } 
+    else if (dynamic_cast<TeleportCard*>(&card)) {
+        executeTeleportCard(p);
+    } 
+    else if (dynamic_cast<LassoCard*>(&card)) {
+        executeLassoCard(p);
+    }
+    else if (auto* shield = dynamic_cast<ShieldCard*>(&card)) {
+        shield->activate(p); 
+        addTransactionLog(p.getUsername(), "KARTU", "Menggunakan Shield");
+    }
+    else if (auto* discount = dynamic_cast<DiscountCard*>(&card)) {
+        discount->activate(p); 
+        addTransactionLog(p.getUsername(), "KARTU", "Menggunakan Discount");
+    }
+    else if (auto* demo = dynamic_cast<DemolitionCard*>(&card)) {
+        demo->activate(p); 
+        addTransactionLog(p.getUsername(), "KARTU", "Menggunakan Demolition");
+    }
+}
+
+// LOGIKA MOVE CARD
+void GameController::executeMoveCard(Player& p, MoveCard& card) {
+    int steps = card.getSteps();
+    view_.showMessage(p.getUsername() + " menggunakan Move Card untuk maju " + std::to_string(steps) + " langkah.");
+    processMovement(p, steps);
+}
+
+// LOGIKA TELEPORT CARD
+void GameController::executeTeleportCard(Player& p) {
+    int maxIdx = board_.getSize() - 1;
+    int target;
+    view_.showMessage("Masukkan ID petak tujuan (0-" + std::to_string(maxIdx) + "): ");
+    
+    std::cin >> target; 
+
+    if (target >= 0 && target <= maxIdx) {
+        p.setPosition(target);
+        view_.showMessage(p.getUsername() + " teleport ke petak " + std::to_string(target));
+        
+        board_.getCurrentTile(target).onLand(p, command_, view_);
+    } else {
+        view_.showMessage("ID Petak tidak valid.");
+    }
+}
+
+// LOGIKA LASSO CARD
+void GameController::executeLassoCard(Player& owner) {
+    int ownerPos = owner.getPosition();
+    Player* victim = nullptr;
+    int minDistance = 9999;
+    int boardSize = board_.getSize();
+
+    for (auto& pPtr : players_) {
+        Player* candidate = pPtr.get();
+        if (candidate == &owner || candidate->isBankrupt()) continue;
+
+        int dist = (candidate->getPosition() - ownerPos + boardSize) % boardSize;
+        if (dist > 0 && dist < minDistance) {
+            minDistance = dist;
+            victim = candidate;
+        }
+    }
+
+    if (victim) {
+        view_.showMessage(owner.getUsername() + " menarik " + victim->getUsername() + " ke petak " + std::to_string(ownerPos) + "\n");
+        victim->setPosition(ownerPos);
+        
+        Tile& currentTile = board_.getCurrentTile(ownerPos);
+        OnLandResult res = currentTile.onLand(*victim, command_, view_);
+        
+        if (res == OnLandResult::TriggerTryToPayRent) {
+            propertyCoordinator_->processPayRent(*victim, currentTile);
+        }
+    } else {
+        view_.showMessage("Tidak ada lawan di depan yang bisa ditarik.\n");
+    }
 }
 
 bool GameController::hasSoleWinner() const{
@@ -165,6 +255,7 @@ void GameController::decideWinner() const {
 
 void GameController::processTurn(Player& p) {
     view_.showMessage("\n--- Giliran " + p.getUsername() + " ---");
+    addTransactionLog(p.getUsername(), "TURN", "Mulai giliran");
     bool hasUsedSkillCardThisTurn = false;
     bool hasRolledDiceThisTurn = false;
     bool canRollDice = true;
@@ -191,10 +282,6 @@ bool GameController::processRandomDice(Player& p){
 }
 
 bool GameController::processCustomDice(Player& p, int x, int y){
-	if (x < 1 || x > 6 || y < 1 || y > 6) {
-		view_.showMessage("Nilai dadu harus antara 1 sampai 6.\n");
-		return false;
-	}
 	view_.showMessage("Dadu diatur secara manual.\n");
 	dice_.rollSettingan(x, y);
 	return resolveDiceResult(p, dice_.getDie1(), dice_.getDie2());
@@ -202,11 +289,21 @@ bool GameController::processCustomDice(Player& p, int x, int y){
 
 bool GameController::resolveDiceResult(Player& p, int d1, int d2){
 	int total = d1 + d2;
+    Tile& predictedTile = board_.moveToNextTile(p.move(total));
+    addTransactionLog(
+        p.getUsername(),
+        "DADU",
+        "Lempar: " + std::to_string(d1) + "+" + std::to_string(d2) + "=" + std::to_string(total) +
+        " -> mendarat di " + predictedTile.getTileName() + " (" + predictedTile.getLetterCode() + ")"
+    );
 	view_.showMessage("Hasil: " + std::to_string(d1) + " + " + std::to_string(d2) + " = " + std::to_string(total) + "\n");
+	view_.showMessage("Memajukan Bidak " + p.getUsername() + " sebanyak " + std::to_string(total) +" petakk...\n");
 	if (d1 == d2) {
 		p.incrementDoubleCount();
+        addTransactionLog(p.getUsername(), "DOUBLE", "Mendapat giliran tambahan");
 		if (!p.notViolatingDoubleRollCount()) {
 			view_.showMessage("Triple double! Masuk penjara.\n");
+            addTransactionLog(p.getUsername(), "DOUBLE", "Triple double -> masuk penjara");
 			p.setStatus(Player::PlayerStatus::JAILED);
 			p.resetJailTurn();
 			p.setPosition(board_.getJailPosition());
@@ -299,7 +396,13 @@ bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
                 return true;
             }
 
-            skillCardCoordinator_->processSkillCardUse(p, hasUsedSkillCardThisTurn);
+            addTransactionLog(p.getUsername(), "KARTU", "Menggunakan kartu kemampuan");
+            std::unique_ptr<SkillCard> kartu = skillCardCoordinator_->processSkillCardUse(p, hasUsedSkillCardThisTurn);
+            if (kartu) {
+                addTransactionLog(p.getUsername(), "KARTU", "Menggunakan kartu: " + kartu->getName());
+                this->handleSkillCardUsage(p, *kartu);
+                specialCardDeck_.pushToDiscard(std::move(kartu));
+            }
             return true;
         }
 
@@ -319,17 +422,29 @@ bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
         }
 
         case CommandType::CETAK_PAPAN: {
-            view_.cetakPapan();
+            view_.cetakPapan(p, currentTurn_);
             return true;
         }
 
         case CommandType::CETAK_AKTA: {
-            view_.cetakAkta();
+            view_.showMessage("\nMasukkan kode petak: ");
+            std::string kodePetak;
+            // TODO: inputnya enaknya gimana yah???
+            std::cin >> kodePetak;
+
+            std::cin.ignore(10000, '\n');
+
+            for (char &c : kodePetak) {
+                c = toupper(c);
+            }
+
+            view_.cetakAkta(kodePetak);
+
             return true;
         }
 
         case CommandType::CETAK_PROPERTI: {
-            view_.cetakProperti();
+            view_.cetakProperti(&p);
             return true;
         }
 
@@ -340,6 +455,20 @@ bool GameController::processNormalTurn(Player& p, bool& hasUsedSkillCardThisTurn
 
         case CommandType::POSITION: {
             showPosition(p);
+            return true;
+        }
+
+        case CommandType::CETAK_LOG: {
+            if (cmd.getArgCount() == 0) {
+                printTransactionLog();
+            } else {
+                int n = cmd.getArg(0);
+                if (n <= 0) {
+                    view_.showMessage("Argumen CETAK_LOG harus > 0. Contoh: CETAK_LOG 5\n");
+                } else {
+                    printTransactionLog(n);
+                }
+            }
             return true;
         }
 
@@ -512,7 +641,11 @@ bool GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, 
                 return true;
             }
 
-            skillCardCoordinator_->processSkillCardUse(p, hasUsedSkillCardThisTurn);
+            std::unique_ptr<SkillCard> kartu = skillCardCoordinator_->processSkillCardUse(p, hasUsedSkillCardThisTurn);
+            if (kartu) {
+                this->handleSkillCardUsage(p, *kartu);
+                specialCardDeck_.pushToDiscard(std::move(kartu));
+            }
             return true;
         }
 
@@ -523,6 +656,20 @@ bool GameController::processJailTurn(Player& p, bool& hasUsedSkillCardThisTurn, 
 
         case CommandType::POSITION: {
             showPosition(p);
+            return true;
+        }
+
+        case CommandType::CETAK_LOG: {
+            if (cmd.getArgCount() == 0) {
+                printTransactionLog();
+            } else {
+                int n = cmd.getArg(0);
+                if (n <= 0) {
+                    view_.showMessage("Argumen CETAK_LOG harus > 0. Contoh: CETAK_LOG 5\n");
+                } else {
+                    printTransactionLog(n);
+                }
+            }
             return true;
         }
 
@@ -659,5 +806,38 @@ void GameController::showInventory(Player& p) {
 void GameController::processEndTurn(Player& p) {
     p.resetCountDouble();
     view_.showMessage("Turn " + p.getUsername() + " selesai.\n");
+    addTransactionLog(p.getUsername(), "TURN", "Selesai giliran");
+}
+
+void GameController::addTransactionLog(const std::string& username, const std::string& action, const std::string& detail) {
+    std::ostringstream oss;
+    oss << "[Turn " << currentTurn_ << "] "
+        << username << " | "
+        << std::left << std::setw(8) << action << " | "
+        << detail;
+    transactionLog_.push_back(oss.str());
+}
+
+void GameController::printTransactionLog(int lastN) {
+    if (lastN > 0) {
+        view_.showMessage("\n=== Log Transaksi (" + std::to_string(lastN) + " Terakhir) ===\n\n");
+    } else {
+        view_.showMessage("\n=== Log Transaksi Penuh ===\n\n");
+    }
+
+    if (transactionLog_.empty()) {
+        view_.showMessage("Belum ada transaksi tercatat.\n\n");
+        return;
+    }
+
+    size_t startIdx = 0;
+    if (lastN > 0 && static_cast<size_t>(lastN) < transactionLog_.size()) {
+        startIdx = transactionLog_.size() - static_cast<size_t>(lastN);
+    }
+
+    for (size_t i = startIdx; i < transactionLog_.size(); ++i) {
+        view_.showMessage(transactionLog_[i] + "\n");
+    }
+    view_.showMessage("\n");
 }
 

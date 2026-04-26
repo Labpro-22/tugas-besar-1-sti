@@ -21,7 +21,7 @@ class GameViewInterface {
         virtual void setBoardContext(Board*) {}
 
         // Kasih tunjuk boardnya
-        virtual void cetakPapan() {}
+        virtual void cetakPapan(Player& p, int currentTurn) {}
 
         // Kasih pesan ketika roll dice
         // Kasih pesan mendaratnya
@@ -30,10 +30,10 @@ class GameViewInterface {
         // roll settingan
         virtual void aturDadu() {}
 
-        virtual void cetakAkta() {}
+        virtual void cetakAkta(const std::string& kodePetak) {}
 
         // cetak properti
-        virtual void cetakProperti() {}
+        virtual void cetakProperti(Player* player) {}
 
         // kasih lihat mo beli
         virtual bool beliProperti() { return false; }

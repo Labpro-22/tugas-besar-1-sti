@@ -9,6 +9,7 @@
 class Board
 {
     private:
+        static int activeBoardSize_;
         // perlu simpan size ga :/
         int size_; // default
         int jailPosition_;
@@ -28,6 +29,7 @@ class Board
         Tile& getTileByCode(const std::string& code);
         int getTileIndexByCode(const std::string& code) const;
         int getSize() const;
+        static int getActiveBoardSize();
         bool has(std::string code);
 
 
@@ -39,7 +41,6 @@ class Board
         void setStartPosition(int pos);
         std::map<std::string, size_t> getCountTilesForEachColourBlock() const;
         void addCountTilesForEachColourBlock();
-
 };
 
 

@@ -30,10 +30,12 @@ class GameController {
             CommandInterface& command, Deck<SkillCard>& specialCardDeck_);
         ~GameController();
 
+        void setCurrentTurn(int latestTurn);
         void playGame(int latesTurn, int maxTurn);
     private:
         // Deck<SpecialCard>...
         Deck<SkillCard>& specialCardDeck_;
+        std::vector<std::string> transactionLog_;
         Board& board_;
         Dice& dice_;
         GameViewInterface& view_;
@@ -44,6 +46,7 @@ class GameController {
         std::unique_ptr<SkillCardCoordinator> skillCardCoordinator_;
         std::unique_ptr<PropertyCoordinator> propertyCoordinator_;
 
+        int currentTurn_;
         int goSalary_;
         int jailFine_;
         
@@ -63,5 +66,13 @@ class GameController {
 
         void showInventory(Player& p); // perlu dipindahin si
         void showPosition(Player& p); // perlu dipindahin si
+
+        void handleSkillCardUsage(Player& p, SkillCard& card);
+        void executeMoveCard(Player& p, MoveCard& card);
+        void executeTeleportCard(Player& p);
+        void executeLassoCard(Player& p);
+
+        void addTransactionLog(const std::string& username, const std::string& action, const std::string& detail);
+        void printTransactionLog(int lastN = -1);
 };
 
