@@ -320,7 +320,8 @@ std::vector<Tile*> Reader::readAction()
 
         // TODO: GoSalary masuk ke mana?
         if (letterCode == "GO")       newTile = new GoTile(tileId, letterCode, tileName, goSalary_);
-        else if (letterCode == "DNU") newTile = new CommunityChestTile(tileId, letterCode, tileName);
+        else if (letterCode == "DN1") newTile = new CommunityChestTile(tileId, letterCode, tileName);
+        else if (letterCode == "DN2") newTile = new CommunityChestTile(tileId, letterCode, tileName);
         else if (letterCode == "KSP") newTile = new ChanceTile(tileId, letterCode, tileName);
         else if (letterCode == "PPH") newTile = new IncomeTaxTile(tileId, letterCode, tileName);
         else if (letterCode == "PBM") newTile = new LuxuryGoodsTaxTile(tileId, letterCode, tileName);

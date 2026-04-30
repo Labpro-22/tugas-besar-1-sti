@@ -1,0 +1,121 @@
+4 15
+4
+d 199 PEN JAILED
+3
+ShieldCard
+Demolition Card
+Lasso Card
+c 120 MED ACTIVE
+3
+MoveCard 6
+Lasso Card
+MoveCard 11
+b 780 PLN ACTIVE
+3
+TeleportCard
+Discount Card 61 1
+Discount Card 55 1
+a 850 PEN JAILED
+3
+MoveCard 10
+MoveCard 1
+TeleportCard
+d c b a
+d
+28
+GRT street BANK BANK 1 0 0
+TSK street c OWNED 1 0 0
+GBR railroad BANK BANK 1 0 0
+BGR street b OWNED 1 0 0
+DPK street d OWNED 1 0 0
+BKS street b OWNED 1 0 0
+MGL street c OWNED 1 0 0
+PLN utility b OWNED 1 0 0
+SOL street c OWNED 1 0 0
+YOG street BANK BANK 1 0 0
+STB railroad BANK BANK 1 0 0
+MAL street BANK BANK 1 0 0
+SMG street BANK BANK 1 0 0
+SBY street BANK BANK 1 0 0
+MKS street BANK BANK 1 0 0
+BLP street BANK BANK 1 0 0
+MND street BANK BANK 1 0 0
+TUG railroad BANK BANK 1 0 0
+PLB street c OWNED 1 0 0
+PKB street d OWNED 1 0 0
+PAM utility BANK BANK 1 0 0
+MED street c OWNED 1 0 0
+BDG street BANK BANK 1 0 0
+DEN street BANK BANK 1 0 0
+MTR street BANK BANK 1 0 0
+GUB railroad BANK BANK 1 0 0
+JKT street BANK BANK 1 0 0
+IKN street BANK BANK 1 0 0
+1
+Discount Card
+65
+[Turn 1] d | TURN     | Mulai giliran
+[Turn 1] d | DADU     | Lempar: 4+4=8 -> mendarat di DEPOK (DPK)
+[Turn 1] d | DOUBLE   | Mendapat giliran tambahan
+[Turn 1] d | PINDAH   | Mendarat di DEPOK (DPK)
+[Turn 1] d | DADU     | Lempar: 4+5=9 -> mendarat di Dana_Umum (DN2)
+[Turn 1] d | PINDAH   | Mendarat di Dana_Umum (DN2)
+[Turn 1] d | TURN     | Selesai giliran
+[Turn 1] c | TURN     | Mulai giliran
+[Turn 1] c | DADU     | Lempar: 1+2=3 -> mendarat di TASIKMALAYA (TSK)
+[Turn 1] c | PINDAH   | Mendarat di TASIKMALAYA (TSK)
+[Turn 1] c | TURN     | Selesai giliran
+[Turn 1] b | TURN     | Mulai giliran
+[Turn 1] b | DADU     | Lempar: 2+4=6 -> mendarat di BOGOR (BGR)
+[Turn 1] b | PINDAH   | Mendarat di BOGOR (BGR)
+[Turn 1] b | TURN     | Selesai giliran
+[Turn 1] a | TURN     | Mulai giliran
+[Turn 1] a | DADU     | Lempar: 2+2=4 -> mendarat di Pajak_Penghasilan (PPH)
+[Turn 1] a | DOUBLE   | Mendapat giliran tambahan
+[Turn 1] a | PINDAH   | Mendarat di Pajak_Penghasilan (PPH)
+[Turn 1] a | DADU     | Lempar: 3+3=6 -> mendarat di Penjara (PEN)
+[Turn 1] a | DOUBLE   | Mendapat giliran tambahan
+[Turn 1] a | PINDAH   | Mendarat di Penjara (PEN)
+[Turn 1] a | DADU     | Lempar: 4+4=8 -> mendarat di SEMARANG (SMG)
+[Turn 1] a | DOUBLE   | Mendapat giliran tambahan
+[Turn 1] a | DOUBLE   | Triple double -> masuk penjara
+[Turn 2] d | TURN     | Mulai giliran
+[Turn 2] d | DADU     | Lempar: 5+5=10 -> mendarat di PEKANBARU (PKB)
+[Turn 2] d | DOUBLE   | Mendapat giliran tambahan
+[Turn 2] d | PINDAH   | Mendarat di PEKANBARU (PKB)
+[Turn 2] d | DADU     | Lempar: 2+1=3 -> mendarat di Petak_Pergi_ke_Penjara (PPJ)
+[Turn 2] d | PINDAH   | Mendarat di Petak_Pergi_ke_Penjara (PPJ)
+[Turn 2] c | TURN     | Mulai giliran
+[Turn 2] c | DADU     | Lempar: 4+4=8 -> mendarat di MAGELANG (MGL)
+[Turn 2] c | DOUBLE   | Mendapat giliran tambahan
+[Turn 2] c | PINDAH   | Mendarat di MAGELANG (MGL)
+[Turn 2] c | DADU     | Lempar: 1+1=2 -> mendarat di SOLO (SOL)
+[Turn 2] c | DOUBLE   | Mendapat giliran tambahan
+[Turn 2] c | PINDAH   | Mendarat di SOLO (SOL)
+[Turn 2] c | DADU     | Lempar: 1+6=7 -> mendarat di Bebas_Parkir (BBP)
+[Turn 2] c | PINDAH   | Mendarat di Bebas_Parkir (BBP)
+[Turn 2] c | TURN     | Selesai giliran
+[Turn 2] b | TURN     | Mulai giliran
+[Turn 2] b | DADU     | Lempar: 2+1=3 -> mendarat di BEKASI (BKS)
+[Turn 2] b | PINDAH   | Mendarat di BEKASI (BKS)
+[Turn 2] b | TURN     | Selesai giliran
+[Turn 2] a | TURN     | Mulai giliran
+[Turn 2] a | TURN     | Selesai giliran
+[Turn 3] d | TURN     | Mulai giliran
+[Turn 3] d | TURN     | Selesai giliran
+[Turn 3] c | TURN     | Mulai giliran
+[Turn 3] c | DADU     | Lempar: 3+3=6 -> mendarat di PALEMBANG (PLB)
+[Turn 3] c | DOUBLE   | Mendapat giliran tambahan
+[Turn 3] c | PINDAH   | Mendarat di PALEMBANG (PLB)
+[Turn 3] c | DADU     | Lempar: 2+1=3 -> mendarat di MEDAN (MED)
+[Turn 3] c | PINDAH   | Mendarat di MEDAN (MED)
+[Turn 3] c | TURN     | Selesai giliran
+[Turn 3] b | TURN     | Mulai giliran
+[Turn 3] b | DADU     | Lempar: 2+1=3 -> mendarat di PLN (PLN)
+[Turn 3] b | PINDAH   | Mendarat di PLN (PLN)
+[Turn 3] b | TURN     | Selesai giliran
+[Turn 3] a | TURN     | Mulai giliran
+[Turn 3] a | TURN     | Selesai giliran
+[Turn 4] d | TURN     | Mulai giliran
+[Turn 4] d | TURN     | Selesai giliran
+[Turn 4] c | TURN     | Mulai giliran
