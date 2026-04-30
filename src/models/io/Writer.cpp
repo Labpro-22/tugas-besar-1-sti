@@ -28,7 +28,7 @@ std::string Writer::buildPath(const std::string& filename) const {
 
 std::string Writer::playerStatusToString(const Player& player) const {
     if (player.getStatus() == Player::PlayerStatus::BANKRUPT) return "BANKRUPT";
-    if (player.getStatus() == Player::PlayerStatus::JAILED) return "JAILED_" + player.getCountJail();
+    if (player.getStatus() == Player::PlayerStatus::JAILED) return "JAILED_" + std::to_string(player.getCountJail());
     return "ACTIVE";
 }
 

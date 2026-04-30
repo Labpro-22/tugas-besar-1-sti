@@ -531,8 +531,15 @@ void PropertyCoordinator::processBankruptcyFlow(Player& payer, Player& owner, in
         view_.showMessage(payer.getUsername() + " membayar M" + std::to_string(rent) + " kepada " + owner.getUsername() + "\n");
     } else {
         view_.showMessage("Likuidasi gagal. Pemain bangkrut.\n");
-
-        processBankruptcyToPlayer(payer, owner);
+        try
+        {
+            processBankruptcyToPlayer(payer, owner);
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+        
     }
 }
 
@@ -559,7 +566,7 @@ void PropertyCoordinator::processBankruptcyToPlayer(Player& payer, Player& owner
 
     payer.setStatus(Player::PlayerStatus::BANKRUPT);
     view_.showMessage(payer.getUsername() + " bangkrut kepada " + owner.getUsername() + "\n");
-    throw BankruptcyException(payer.getUsername());
+    // throw BankruptcyException(payer.getUsername());
 }
 
 void PropertyCoordinator::processMortgage(Player& player) {

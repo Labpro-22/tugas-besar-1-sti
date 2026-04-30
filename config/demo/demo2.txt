@@ -3,7 +3,7 @@
 d 149 PEN ACTIVE
 2
 ShieldCard
-Demolition Card
+MoveCard 6
 c 120 MED ACTIVE
 2
 MoveCard 6
@@ -11,7 +11,7 @@ MoveCard 11
 b 780 PLN ACTIVE
 1
 TeleportCard
-a 0 PEN JAILED_0
+a 850 PEN JAILED_0
 3
 MoveCard 10
 MoveCard 1
@@ -50,17 +50,17 @@ IKN street BANK BANK 1 0 0
 14
 MoveCard
 Lasso Card
-Discount Card
-MoveCard
-Discount Card
 TeleportCard
+TeleportCard
+MoveCard
 ShieldCard
+Discount Card
+Demolition Card
+Lasso Card
+Discount Card
 ShieldCard
 Demolition Card
-TeleportCard
 Discount Card
-Lasso Card
-MoveCard
 MoveCard
 1
 [Turn 4] d | TURN     | Mulai giliran

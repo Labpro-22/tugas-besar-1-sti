@@ -110,7 +110,7 @@ void GameController::processMovement(Player& p, int firstDisplacement) {
             catch(const CardPaymentFailedException& e) {
                 view_.showMessage(e.getErrorMessage());
                 // proses kebangkrutannya
-                auction_.processBankruptcyToBank(p);
+                auction_.runBankruptcyAuction(p, command_);
             }
 			break;
 		case OnLandResult::Festival:

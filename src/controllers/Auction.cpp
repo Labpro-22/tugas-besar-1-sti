@@ -352,7 +352,6 @@ void Auction::runBankruptcyAuction(Player& bankruptPlayer, CommandInterface& com
 
     if (properties.empty()) {
         view_.showMessage("Pemain tidak memiliki properti untuk dilelang.\n");
-        throw BankruptcyException(bankruptPlayer.getUsername());
     }
 
     view_.showMessage("Seluruh properti dikembalikan ke Bank.\n");
@@ -389,6 +388,7 @@ void Auction::runBankruptcyAuction(Player& bankruptPlayer, CommandInterface& com
     }
 
     view_.showMessage("Permainan berlanjut dengan " + std::to_string(activePlayers) + " pemain tersisa.\n");
+    
 
-    throw BankruptcyException(bankruptPlayer.getUsername());
+    // throw BankruptcyException(bankruptPlayer.getUsername());
 }
